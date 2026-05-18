@@ -17,9 +17,14 @@
 </head>
 <body>
   <div id="root"></div>
-  <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading...</div>
+  <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading React...</div>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" onerror="document.getElementById('msg').textContent='Failed to load React'"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" onerror="document.getElementById('msg').textContent='Failed to load ReactDOM'"></script>
   <script>
-    window.onerror = function(msg, src, line, col, err) {
+  window.onerror = function(msg,src,line,col,err){ document.getElementById('msg').style.display='block'; document.getElementById('msg').innerHTML='<b style=color:red>ERROR:</b> '+msg+' line '+line; };
+  if(typeof React==='undefined'){ document.getElementById('msg').textContent='React not loaded'; }
+  else { document.getElementById('msg').textContent='React OK - starting app...'; }
+  const { useState, useRef, useEffect } = React;
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -1319,15 +1324,9 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: function () { return setEditingMarkId(mark.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
                     React.createElement("button", { onClick: function () { return deleteMark(mark.id); }, style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715"))))); }))))))));
 }
-
-  const root = ReactDOM.createRoot(document.getElementById("root"));
-  document.getElementById("msg").style.display = "none";
-  try {
-    root.render(React.createElement(ArcheryScorer));
-  } catch(e) {
-    document.getElementById("msg").style.display = "block";
-    document.getElementById("msg").innerHTML = "<b style=color:red>ERROR:</b><br>" + e.message;
-  }
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  document.getElementById('msg').style.display = 'none';
+  root.render(React.createElement(ArcheryScorer));
   </script>
 </body>
 </html>
