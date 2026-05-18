@@ -681,7 +681,13 @@ function ArcheryScorer() {
         return distances.length - 1;
     })();
     var scoringSetup = setups.find(function (s) { return s.id === scoringSetupId; }) || null;
-    var getSightMark = function (distLabel) { return (scoringSetup === null || scoringSetup === void 0 ? void 0 : scoringSetup.marks.find(function (m) { return m.distance === distLabel; })) || null; };
+    var getSightMark = function (distLabel) { return scoringSetup ? (scoringSetup.marks.find(function (m) { return m.distance === distLabel; }) || null) : null; };
+    // Auto-select first setup if we have setups but none selected
+    useEffect(function () {
+        if (setups.length > 0 && !scoringSetupId) {
+            updateScoringSetup(setups[0].id);
+        }
+    }, [setups.length]);
     var distScore = function (di) {
         if (!distances)
             return 0;
