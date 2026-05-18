@@ -1,0 +1,1725 @@
+import { useState, useRef, useEffect } from "react";
+
+// ─── Round definitions ────────────────────────────────────────────────────────
+// imperial: true  → 5-zone scoring (9,7,5,3,1), no X ring, max arrow = 9
+// imperial: false → 10-zone scoring (X,10..1),   X ring,    max arrow = 10
+
+const ROUND_GROUPS = {
+  "WA / Metric Outdoor": {
+    "WA 1440 (90m)":      { ends: 24, arrowsPerEnd: 6, imperial: false },
+    "WA 1440 (70m)":      { ends: 24, arrowsPerEnd: 6, imperial: false },
+    "WA 900":             { ends: 15, arrowsPerEnd: 6, imperial: false },
+    "WA 70m":             { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "WA 60m":             { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "WA 50m":             { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "WA Standard Bow":    { ends: 18, arrowsPerEnd: 6, imperial: false },
+    "Metric I":           { ends: 24, arrowsPerEnd: 6, imperial: false },
+    "Metric II":          { ends: 24, arrowsPerEnd: 6, imperial: false },
+    "Metric III":         { ends: 24, arrowsPerEnd: 6, imperial: false },
+    "Metric IV":          { ends: 24, arrowsPerEnd: 6, imperial: false },
+    "Metric V":           { ends: 24, arrowsPerEnd: 6, imperial: false },
+    "Long Metric (Men)":  { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Long Metric (Women)":{ ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Long Metric I":      { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Long Metric II":     { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Long Metric III":    { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Long Metric IV":     { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Long Metric V":      { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Short Metric":       { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Short Metric II":    { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Short Metric III":   { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Short Metric IV":    { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Short Metric V":     { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Metric 122-50":      { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Metric 122-40":      { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Metric 122-30":      { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Metric 80-40":       { ends: 12, arrowsPerEnd: 6, imperial: false },
+    "Metric 80-30":       { ends: 12, arrowsPerEnd: 6, imperial: false },
+  },
+  "Imperial Outdoor": {
+    "York":         { ends: 24, arrowsPerEnd: 6, imperial: true, distances: [{label:"100 yds",ends:12},{label:"80 yds",ends:8},{label:"60 yds",ends:4}] },
+    "Hereford":     { ends: 24, arrowsPerEnd: 6, imperial: true, distances: [{label:"80 yds",ends:12},{label:"60 yds",ends:8},{label:"50 yds",ends:4}] },
+    "Bristol I":    { ends: 24, arrowsPerEnd: 6, imperial: true, distances: [{label:"80 yds",ends:12},{label:"60 yds",ends:8},{label:"50 yds",ends:4}] },
+    "Bristol II":   { ends: 24, arrowsPerEnd: 6, imperial: true, distances: [{label:"60 yds",ends:12},{label:"50 yds",ends:8},{label:"40 yds",ends:4}] },
+    "Bristol III":  { ends: 24, arrowsPerEnd: 6, imperial: true, distances: [{label:"50 yds",ends:12},{label:"40 yds",ends:8},{label:"30 yds",ends:4}] },
+    "Bristol IV":   { ends: 24, arrowsPerEnd: 6, imperial: true, distances: [{label:"40 yds",ends:12},{label:"30 yds",ends:8},{label:"20 yds",ends:4}] },
+    "Bristol V":    { ends: 24, arrowsPerEnd: 6, imperial: true, distances: [{label:"30 yds",ends:12},{label:"20 yds",ends:8},{label:"10 yds",ends:4}] },
+    "St. George":   { ends: 18, arrowsPerEnd: 6, imperial: true, distances: [{label:"100 yds",ends:6},{label:"80 yds",ends:6},{label:"60 yds",ends:6}] },
+    "Albion":       { ends: 18, arrowsPerEnd: 6, imperial: true, distances: [{label:"80 yds",ends:6},{label:"60 yds",ends:6},{label:"50 yds",ends:6}] },
+    "Windsor":      { ends: 18, arrowsPerEnd: 6, imperial: true, distances: [{label:"60 yds",ends:6},{label:"50 yds",ends:6},{label:"40 yds",ends:6}] },
+    "Windsor 50":   { ends: 18, arrowsPerEnd: 6, imperial: true, distances: [{label:"50 yds",ends:6},{label:"40 yds",ends:6},{label:"30 yds",ends:6}] },
+    "Windsor 40":   { ends: 18, arrowsPerEnd: 6, imperial: true, distances: [{label:"40 yds",ends:6},{label:"30 yds",ends:6},{label:"20 yds",ends:6}] },
+    "Windsor 30":   { ends: 18, arrowsPerEnd: 6, imperial: true, distances: [{label:"30 yds",ends:6},{label:"20 yds",ends:6},{label:"10 yds",ends:6}] },
+    "New Western":  { ends: 16, arrowsPerEnd: 6, imperial: true, distances: [{label:"100 yds",ends:8},{label:"80 yds",ends:8}] },
+    "Long Western": { ends: 16, arrowsPerEnd: 6, imperial: true, distances: [{label:"80 yds",ends:8},{label:"60 yds",ends:8}] },
+    "Western":      { ends: 16, arrowsPerEnd: 6, imperial: true, distances: [{label:"60 yds",ends:8},{label:"50 yds",ends:8}] },
+    "Western 50":   { ends: 16, arrowsPerEnd: 6, imperial: true, distances: [{label:"50 yds",ends:8},{label:"40 yds",ends:8}] },
+    "Western 40":   { ends: 16, arrowsPerEnd: 6, imperial: true, distances: [{label:"40 yds",ends:8},{label:"30 yds",ends:8}] },
+    "Western 30":   { ends: 16, arrowsPerEnd: 6, imperial: true, distances: [{label:"30 yds",ends:8},{label:"20 yds",ends:8}] },
+    "American":     { ends: 15, arrowsPerEnd: 6, imperial: true, distances: [{label:"60 yds",ends:5},{label:"50 yds",ends:5},{label:"40 yds",ends:5}] },
+    "St. Nicholas": { ends: 14, arrowsPerEnd: 6, imperial: true, distances: [{label:"40 yds",ends:8},{label:"30 yds",ends:6}] },
+    "New National": { ends: 12, arrowsPerEnd: 6, imperial: true, distances: [{label:"100 yds",ends:8},{label:"80 yds",ends:4}] },
+    "Long National":{ ends: 12, arrowsPerEnd: 6, imperial: true, distances: [{label:"80 yds",ends:8},{label:"60 yds",ends:4}] },
+    "National":     { ends: 12, arrowsPerEnd: 6, imperial: true, distances: [{label:"60 yds",ends:8},{label:"50 yds",ends:4}] },
+    "National 50":  { ends: 12, arrowsPerEnd: 6, imperial: true, distances: [{label:"50 yds",ends:8},{label:"40 yds",ends:4}] },
+    "National 40":  { ends: 12, arrowsPerEnd: 6, imperial: true, distances: [{label:"40 yds",ends:8},{label:"30 yds",ends:4}] },
+    "National 30":  { ends: 12, arrowsPerEnd: 6, imperial: true, distances: [{label:"30 yds",ends:8},{label:"20 yds",ends:4}] },
+    "New Warwick":  { ends: 8,  arrowsPerEnd: 6, imperial: true, distances: [{label:"100 yds",ends:4},{label:"80 yds",ends:4}] },
+    "Long Warwick": { ends: 8,  arrowsPerEnd: 6, imperial: true, distances: [{label:"80 yds",ends:4},{label:"60 yds",ends:4}] },
+    "Warwick":      { ends: 8,  arrowsPerEnd: 6, imperial: true, distances: [{label:"60 yds",ends:4},{label:"50 yds",ends:4}] },
+    "Warwick 50":   { ends: 8,  arrowsPerEnd: 6, imperial: true, distances: [{label:"50 yds",ends:4},{label:"40 yds",ends:4}] },
+    "Warwick 40":   { ends: 8,  arrowsPerEnd: 6, imperial: true, distances: [{label:"40 yds",ends:4},{label:"30 yds",ends:4}] },
+    "Warwick 30":   { ends: 8,  arrowsPerEnd: 6, imperial: true, distances: [{label:"30 yds",ends:4},{label:"20 yds",ends:4}] },
+  },
+  "Indoor": {
+    "Portsmouth":         { ends: 20, arrowsPerEnd: 3, imperial: false },
+    "WA 18m":             { ends: 20, arrowsPerEnd: 3, imperial: false },
+    "WA 25m":             { ends: 20, arrowsPerEnd: 3, imperial: false },
+    "WA 18/25 Combined":  { ends: 40, arrowsPerEnd: 3, imperial: false },
+    "Vegas 300":          { ends: 20, arrowsPerEnd: 3, imperial: false },
+    "Stafford":           { ends: 24, arrowsPerEnd: 3, imperial: false },
+    "Bray I":             { ends: 10, arrowsPerEnd: 3, imperial: false },
+    "Bray II":            { ends: 10, arrowsPerEnd: 3, imperial: false },
+    "Worcester":          { ends: 12, arrowsPerEnd: 5, imperial: false, worcester: true },
+  },
+};
+
+const ROUNDS = Object.values(ROUND_GROUPS).reduce((acc, g) => ({ ...acc, ...g }), {});
+
+// ─── Scoring helpers ──────────────────────────────────────────────────────────
+
+const IMPERIAL_VALUES  = ["9", "7", "5", "3", "1", "M"];
+const METRIC_VALUES    = ["X", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "M"];
+const WORCESTER_VALUES = ["5", "4", "3", "2", "1", "M"];
+
+const getArrowValues = (roundName) => {
+  if (roundName === "Worcester") return WORCESTER_VALUES;
+  return ROUNDS[roundName]?.imperial ? IMPERIAL_VALUES : METRIC_VALUES;
+};
+
+const arrowToScore = (v) => {
+  if (v === "X") return 10;
+  if (v === "M") return 0;
+  return parseInt(v, 10);
+};
+
+const maxRoundScore = (roundName) => {
+  const r = ROUNDS[roundName];
+  if (roundName === "Worcester") return r.ends * r.arrowsPerEnd * 5;
+  return r.ends * r.arrowsPerEnd * (r.imperial ? 9 : 10);
+};
+
+// ─── Colours ─────────────────────────────────────────────────────────────────
+
+const arrowBg = (v, isImperial) => {
+  if (v === "M") return "#2a2d38";
+  const n = arrowToScore(v);
+  if (isImperial) {
+    if (n === 9) return "#ffd700";
+    if (n === 7) return "#e74c3c";
+    if (n === 5) return "#3498db";
+    if (n === 3) return "#333";
+    if (n === 1) return "#e8e8e0";
+  } else {
+    if (v === "X") return "#fff176";
+    if (n === 10) return "#ffd700";
+    if (n === 9)  return "#f5c800";
+    if (n >= 7)   return "#e74c3c";
+    if (n >= 5)   return "#3498db";
+    if (n >= 3)   return "#333";
+    if (n >= 1)   return "#e8e8e0";
+  }
+  return "#444";
+};
+
+const arrowText = (v, isImperial) => {
+  if (!v || v === "M") return "#666";
+  const n = arrowToScore(v);
+  if (isImperial) {
+    return (n === 9 || n === 1) ? "#1a1a1a" : "#fff";
+  } else {
+    if (v === "X" || n >= 9) return "#1a1a1a";
+    if (n >= 3) return "#fff";
+    return "#1a1a1a";
+  }
+};
+
+// ─── Persistence ─────────────────────────────────────────────────────────────
+
+const STORAGE_KEY = "archery_history_v2";
+const loadHistory = () => { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; } };
+const saveHistory = (h) => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(h)); } catch {} };
+
+const SIGHTS_KEY = "archery_sights_v1";
+const loadSights = () => { try { return JSON.parse(localStorage.getItem(SIGHTS_KEY)) || []; } catch { return []; } };
+const saveSights = (s) => { try { localStorage.setItem(SIGHTS_KEY, JSON.stringify(s)); } catch {} };
+
+const IMPERIAL_DISTANCES = ["10 yds", "20 yds", "30 yds", "40 yds", "50 yds", "60 yds", "80 yds", "100 yds"];
+const METRIC_DISTANCES   = ["18 m", "20 m", "25 m", "30 m", "40 m", "50 m", "60 m", "70 m", "80 m", "90 m"];
+const ALL_DISTANCES      = [...IMPERIAL_DISTANCES, ...METRIC_DISTANCES];
+
+// ─── Target Face Component ────────────────────────────────────────────────────
+
+function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo, arrows = [], readOnlyHits }) {
+  const [hits, setHits]       = useState([]);
+  const [lastHit, setLastHit] = useState(null);
+  const [zoom, setZoom]       = useState(1.4);
+  const [pan, setPan]         = useState({ x: 0, y: 0 });
+  const pinchRef              = useRef(null);
+  const dragRef               = useRef(null);
+  const containerRef          = useRef(null);
+
+  // In read-only mode, display the stored hits directly
+  const displayHits = readOnlyHits || hits;
+
+  // Sync hits count with arrows (handles undo)
+  useEffect(() => {
+    setHits(prev => prev.slice(0, arrows.length));
+  }, [arrows.length]);
+
+  // High-res viewBox
+  // Zone fractions are relative to the COLOURED face radius (black outer = 1.0).
+  // White zones (1+2) render as the white square background — not as rings inside VR.
+  // This makes all coloured rings equal width and gold look correct relative to red.
+  //
+  // Real 122cm face: 10 equal rings of 6.1cm each.
+  // Coloured rings start at ring 3 (black). Coloured radius = 8 rings × 6.1 = 48.8cm.
+  // As fractions of coloured radius (48.8cm):
+  //   3-ring outer = 48.8/48.8 = 1.000
+  //   4-ring outer = 42.7/48.8 = 0.875  → simplified to equal bands: 1.000
+  //   Each colour band (2 rings) = 2/8 = 0.25 of coloured radius
+  //   So: black outer=1.0, blue outer=0.75, red outer=0.50, gold outer=0.25
+  //   10-ring = 0.125, X = 0.0625
+  const VSIZE = 1000;
+  const VCX   = VSIZE / 2;
+  const VCY   = VSIZE / 2;
+  const VR    = 500; // full target fills the square — each ring = 50 units = 10% of radius
+  const SIZE  = 300;
+
+  // ── Zone definitions ──────────────────────────────────────────────────────
+  // Ring N outer boundary = (10-N+1) × 0.1. So ring 1 outer=1.0, ring 9 outer=0.2, ring 10 outer=0.1.
+  // Drawing: one filled circle per COLOUR CHANGE, drawn largest→smallest.
+  //   White circle r=0.90 (rings 1+2), Black r=0.70, Blue r=0.50, Red r=0.40 (NOT 0.30),
+  //   Gold r=0.20 overwrites red → red visible 0.20→0.40 = two rings wide ✓
+  // Ring LINES drawn at every 0.10 boundary.
+  const colourFills = [
+    { r: 1.00, fill: "#ffffff" },
+    { r: 0.80, fill: "#1c1c1c" },
+    { r: 0.60, fill: "#45c0e8" },
+    { r: 0.40, fill: "#e83820" },
+    { r: 0.20, fill: "#f5e018" }, // gold fills from here to centre
+  ];
+  // Ring boundary lines at every scoring boundary
+  const ringLines = [
+    { r: 1.00, stroke: "#bbb",    sw: 2   },
+    { r: 0.90, stroke: "#bbb",    sw: 1.5 },
+    { r: 0.80, stroke: "#000",    sw: 3   },
+    { r: 0.70, stroke: "#555",    sw: 1.5 },
+    { r: 0.60, stroke: "#000",    sw: 3   },
+    { r: 0.50, stroke: "#2090b0", sw: 1.5 },
+    { r: 0.40, stroke: "#000",    sw: 3   },
+    { r: 0.30, stroke: "#b82010", sw: 1.5 },
+    { r: 0.20, stroke: "#000",    sw: 3   },
+    { r: 0.10, stroke: "#c8b800", sw: 1.5 },
+    { r: 0.05, stroke: "#c8b800", sw: 1   },  // X outer — thin, not bold
+  ];
+  // zones10: r=outer boundary, inner=inner boundary of that ring
+  const zones10 = [
+    { r: 1.00, inner: 0.90, score: "1"  },
+    { r: 0.90, inner: 0.80, score: "2"  },
+    { r: 0.80, inner: 0.70, score: "3"  },
+    { r: 0.70, inner: 0.60, score: "4"  },
+    { r: 0.60, inner: 0.50, score: "5"  },
+    { r: 0.50, inner: 0.40, score: "6"  },
+    { r: 0.40, inner: 0.30, score: "7"  },
+    { r: 0.30, inner: 0.20, score: "8"  },
+    { r: 0.20, inner: 0.10, score: "9"  },
+    { r: 0.10, inner: 0.05, score: "10" },
+    { r: 0.05, inner: 0.025,score: "X"  },
+  ];
+  const whiteR = 0.90;
+
+  // Imperial colour fills — same structure
+  const zones5colours = [
+    { r: 1.00, fill: "#ffffff" }, // white (outer=1.0)
+    { r: 0.80, fill: "#1c1c1c" }, // black (outer=0.80)
+    { r: 0.60, fill: "#45c0e8" }, // blue  (outer=0.60)
+    { r: 0.40, fill: "#e83820" }, // red   (outer=0.40)
+    { r: 0.20, fill: "#f5e018" }, // gold  (outer=0.20)
+  ];
+  const imp5boundaries = [1.00, 0.80, 0.60, 0.40, 0.20];
+  const imp10rings = [1.00, 0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10, 0.05];
+  const imp5labels = [
+    { r: 1.00, inner: 0.80, score: "1" },
+    { r: 0.80, inner: 0.60, score: "3" },
+    { r: 0.60, inner: 0.40, score: "5" },
+    { r: 0.40, inner: 0.20, score: "7" },
+    { r: 0.20, inner: 0.00, score: "9" },
+  ];
+
+  // Worcester: 5 equal bands each 0.20 of radius. Centre=white (5), 4 black bands (4,3,2,1).
+  // Scores 5→1 from centre outward. Black background beyond scoring area.
+  // Each band width = 4.064cm on a 20.32cm radius face = exactly 0.20 of radius.
+  const zonesWorcester = [
+    { r: 1.00, score: "1", fill: "#111111", stroke: "#333", sw: 1 }, // black band 1 (outermost)
+    { r: 0.80, score: "2", fill: "#111111", stroke: "#fff", sw: 1 }, // black band 2
+    { r: 0.60, score: "3", fill: "#111111", stroke: "#fff", sw: 1 }, // black band 3
+    { r: 0.40, score: "4", fill: "#111111", stroke: "#fff", sw: 1 }, // black band 4 (innermost black)
+    { r: 0.20, score: "5", fill: "#f0ece0", stroke: "#fff", sw: 1 }, // white centre (scores 5)
+  ];
+
+  // Scoring: each zone scores when d <= its OUTER boundary.
+  // Array ordered innermost→outermost. Loop finds smallest r that contains the tap.
+  const scoringZones = isWorcester
+    ? [{ r: 0.20, score: "5" }, { r: 0.40, score: "4" }, { r: 0.60, score: "3" }, { r: 0.80, score: "2" }, { r: 1.00, score: "1" }, { r: 99, score: "M" }]
+    : isImperial
+      ? [{ r: 0.20, score: "9" }, { r: 0.40, score: "7" }, { r: 0.60, score: "5" }, { r: 0.80, score: "3" }, { r: 1.00, score: "1" }, { r: 99, score: "M" }]
+      : [{ r: 0.025, score: "X" }, { r: 0.05, score: "10" }, { r: 0.10, score: "9" }, { r: 0.20, score: "8" }, { r: 0.30, score: "7" }, { r: 0.40, score: "6" }, { r: 0.50, score: "5" }, { r: 0.60, score: "4" }, { r: 0.70, score: "3" }, { r: 0.80, score: "2" }, { r: 0.90, score: "1" }, { r: 99, score: "M" }];
+
+  function scoreAt(vx, vy) {
+    const d = Math.sqrt((vx - VCX) ** 2 + (vy - VCY) ** 2) / VR;
+    for (const zone of scoringZones) {
+      if (d <= zone.r) return zone.score;
+    }
+    return "M";
+  }
+
+  // ── Coordinate conversion: DOM client → viewBox ───────────────────────────
+  // Container is SIZE×SIZE square. SVG has viewBox 0 0 VSIZE VSIZE.
+  // CSS transform: translate(pan.x, pan.y) scale(zoom), origin = centre.
+  function clientToVB(clientX, clientY) {
+    const rect = containerRef.current.getBoundingClientRect();
+    const dx   = clientX - (rect.left + SIZE / 2);
+    const dy   = clientY - (rect.top  + SIZE / 2);
+    const vx   = ((dx - pan.x) / zoom) / SIZE * VSIZE + VCX;
+    const vy   = ((dy - pan.y) / zoom) / SIZE * VSIZE + VCY;
+    return { vx, vy };
+  }
+
+  // ── Pan clamp — allow target to move freely within ~1 radius of centre ────
+  function clampPan(x, y, z) {
+    const limit = SIZE * 0.5 * (z - 1.4) + SIZE * 0.45;
+    return { x: Math.max(-limit, Math.min(limit, x)), y: Math.max(-limit, Math.min(limit, y)) };
+  }
+
+  // ── Touch handlers ────────────────────────────────────────────────────────
+  function handleTouchStart(e) {
+    e.preventDefault();
+    if (e.touches.length === 2) {
+      dragRef.current = null;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      pinchRef.current = { dist: Math.sqrt(dx*dx+dy*dy), zoom, pan: {...pan} };
+    } else if (e.touches.length === 1 && !pinchRef.current) {
+      dragRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, pan: {...pan}, moved: false };
+    }
+  }
+
+  function handleTouchMove(e) {
+    e.preventDefault();
+    if (e.touches.length === 2 && pinchRef.current) {
+      const dx   = e.touches[0].clientX - e.touches[1].clientX;
+      const dy   = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      const newZ = Math.min(20, Math.max(1.4, pinchRef.current.zoom * dist / pinchRef.current.dist));
+      if (newZ <= 1.4) { setZoom(1.4); setPan({x:0,y:0}); return; }
+      const rect = containerRef.current.getBoundingClientRect();
+      const midX = (e.touches[0].clientX+e.touches[1].clientX)/2 - rect.left - SIZE/2;
+      const midY = (e.touches[0].clientY+e.touches[1].clientY)/2 - rect.top  - SIZE/2;
+      const dz   = newZ - pinchRef.current.zoom;
+      setZoom(newZ);
+      setPan(clampPan(pinchRef.current.pan.x + midX*dz*0.5, pinchRef.current.pan.y + midY*dz*0.5, newZ));
+    } else if (e.touches.length === 1 && dragRef.current) {
+      const dx = e.touches[0].clientX - dragRef.current.x;
+      const dy = e.touches[0].clientY - dragRef.current.y;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) dragRef.current.moved = true;
+      if (dragRef.current.moved) setPan(clampPan(dragRef.current.pan.x+dx, dragRef.current.pan.y+dy, zoom));
+    }
+  }
+
+  function handleTouchEnd(e) {
+    e.preventDefault();
+    if (e.touches.length < 2) pinchRef.current = null;
+    if (e.touches.length === 0 && e.changedTouches.length === 1 && !pinchRef.current && dragRef.current && !dragRef.current.moved && !disabled) {
+      const t = e.changedTouches[0];
+      registerScore(t.clientX, t.clientY);
+    }
+    if (e.touches.length === 0) dragRef.current = null;
+  }
+
+  function handleClick(e) {
+    if (disabled) return;
+    registerScore(e.clientX, e.clientY);
+  }
+
+  function registerScore(clientX, clientY) {
+    const { vx, vy } = clientToVB(clientX, clientY);
+    const score = scoreAt(vx, vy);
+    setLastHit({ vx, vy });
+    setHits(prev => [...prev, { vx, vy, score }]);
+    setTimeout(() => setLastHit(null), 500);
+    onScore(score);
+    if (onHit) onHit({ vx, vy, score });
+  }
+
+  // Sync hits with arrows length (undo support)
+  useEffect(() => {
+    setHits(prev => {
+      if (prev.length > arrows.length) {
+        if (onUndo) onUndo();
+        return prev.slice(0, arrows.length);
+      }
+      return prev;
+    });
+  }, [arrows.length]);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    el.addEventListener("touchstart", handleTouchStart, { passive: false });
+    el.addEventListener("touchmove",  handleTouchMove,  { passive: false });
+    el.addEventListener("touchend",   handleTouchEnd,   { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", handleTouchStart);
+      el.removeEventListener("touchmove",  handleTouchMove);
+      el.removeEventListener("touchend",   handleTouchEnd);
+    };
+  });
+
+  // ── Marker sizing — fixed physical size regardless of zoom ────────────────
+  // MR in viewBox units; dividing by zoom keeps it constant in screen pixels
+  const MR_BASE = VR * 0.018; // base marker radius at zoom=1
+  const MR      = MR_BASE / zoom;
+
+  const markerFill   = (score) => {
+    if (score === "M") return "#666";
+    const n = score === "X" ? 10 : parseInt(score, 10);
+    if (n >= 9) return "#111";   // dark on yellow
+    if (n >= 7) return "#fff";   // white on red
+    if (n >= 5) return "#fff";   // white on blue
+    if (n >= 3) return "#ddd";   // light on black
+    return "#555";               // grey on white
+  };
+  const markerTextFill = (score) => {
+    if (score === "M") return "#fff";
+    const n = score === "X" ? 10 : parseInt(score, 10);
+    if (n >= 9) return "#f5e018"; // yellow on dark marker
+    return markerFill(score) === "#fff" ? "#000" : "#fff";
+  };
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: 10 }}>
+      {/* Square viewport — target moves within it */}
+      <div
+        ref={containerRef}
+        style={{
+          width: SIZE, height: SIZE, overflow: "hidden",
+          borderRadius: 10,
+          background: "#1a1d25",
+          cursor: disabled ? "not-allowed" : "crosshair",
+          opacity: disabled ? 0.4 : 1,
+          touchAction: "none",
+          boxShadow: "0 0 0 1px #333, 0 4px 16px rgba(0,0,0,0.5)",
+        }}
+        onClick={handleClick}
+      >
+        <svg
+          width={SIZE} height={SIZE}
+          viewBox={`0 0 ${VSIZE} ${VSIZE}`}
+          style={{
+            transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`,
+            transformOrigin: "center center",
+            display: "block", userSelect: "none", overflow: "visible",
+          }}
+        >
+          {/* White square background (the M zone / surround) */}
+          <rect x={0} y={0} width={VSIZE} height={VSIZE} fill="#ffffff" />
+
+          {/* ── METRIC 10-ZONE ── */}
+          {!isImperial && !isWorcester && <>
+            {/* Colour fills — largest→smallest, each overwrites previous toward centre */}
+            {colourFills.map((z, i) => (
+              <circle key={i} cx={VCX} cy={VCY} r={z.r * VR} fill={z.fill} stroke="none" />
+            ))}
+            {/* Ring boundary lines */}
+            {ringLines.map((z, i) => (
+              <circle key={`r${i}`} cx={VCX} cy={VCY} r={z.r * VR}
+                fill="none" stroke={z.stroke} strokeWidth={z.sw} />
+            ))}
+            {/* Labels — uniform size, X exactly centred */}
+            {zones10.map((z, i) => {
+              const midR = (z.r + z.inner) / 2 * VR;
+              const ang  = -Math.PI / 4;
+              const fs   = 28; // uniform size
+              const col  = (z.score === "1" || z.score === "2") ? "#aaa"
+                : (z.score === "3" || z.score === "4") ? "#888"
+                : (z.score === "9" || z.score === "10" || z.score === "X") ? "#999"
+                : "rgba(255,255,255,0.8)";
+              // X goes exactly at centre
+              const tx = z.score === "X" ? VCX : VCX + midR * Math.cos(ang);
+              const ty = z.score === "X" ? VCY + fs * 0.38 : VCY + midR * Math.sin(ang) + fs * 0.38;
+              return (
+                <text key={`l${i}`} x={tx} y={ty}
+                  textAnchor="middle" fontSize={fs} fill={col}
+                  fontFamily="Arial, Helvetica, sans-serif" fontWeight="400"
+                  style={{ pointerEvents: "none" }}>{z.score}</text>
+              );
+            })}
+          </>}
+
+          {/* ── IMPERIAL 5-ZONE ── */}
+          {isImperial && !isWorcester && <>
+            {/* Colour bands largest→smallest */}
+            {zones5colours.map((z, i) => (
+              <circle key={i} cx={VCX} cy={VCY} r={z.r * VR} fill={z.fill} stroke="none" />
+            ))}
+            {/* Faint guide lines at all 10 ring positions */}
+            {imp10rings.map((rv, i) => {
+              const isBoundary = imp5boundaries.includes(rv);
+              return (
+                <circle key={`g${i}`} cx={VCX} cy={VCY} r={rv * VR}
+                  fill="none"
+                  stroke={isBoundary ? "#000" : "rgba(0,0,0,0.25)"}
+                  strokeWidth={isBoundary ? 3 : 1.5} />
+              );
+            })}
+            {/* 5-zone score labels — uniform size */}
+            {imp5labels.map((z, i) => {
+              const midR = (z.r + z.inner) / 2 * VR;
+              const ang  = -Math.PI / 4;
+              const fs   = 28;
+              const col  = (z.score === "1") ? "#aaa"
+                : (z.score === "3") ? "#888"
+                : (z.score === "9") ? "#999"
+                : "rgba(255,255,255,0.8)";
+              return (
+                <text key={`il${i}`} x={VCX + midR * Math.cos(ang)} y={VCY + midR * Math.sin(ang) + fs*0.38}
+                  textAnchor="middle" fontSize={fs} fill={col}
+                  fontFamily="Arial, Helvetica, sans-serif" fontWeight="400"
+                  style={{ pointerEvents: "none" }}>{z.score}</text>
+              );
+            })}
+          </>}
+
+          {/* ── WORCESTER ── */}
+          {isWorcester && <>
+            {/* Black background */}
+            <rect x={0} y={0} width={VSIZE} height={VSIZE} fill="#111111" />
+            {/* Draw filled circles largest→smallest. All black, white overwrites centre. */}
+            <circle cx={VCX} cy={VCY} r={1.00 * VR} fill="#111111" stroke="none" />
+            <circle cx={VCX} cy={VCY} r={0.20 * VR} fill="#f0ece0" stroke="none" /> {/* white centre */}
+            {/* White dividing lines between black bands */}
+            {[1.00, 0.80, 0.60, 0.40, 0.20].map((r, i) => (
+              <circle key={`wl${i}`} cx={VCX} cy={VCY} r={r * VR}
+                fill="none" stroke="#ffffff" strokeWidth={i === 0 ? 1 : 2} />
+            ))}
+            {/* Score labels — uniform size, white on black, dark on white centre */}
+            {[
+              { r: 1.00, inner: 0.80, score: "1" },
+              { r: 0.80, inner: 0.60, score: "2" },
+              { r: 0.60, inner: 0.40, score: "3" },
+              { r: 0.40, inner: 0.20, score: "4" },
+              { r: 0.20, inner: 0.00, score: "5" },
+            ].map((z, i) => {
+              const midR = (z.r + z.inner) / 2 * VR;
+              const ang  = -Math.PI / 4;
+              const fs   = 28;
+              const col  = z.score === "5" ? "#555" : "#ccc";
+              return (
+                <text key={`wsc${i}`} x={VCX + midR * Math.cos(ang)} y={VCY + midR * Math.sin(ang) + fs*0.38}
+                  textAnchor="middle" fontSize={fs} fill={col}
+                  fontFamily="Arial, Helvetica, sans-serif" fontWeight="400"
+                  style={{ pointerEvents: "none" }}>{z.score}</text>
+              );
+            })}
+          </>}
+
+          {/* Arrow markers — zoom-invariant size */}
+          {displayHits.map((h, i) => (
+            <g key={i} style={{ pointerEvents: "none" }}>
+              <circle cx={h.vx} cy={h.vy} r={MR}
+                fill={markerFill(h.score)} stroke="rgba(0,0,0,0.6)" strokeWidth={MR * 0.15} />
+              <text x={h.vx} y={h.vy + MR * 0.38}
+                textAnchor="middle" fontSize={MR * 1.1}
+                fill={markerTextFill(h.score)}
+                fontFamily="Arial, sans-serif" fontWeight="700"
+                style={{ pointerEvents: "none" }}>{h.score}</text>
+            </g>
+          ))}
+
+          {/* Flash ring */}
+          {lastHit && (
+            <circle cx={lastHit.vx} cy={lastHit.vy} r={MR * 2.5}
+              fill="none" stroke="#c8f55a" strokeWidth={MR * 0.5} opacity={0.9}
+              style={{ pointerEvents: "none" }} />
+          )}
+        </svg>
+      </div>
+
+      <div style={{ fontSize: 9, color: "#555", letterSpacing: 1.5, marginTop: 6, display: "flex", gap: 14, alignItems: "center" }}>
+        <span>TAP TO SCORE</span>
+        {zoom > 1.5 && <span style={{ color: "#c8f55a", fontWeight: "500" }}>🔍 {zoom.toFixed(1)}×</span>}
+        {zoom > 1.5 ? <span>DRAG TO PAN</span> : <span>PINCH TO ZOOM</span>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+export default function ArcheryScorer() {
+  const [screen, setScreen]               = useState("home");
+  const [selectedGroup, setSelectedGroup] = useState("Indoor");
+  const [selectedRound, setSelectedRound] = useState("WA 18m");
+  const [ends, setEnds]                   = useState([]);
+  const [currentEnd, setCurrentEnd]       = useState([]);
+  const [history, setHistory]             = useState(loadHistory);
+  const [showFinish, setShowFinish]       = useState(false);
+  const [finishNotes, setFinishNotes]     = useState("");
+  const [viewingRound, setViewingRound]   = useState(null);
+  const [editingNotes, setEditingNotes]   = useState(false);
+  const [draftNotes, setDraftNotes]       = useState("");
+  const [showTargetFace, setShowTargetFace] = useState(false);
+  const [scoringSetupId, setScoringSetupId] = useState(() => {
+    try { return localStorage.getItem("archery_default_setup") || null; } catch { return null; }
+  });
+
+  function updateScoringSetup(id) {
+    setScoringSetupId(id);
+    try { if (id) localStorage.setItem("archery_default_setup", id); else localStorage.removeItem("archery_default_setup"); } catch {}
+  }
+  const [inputMode, setInputMode]         = useState("buttons");
+  const [hitPositions, setHitPositions]   = useState([]);
+  const [homeStep, setHomeStep]           = useState("env");    // "env" | "category" | "round"
+  const [homeEnv, setHomeEnv]             = useState(null);     // "outdoor" | "indoor" // [{vx,vy,score}] all hits this round
+
+  // Sight marks
+  const [setups, setSetups]               = useState(loadSights);
+  const [activeSetup, setActiveSetup]     = useState(null);
+  const [editingSetup, setEditingSetup]   = useState(false);
+  const [draftSetup, setDraftSetup]       = useState({});
+  const [addingMark, setAddingMark]       = useState(false);
+  const [draftMark, setDraftMark]         = useState({ distance: ALL_DISTANCES[0], setting: "" });
+  const [editingMarkId, setEditingMarkId] = useState(null);
+
+  const activeRound  = selectedRound || "WA 18m";
+  const round        = ROUNDS[activeRound];
+  const isImperial   = round.imperial;
+  const isWorcester  = activeRound === "Worcester";
+  const arrowVals    = getArrowValues(activeRound);
+  const maxScore     = maxRoundScore(activeRound);
+
+  const totalScore      = ends.flat().reduce((s, v) => s + arrowToScore(v), 0);
+  const xCount          = ends.flat().filter(v => v === "X").length;
+  const goldCount       = ends.flat().filter(v => v === "9").length;
+  const currentEndScore = currentEnd.reduce((s, v) => s + arrowToScore(v), 0);
+  const endNumber       = ends.length + 1;
+  const allEndsComplete = ends.length === round.ends;
+  const arrowsShot      = ends.flat().length + currentEnd.length;
+  const arrowsRemaining = round.ends * round.arrowsPerEnd - arrowsShot;
+  const maxArrow        = isWorcester ? 5 : isImperial ? 9 : 10;
+  const livePossible    = totalScore + currentEndScore + arrowsRemaining * maxArrow;
+
+  // Distance breakdown
+  const distances    = round.distances || null;
+  const distStartEnd = distances
+    ? distances.reduce((acc, d, i) => { acc.push(i === 0 ? 0 : acc[i - 1] + distances[i - 1].ends); return acc; }, [])
+    : [];
+  const currentDistIndex = (() => {
+    if (!distances) return null;
+    let e = 0;
+    for (let d = 0; d < distances.length; d++) {
+      e += distances[d].ends;
+      if (ends.length < e) return d;
+    }
+    return distances.length - 1;
+  })();
+  const scoringSetup = setups.find(s => s.id === scoringSetupId) || null;
+  const getSightMark = (distLabel) => scoringSetup?.marks.find(m => m.distance === distLabel) || null;
+  const distScore    = (di) => {
+    if (!distances) return 0;
+    return ends.slice(distStartEnd[di], distStartEnd[di] + distances[di].ends).flat().reduce((s, v) => s + arrowToScore(v), 0);
+  };
+  const distArrows   = (di) => distances ? distances[di].ends * round.arrowsPerEnd : 0;
+
+  const personalBest = history
+    .filter(h => h.round === activeRound)
+    .reduce((best, h) => Math.max(best, h.score), 0);
+
+  function selectGroup(g) {
+    setSelectedGroup(g);
+    setSelectedRound(null);
+  }
+
+  const [showSightModal, setShowSightModal] = useState(false);
+  const [sightModalDist, setSightModalDist] = useState(null);
+
+  function addArrow(val) {
+    if (currentEnd.length >= round.arrowsPerEnd) return;
+    const newEnd = [...currentEnd, val];
+    setCurrentEnd(newEnd);
+    // Auto-submit when last arrow entered
+    if (newEnd.length === round.arrowsPerEnd) {
+      const sorted  = [...newEnd].sort((a, b) => arrowToScore(b) - arrowToScore(a));
+      const newEnds = [...ends, sorted];
+      setEnds(newEnds);
+      setCurrentEnd([]);
+      if (newEnds.length === round.ends) {
+        setShowFinish(true);
+      } else if (distances) {
+        // Check if this end completes a distance — if so, show sight modal
+        for (let di = 0; di < distances.length - 1; di++) {
+          const distEnd = distStartEnd[di] + distances[di].ends;
+          if (newEnds.length === distEnd) {
+            setSightModalDist(distances[di + 1]);
+            setShowSightModal(true);
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  function removeLastArrow() {
+    setCurrentEnd(prev => prev.slice(0, -1));
+  }
+
+  function submitEnd() {
+    if (currentEnd.length !== round.arrowsPerEnd) return;
+    const sorted  = [...currentEnd].sort((a, b) => arrowToScore(b) - arrowToScore(a));
+    const newEnds = [...ends, sorted];
+    setEnds(newEnds);
+    setCurrentEnd([]);
+    if (newEnds.length === round.ends) setShowFinish(true);
+  }
+
+  function finishRound() {
+    const score = ends.flat().reduce((s, v) => s + arrowToScore(v), 0);
+    const entry = {
+      id: Date.now(),
+      round: activeRound,
+      imperial: isImperial,
+      score,
+      maxPossible: maxScore,
+      xs:    ends.flat().filter(v => v === "X").length,
+      golds: ends.flat().filter(v => v === "9").length,
+      date:  new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
+      ends,
+      notes: finishNotes.trim(),
+      hitPositions,
+    };
+    const newHistory = [entry, ...history];
+    setHistory(newHistory);
+    saveHistory(newHistory);
+    setEnds([]);
+    setCurrentEnd([]);
+    setHitPositions([]);
+    setShowFinish(false);
+    setFinishNotes("");
+    setScreen("home");
+  }
+
+  function startRound() {
+    setEnds([]);
+    setCurrentEnd([]);
+    setHitPositions([]);
+    setShowFinish(false);
+    setShowSightModal(false);
+    setSightModalDist(null);
+    setScreen("scoring");
+  }
+
+  // ─── Sight marks helpers ──────────────────────────────────────────────────
+
+  function saveSetups(updated) { setSetups(updated); saveSights(updated); }
+
+  function createSetup() {
+    const s = { id: Date.now(), name: "New Setup", poundage: "", arrowType: "", notes: "", marks: [] };
+    saveSetups([...setups, s]);
+    setActiveSetup(s.id);
+    setDraftSetup({ name: s.name, poundage: "", arrowType: "", notes: "" });
+    setEditingSetup(true);
+  }
+
+  function updateSetupMeta() {
+    saveSetups(setups.map(s => s.id === activeSetup ? { ...s, ...draftSetup } : s));
+    setEditingSetup(false);
+  }
+
+  function deleteSetup(id) {
+    saveSetups(setups.filter(s => s.id !== id));
+    setActiveSetup(null);
+  }
+
+  function addMark() {
+    if (!draftMark.setting.trim()) return;
+    const mark = { id: Date.now(), distance: draftMark.distance, setting: draftMark.setting.trim() };
+    saveSetups(setups.map(s => s.id === activeSetup ? { ...s, marks: [...s.marks, mark] } : s));
+    setDraftMark({ distance: draftMark.distance, setting: "" });
+    setAddingMark(false);
+  }
+
+  function updateMark(markId, setting) {
+    saveSetups(setups.map(s => s.id === activeSetup
+      ? { ...s, marks: s.marks.map(m => m.id === markId ? { ...m, setting } : m) } : s));
+  }
+
+  function deleteMark(markId) {
+    saveSetups(setups.map(s => s.id === activeSetup
+      ? { ...s, marks: s.marks.filter(m => m.id !== markId) } : s));
+  }
+
+  const currentSetup = setups.find(s => s.id === activeSetup);
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#0f1117", fontFamily: "'DM Mono','Courier New',monospace", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "center" }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #2a2d38; border-radius: 2px; }
+        .abtn { border: none; cursor: pointer; border-radius: 6px; font-family: 'DM Mono',monospace; font-weight: 500; font-size: 14px; transition: transform 0.08s, opacity 0.15s; display: flex; align-items: center; justify-content: center; padding: 0; }
+        .abtn:active { transform: scale(0.90); }
+        .abtn:disabled { opacity: 0.3; cursor: default; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
+      `}</style>
+
+      {/* Header */}
+      <div style={{ width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" }}>
+        <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3, color: "#c8f55a" }}>LINE CUTTERS</div>
+        <div style={{ display: "flex", gap: 4 }}>
+          {[["home","SCORE"], ["history","HISTORY"], ["sights","SIGHTS"]].map(([s, label]) => (
+            <button key={s} onClick={() => {
+              if (screen !== "scoring") {
+                setScreen(s);
+                setViewingRound(null);
+                setActiveSetup(null);
+                setEditingSetup(false);
+                setAddingMark(false);
+                if (s === "home") setHomeStep("env");
+              }
+            }}
+              style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "8px 10px",
+                color: screen === s ? "#c8f55a" : "#555",
+                borderBottom: screen === s ? "2px solid #c8f55a" : "2px solid transparent" }}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ width: "100%", maxWidth: 480, padding: "18px 20px 60px", flex: 1 }}>
+
+        {/* ══ HOME ══ */}
+        {screen === "home" && (
+          <div style={{ animation: "fadeUp 0.25s ease" }}>
+
+            {/* Resume button — always visible at top if round in progress */}
+            {(ends.length > 0 || currentEnd.length > 0) && (
+              <button onClick={() => setScreen("scoring")}
+                style={{ width: "100%", padding: 14, marginBottom: 20,
+                  background: "#0d2015", color: "#c8f55a",
+                  border: "2px solid #2a6a3a", borderRadius: 10,
+                  fontFamily: "'Bebas Neue',sans-serif", fontSize: 17, letterSpacing: 2, cursor: "pointer" }}>
+                ▶ RESUME {activeRound} — END {ends.length + 1}/{round.ends}
+              </button>
+            )}
+
+            {/* ── STEP 1: Indoor / Outdoor ── */}
+            {homeStep === "env" && (
+              <div>
+                <div style={{ fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 16, textAlign: "center" }}>
+                  SELECT ENVIRONMENT
+                </div>
+                <div style={{ display: "flex", gap: 10 }}>
+                  {[["outdoor", "🌤 OUTDOOR"], ["indoor", "🏛 INDOOR"]].map(([env, label]) => (
+                    <button key={env}
+                      onClick={() => {
+                        setHomeEnv(env);
+                        setSelectedRound(null);
+                        setHomeStep("category");
+                      }}
+                      style={{ flex: 1, padding: "28px 10px", border: "none", borderRadius: 12, cursor: "pointer",
+                        fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3,
+                        background: "#1a1d25", color: "#e8e8e0",
+                        transition: "all 0.15s" }}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ── STEP 2: Category (only for outdoor) ── */}
+            {homeStep === "category" && (
+              <div>
+                <button onClick={() => { setHomeStep("env"); setSelectedRound(null); }}
+                  style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 16px 0" }}>
+                  ← BACK
+                </button>
+                <div style={{ fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 14, textAlign: "center" }}>
+                  {homeEnv === "outdoor" ? "SELECT ROUND TYPE" : "SELECT ROUND"}
+                </div>
+
+                {homeEnv === "outdoor" ? (
+                  <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
+                    {[["WA / Metric Outdoor", "METRIC"], ["Imperial Outdoor", "IMPERIAL"]].map(([group, label]) => (
+                      <button key={group}
+                        onClick={() => { selectGroup(group); setSelectedRound(null); setHomeStep("round"); }}
+                        style={{ flex: 1, padding: "28px 10px", border: "none", borderRadius: 12, cursor: "pointer",
+                          fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3,
+                          background: "#1a1d25", color: "#e8e8e0" }}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  // Indoor goes straight to round list
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                    {Object.keys(ROUND_GROUPS["Indoor"]).map(r => (
+                      <button key={r}
+                        onClick={() => { selectGroup("Indoor"); setSelectedRound(r); setHomeStep("round"); }}
+                        style={{ background: "#1a1d25", color: "#888", border: "none", borderRadius: 8,
+                          padding: "12px 8px", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 }}>
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── STEP 3: Round selection + start ── */}
+            {homeStep === "round" && (
+              <div>
+                <button onClick={() => { setHomeStep(homeEnv === "indoor" ? "env" : "category"); setSelectedRound(null); }}
+                  style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 14px 0" }}>
+                  ← BACK
+                </button>
+
+                {/* Setup picker — persistent default */}
+                {setups.length > 0 && (
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 6 }}>SIGHT MARKS SETUP</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                      <button onClick={() => updateScoringSetup(null)}
+                        style={{ padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
+                          background: scoringSetupId === null ? "#2a2d38" : "#1a1d25",
+                          color: scoringSetupId === null ? "#e8e8e0" : "#555" }}>
+                        None
+                      </button>
+                      {setups.map(s => (
+                        <button key={s.id} onClick={() => updateScoringSetup(s.id)}
+                          style={{ padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
+                            background: scoringSetupId === s.id ? "#c8f55a" : "#1a1d25",
+                            color: scoringSetupId === s.id ? "#0f1117" : "#666" }}>
+                          {s.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Round grid — selected round shows START inline */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+                  {Object.keys(ROUND_GROUPS[selectedGroup]).map(r => {
+                    const isSelected = selectedRound === r;
+                    return (
+                      <div key={r}>
+                        <button onClick={() => setSelectedRound(isSelected ? null : r)}
+                          style={{ width: "100%", background: isSelected ? "#c8f55a" : "#1a1d25",
+                            color: isSelected ? "#0f1117" : "#888",
+                            border: "none", borderRadius: isSelected ? "8px 8px 0 0" : 8,
+                            padding: "11px 14px", cursor: "pointer",
+                            fontFamily: "'DM Mono',monospace", fontSize: 12,
+                            fontWeight: isSelected ? "500" : "400",
+                            textAlign: "left", transition: "all 0.15s" }}>
+                          {r}
+                        </button>
+                        {isSelected && (() => {
+                          const selRound = ROUNDS[r];
+                          const selIsImperial = selRound.imperial;
+                          const selIsWorcester = r === "Worcester";
+                          const selMaxScore = maxRoundScore(r);
+                          const selPB = history.filter(h => h.round === r).reduce((b, h) => Math.max(b, h.score), 0);
+                          return (
+                            <div style={{ background: "#141720", borderRadius: "0 0 8px 8px", padding: "12px 14px", marginBottom: 2, animation: "fadeUp 0.15s ease" }}>
+                              {selIsImperial && (
+                                <div style={{ fontSize: 10, color: "#c8862a", marginBottom: 8 }}>
+                                  ⚠ 5-zone: Gold=9 · Red=7 · Blue=5 · Black=3 · White=1
+                                </div>
+                              )}
+                              <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+                                {[
+                                  [`${selRound.ends} ends`, null],
+                                  [`${selRound.arrowsPerEnd} arrows/end`, null],
+                                  [`max ${selMaxScore}`, "#c8f55a"],
+                                  ...(selPB > 0 ? [`PB ${selPB}`, "#ffd700"] : []),
+                                ].flat().reduce((acc, item, i) => {
+                                  if (i % 2 === 0) acc.push({ label: item });
+                                  else acc[acc.length - 1].color = item;
+                                  return acc;
+                                }, []).map(({ label, color }, i) => (
+                                  <span key={i} style={{ fontSize: 10, color: color || "#666",
+                                    background: "#1a1d25", borderRadius: 6, padding: "3px 8px" }}>
+                                    {label}
+                                  </span>
+                                ))}
+                              </div>
+                              <button onClick={startRound}
+                                style={{ width: "100%", padding: "13px", background: "#c8f55a", color: "#0f1117",
+                                  border: "none", borderRadius: 8, cursor: "pointer",
+                                  fontFamily: "'Bebas Neue',sans-serif", fontSize: 19, letterSpacing: 3 }}>
+                                START ROUND
+                              </button>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ SCORING ══ */}
+        {screen === "scoring" && (
+          <div style={{ animation: "fadeUp 0.2s ease" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <button onClick={() => setScreen("home")}
+                  style={{ background: "none", border: "none", color: "#555", cursor: "pointer",
+                    fontFamily: "'DM Mono',monospace", fontSize: 11, padding: 0 }}>
+                  ← MENU
+                </button>
+                <div style={{ fontSize: 11, color: "#888" }}>{activeRound}</div>
+              </div>
+              <div style={{ fontSize: 9, padding: "3px 9px", borderRadius: 999,
+                background: isImperial ? "#2a1800" : "#001828",
+                color: isImperial ? "#c8862a" : "#4ab3f4",
+                border: `1px solid ${isImperial ? "#5a3a00" : "#0a3a5a"}` }}>
+                {isWorcester ? "WORCESTER 5-ZONE" : isImperial ? "5-ZONE IMPERIAL" : "10-ZONE METRIC"}
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+              {[
+                { label: "TOTAL",            value: totalScore,      sub: `/ ${maxScore}`, color: "#c8f55a" },
+                { label: "HIGHEST POSSIBLE", value: livePossible,    sub: "if perfect now",
+                  color: livePossible === maxScore ? "#c8f55a" : "#e8e8e0" },
+                { label: `END ${Math.min(endNumber, round.ends)}`, value: currentEndScore, sub: `${round.arrowsPerEnd - currentEnd.length} left` },
+                { label: isImperial ? "GOLDS" : "X COUNT", value: isImperial ? goldCount : xCount, color: "#ffd700" },
+              ].map(({ label, value, sub, color }) => (
+                <div key={label} style={{ flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 8px" }}>
+                  <div style={{ fontSize: 7, color: "#555", letterSpacing: 1.2 }}>{label}</div>
+                  <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color || "#e8e8e0", lineHeight: 1 }}>{value}</div>
+                  {sub && <div style={{ fontSize: 8, color: "#444" }}>{sub}</div>}
+                </div>
+              ))}
+            </div>
+
+            {/* Current end slots */}
+            <div style={{ marginBottom: 10 }}>
+              <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 7 }}>CURRENT END — {currentEnd.length}/{round.arrowsPerEnd}</div>
+              <div style={{ display: "flex", gap: 5 }}>
+                {Array.from({ length: round.arrowsPerEnd }).map((_, i) => {
+                  const v = currentEnd[i];
+                  return (
+                    <div key={i} style={{
+                      flex: 1, height: 40, borderRadius: 6,
+                      background: v ? arrowBg(v, isImperial) : "#1a1d25",
+                      color: v ? arrowText(v, isImperial) : "#2a2d38",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: 13, fontWeight: 500,
+                      border: v ? "none" : "1px dashed #252830",
+                      transition: "background 0.12s",
+                    }}>{v || "·"}</div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Input mode toggle */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 10 }}>
+              {[["buttons", "🔢 Numbers"], ["target", "🎯 Target"]].map(([mode, label]) => (
+                <button key={mode} onClick={() => setInputMode(mode)}
+                  style={{ flex: 1, padding: "8px", border: "none", borderRadius: 8, cursor: "pointer",
+                    fontFamily: "'DM Mono',monospace", fontSize: 11,
+                    background: inputMode === mode ? "#c8f55a" : "#1a1d25",
+                    color: inputMode === mode ? "#0f1117" : "#555" }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Number buttons */}
+            {inputMode === "buttons" && (
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 5, marginBottom: 10 }}>
+                {arrowVals.map(v => (
+                  <button key={v} className="abtn"
+                    onClick={() => addArrow(v)}
+                    disabled={currentEnd.length >= round.arrowsPerEnd}
+                    style={{ height: 46, background: arrowBg(v, isImperial), color: arrowText(v, isImperial) }}>
+                    {v}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Undo + Submit — always visible above target face */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+              <button className="abtn" onClick={removeLastArrow} disabled={currentEnd.length === 0}
+                style={{ flex: 1, height: 44, background: "#1a1d25", color: "#e8e8e0", fontSize: 12 }}>
+                ← UNDO
+              </button>
+              <button className="abtn" onClick={submitEnd}
+                disabled={currentEnd.length !== round.arrowsPerEnd || allEndsComplete}
+                style={{ flex: 2, height: 44, fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2,
+                  background: currentEnd.length === round.arrowsPerEnd ? "#c8f55a" : "#1a1d25",
+                  color:      currentEnd.length === round.arrowsPerEnd ? "#0f1117" : "#444" }}>
+                SUBMIT END {endNumber}/{round.ends}
+              </button>
+            </div>
+
+            {/* Target face */}
+            {inputMode === "target" && (
+              <TargetFace
+                isImperial={isImperial}
+                isWorcester={isWorcester}
+                disabled={currentEnd.length >= round.arrowsPerEnd}
+                onScore={addArrow}
+                onHit={(hit) => setHitPositions(prev => [...prev, hit])}
+                onUndo={() => setHitPositions(prev => prev.slice(0, -1))}
+                arrows={currentEnd}
+              />
+            )}
+
+            {/* Sight marks modal — full screen at distance change */}
+            {showSightModal && sightModalDist && (
+              <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 }}>
+                <div style={{ background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 }}>
+                  <div style={{ fontSize: 9, color: "#4caf70", letterSpacing: 2, marginBottom: 6 }}>DISTANCE CHANGE</div>
+                  <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#e8e8e0", letterSpacing: 3, marginBottom: 20 }}>
+                    MOVE TO {sightModalDist.label}
+                  </div>
+
+                  {scoringSetup ? (
+                    <div style={{ marginBottom: 20 }}>
+                      <div style={{ fontSize: 9, color: "#4caf70", letterSpacing: 1.5, marginBottom: 10 }}>{scoringSetup.name} — SIGHT MARKS</div>
+                      {/* Highlight the next distance mark */}
+                      {(() => {
+                        const mark = getSightMark(sightModalDist.label);
+                        return mark ? (
+                          <div style={{ background: "#0a1a0f", borderRadius: 10, padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                            <div style={{ fontSize: 13, color: "#c8f55a" }}>{sightModalDist.label}</div>
+                            <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 42, color: "#c8f55a", letterSpacing: 2, lineHeight: 1 }}>{mark.setting}</div>
+                          </div>
+                        ) : (
+                          <div style={{ background: "#0a1a0f", borderRadius: 10, padding: "14px 18px", marginBottom: 14 }}>
+                            <div style={{ fontSize: 11, color: "#2a5a30", fontStyle: "italic" }}>No mark recorded for {sightModalDist.label}</div>
+                          </div>
+                        );
+                      })()}
+                      {/* All marks for reference */}
+                      {scoringSetup.marks.length > 0 && (
+                        <div>
+                          <div style={{ fontSize: 8, color: "#2a5a30", letterSpacing: 1.5, marginBottom: 6 }}>ALL MARKS</div>
+                          <div style={{ background: "#0a1a0f", borderRadius: 10, overflow: "hidden" }}>
+                            {[...scoringSetup.marks]
+                              .sort((a, b) => {
+                                const ai = a.distance.includes("yds");
+                                const bi = b.distance.includes("yds");
+                                if (ai !== bi) return ai ? -1 : 1;
+                                return parseInt(a.distance) - parseInt(b.distance);
+                              })
+                              .map((m, i, arr) => (
+                                <div key={m.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center",
+                                  padding: "9px 14px", borderBottom: i < arr.length - 1 ? "1px solid #0d2015" : "none",
+                                  background: m.distance === sightModalDist.label ? "#0f2a18" : "transparent" }}>
+                                  <div style={{ fontSize: 11, color: m.distance === sightModalDist.label ? "#c8f55a" : "#4caf70" }}>{m.distance}</div>
+                                  <div style={{ fontSize: 15, fontWeight: 500, color: m.distance === sightModalDist.label ? "#c8f55a" : "#e8e8e0" }}>{m.setting}</div>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom: 20, fontSize: 11, color: "#2a5a30", fontStyle: "italic" }}>
+                      Select a setup on the home screen to see sight marks here.
+                    </div>
+                  )}
+
+                  <button onClick={() => setShowSightModal(false)}
+                    style={{ width: "100%", padding: 14, background: "#c8f55a", color: "#0f1117", border: "none", borderRadius: 10,
+                      fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3, cursor: "pointer" }}>
+                    CONTINUE SHOOTING
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Scorecard */}
+            {ends.length > 0 && (
+              <div>
+                <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 6 }}>SCORECARD</div>
+                <div style={{ background: "#1a1d25", borderRadius: 10, overflow: "hidden" }}>
+                  {(() => {
+                    const rows = [];
+                    if (distances) {
+                      distances.forEach((dist, di) => {
+                        const distEndsShot  = ends.slice(distStartEnd[di], distStartEnd[di] + dist.ends);
+                        const isDistComplete = distEndsShot.length === dist.ends;
+                        const isDistStarted  = distEndsShot.length > 0;
+
+                        if (isDistStarted || di === currentDistIndex) {
+                          rows.push(
+                            <div key={`dh-${di}`} style={{ padding: "7px 12px", background: "#141720", borderTop: di > 0 ? "2px solid #252830" : "none", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span style={{ fontSize: 9, color: "#c8862a", letterSpacing: 1.5, fontWeight: 500 }}>{dist.label}</span>
+                              <span style={{ fontSize: 9, color: "#444" }}>{dist.ends * round.arrowsPerEnd} arrows</span>
+                            </div>
+                          );
+                        }
+
+                        distEndsShot.forEach((end, ei) => {
+                          const globalIdx    = distStartEnd[di] + ei;
+                          const endTotal     = end.reduce((s, v) => s + arrowToScore(v), 0);
+                          const runningTotal = ends.slice(0, globalIdx + 1).flat().reduce((s, v) => s + arrowToScore(v), 0);
+                          rows.push(
+                            <div key={`e-${globalIdx}`} style={{ display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230" }}>
+                              <div style={{ width: 24, color: "#444", fontSize: 9 }}>E{globalIdx + 1}</div>
+                              <div style={{ flex: 1, display: "flex", gap: 3, flexWrap: "wrap" }}>
+                                {end.map((v, j) => (
+                                  <div key={j} style={{ width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 }}>{v}</div>
+                                ))}
+                              </div>
+                              <div style={{ width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" }}>{endTotal}</div>
+                              <div style={{ width: 38, textAlign: "right", fontSize: 10, color: "#555" }}>{runningTotal}</div>
+                            </div>
+                          );
+                        });
+
+                        if (isDistComplete) {
+                          const dAvg = (distScore(di) / distArrows(di)).toFixed(2);
+                          rows.push(
+                            <div key={`davg-${di}`} style={{ padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <span style={{ fontSize: 9, color: "#555" }}>{dist.label} total</span>
+                              <span style={{ fontSize: 9, color: "#888" }}>avg <span style={{ color: "#c8f55a", fontSize: 11 }}>{dAvg}</span></span>
+                            </div>
+                          );
+                        }
+                      });
+                    } else {
+                      ends.forEach((end, i) => {
+                        const endTotal     = end.reduce((s, v) => s + arrowToScore(v), 0);
+                        const runningTotal = ends.slice(0, i + 1).flat().reduce((s, v) => s + arrowToScore(v), 0);
+                        rows.push(
+                          <div key={i} style={{ display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: i < ends.length - 1 ? "1px solid #1f2230" : "none" }}>
+                            <div style={{ width: 24, color: "#444", fontSize: 9 }}>E{i + 1}</div>
+                            <div style={{ flex: 1, display: "flex", gap: 3, flexWrap: "wrap" }}>
+                              {end.map((v, j) => (
+                                <div key={j} style={{ width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 }}>{v}</div>
+                              ))}
+                            </div>
+                            <div style={{ width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" }}>{endTotal}</div>
+                            <div style={{ width: 38, textAlign: "right", fontSize: 10, color: "#555" }}>{runningTotal}</div>
+                          </div>
+                        );
+                      });
+                    }
+
+                    if (allEndsComplete) {
+                      const roundAvg = (totalScore / ends.flat().length).toFixed(2);
+                      rows.push(
+                        <div key="roundavg" style={{ padding: "10px 14px", background: "#141720", borderTop: "2px solid #252830", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span style={{ fontSize: 9, color: "#888", letterSpacing: 1.5 }}>ROUND AVERAGE</span>
+                          <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#c8f55a" }}>{roundAvg}</span>
+                        </div>
+                      );
+                    }
+
+                    return rows;
+                  })()}
+                </div>
+              </div>
+            )}
+
+            {/* Finish modal */}
+            {showFinish && (
+              <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 }}>
+                <div style={{ background: "#1a1d25", borderRadius: 16, padding: 28, maxWidth: 320, width: "90%", textAlign: "center" }}>
+                  <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 12, letterSpacing: 3, color: "#555", marginBottom: 4 }}>ROUND COMPLETE</div>
+                  <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 66, color: "#c8f55a", lineHeight: 1 }}>{totalScore}</div>
+                  <div style={{ color: "#555", fontSize: 12, marginBottom: 4 }}>/ {maxScore}</div>
+                  <div style={{ color: "#888", fontSize: 12, marginBottom: 6 }}>avg <span style={{ color: "#e8e8e0" }}>{(totalScore / (ends.flat().length || 1)).toFixed(2)}</span> per arrow</div>
+                  <div style={{ color: "#ffd700", fontSize: 13, marginBottom: 16 }}>
+                    {isImperial ? `${goldCount} Gold${goldCount !== 1 ? "s" : ""}` : `${xCount} X${xCount !== 1 ? "s" : ""}`}
+                  </div>
+                  {personalBest > 0 && totalScore > personalBest && (
+                    <div style={{ background: "#c8f55a", color: "#0f1117", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, fontWeight: 500 }}>
+                      🏹 NEW PERSONAL BEST!
+                    </div>
+                  )}
+                  <textarea
+                    value={finishNotes}
+                    onChange={e => setFinishNotes(e.target.value)}
+                    placeholder="Add notes… weather, equipment, how it felt"
+                    rows={3}
+                    style={{ width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, resize: "none", marginBottom: 14, outline: "none" }}
+                  />
+                  <button onClick={finishRound}
+                    style={{ width: "100%", padding: 14, background: "#c8f55a", color: "#0f1117", border: "none", borderRadius: 8, fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 2, cursor: "pointer" }}>
+                    SAVE & FINISH
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ HISTORY — list ══ */}
+        {screen === "history" && !viewingRound && (
+          <div style={{ animation: "fadeUp 0.2s ease" }}>
+            {history.length === 0 ? (
+              <div style={{ textAlign: "center", color: "#555", marginTop: 60 }}>
+                <div style={{ fontSize: 38, marginBottom: 10 }}>🏹</div>
+                <div style={{ fontSize: 12 }}>No rounds scored yet.</div>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 8 }}>PERSONAL BESTS</div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 20 }}>
+                  {Object.keys(ROUNDS).map(r => {
+                    const best = history.filter(h => h.round === r).reduce((b, h) => Math.max(b, h.score), 0);
+                    if (!best) return null;
+                    return (
+                      <div key={r} style={{ background: "#1a1d25", borderRadius: 8, padding: "7px 11px" }}>
+                        <div style={{ fontSize: 9, color: "#555" }}>{r}</div>
+                        <div style={{ fontSize: 16, fontFamily: "'Bebas Neue',sans-serif", color: "#c8f55a" }}>{best}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 8 }}>RECENT ROUNDS</div>
+                {history.map(h => (
+                  <div key={h.id} onClick={() => setViewingRound(h)}
+                    style={{ background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginBottom: 7, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 12, marginBottom: 3 }}>{h.round}</div>
+                      <div style={{ fontSize: 10, color: "#555" }}>
+                        {h.date}
+                        {" · "}
+                        <span style={{ color: h.round === "Worcester" ? "#4ab3f4" : h.imperial ? "#c8862a" : "#4ab3f4" }}>
+                          {h.round === "Worcester" ? "5-zone (5·4·3·2·1)" : h.imperial ? "5-zone" : "10-zone"}
+                        </span>
+                        {" · "}
+                        {h.imperial ? `${h.golds ?? "?"}G` : `${h.xs}X`}
+                        {h.notes ? " · 📝" : ""}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, color: "#c8f55a", lineHeight: 1 }}>{h.score}</div>
+                      <div style={{ fontSize: 9, color: "#555" }}>
+                        {h.maxPossible ? `avg ${(h.score / (h.maxPossible / (h.round === "Worcester" ? 5 : h.imperial ? 9 : 10))).toFixed(2)}` : ""}
+                      </div>
+                    </div>
+                    <div style={{ color: "#333", fontSize: 14 }}>›</div>
+                  </div>
+                ))}
+
+                <button onClick={() => { if (window.confirm("Clear all history?")) { setHistory([]); saveHistory([]); } }}
+                  style={{ width: "100%", marginTop: 10, padding: 10, background: "none", border: "1px solid #252830", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 }}>
+                  CLEAR HISTORY
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* ══ HISTORY — round detail ══ */}
+        {screen === "history" && viewingRound && (() => {
+          const h = viewingRound;
+          const imp = h.imperial;
+          return (
+            <div style={{ animation: "fadeUp 0.2s ease" }}>
+              <button onClick={() => { setViewingRound(null); setEditingNotes(false); setShowTargetFace(false); }}
+                style={{ background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 12, padding: "0 0 16px 0", display: "flex", alignItems: "center", gap: 6 }}>
+                ← BACK
+              </button>
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 2 }}>{h.round}</div>
+                <div style={{ fontSize: 10, color: "#555" }}>
+                  {h.date}{" · "}
+                  <span style={{ color: h.round === "Worcester" ? "#4ab3f4" : imp ? "#c8862a" : "#4ab3f4" }}>
+                    {h.round === "Worcester" ? "5-zone (5·4·3·2·1)" : imp ? "5-zone (9·7·5·3·1)" : "10-zone"}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                {(() => {
+                  const isWorc     = h.round === "Worcester";
+                  const maxArrowVal = isWorc ? 5 : h.imperial ? 9 : 10;
+                  const totalArrows = h.maxPossible / maxArrowVal;
+                  const avg = (h.score / totalArrows).toFixed(2);
+                  return [
+                    { label: "SCORE",     value: h.score, sub: `/ ${h.maxPossible}`, color: "#c8f55a" },
+                    { label: "AVG ARROW", value: avg,     color: "#e8e8e0" },
+                    { label: h.imperial ? "GOLDS" : "X COUNT", value: h.imperial ? (h.golds ?? "?") : h.xs, color: "#ffd700" },
+                  ].map(({ label, value, sub, color }) => (
+                    <div key={label} style={{ flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 10px" }}>
+                      <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5 }}>{label}</div>
+                      <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color, lineHeight: 1 }}>{value}</div>
+                      {sub && <div style={{ fontSize: 9, color: "#444" }}>{sub}</div>}
+                    </div>
+                  ));
+                })()}
+              </div>
+
+              {/* Target face toggle */}
+              {h.hitPositions && h.hitPositions.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <button onClick={() => setShowTargetFace(v => !v)}
+                    style={{ width: "100%", padding: "10px", background: showTargetFace ? "#1a1d25" : "#0f1117",
+                      border: `1px solid ${showTargetFace ? "#c8f55a" : "#252830"}`, borderRadius: 10,
+                      color: showTargetFace ? "#c8f55a" : "#555", cursor: "pointer",
+                      fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2 }}>
+                    🎯 {showTargetFace ? "HIDE TARGET FACE" : "VIEW TARGET FACE"}
+                  </button>
+                  {showTargetFace && (
+                    <div style={{ marginTop: 12, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                      <TargetFace
+                        isImperial={h.imperial}
+                        isWorcester={h.round === "Worcester"}
+                        disabled={true}
+                        onScore={() => {}}
+                        arrows={h.hitPositions.map(p => p.score)}
+                        readOnlyHits={h.hitPositions}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Notes */}
+              <div style={{ background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginBottom: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                  <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5 }}>NOTES</div>
+                  {!editingNotes && (
+                    <button onClick={() => { setDraftNotes(h.notes || ""); setEditingNotes(true); }}
+                      style={{ background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 }}>
+                      {h.notes ? "EDIT" : "+ ADD"}
+                    </button>
+                  )}
+                </div>
+                {editingNotes ? (
+                  <>
+                    <textarea value={draftNotes} onChange={e => setDraftNotes(e.target.value)}
+                      placeholder="Weather, equipment, how it felt…" rows={4} autoFocus
+                      style={{ width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, resize: "none", outline: "none", marginBottom: 10 }} />
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button onClick={() => setEditingNotes(false)}
+                        style={{ flex: 1, padding: "8px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 }}>
+                        CANCEL
+                      </button>
+                      <button onClick={() => {
+                        const updated = history.map(entry => entry.id === h.id ? { ...entry, notes: draftNotes.trim() } : entry);
+                        setHistory(updated); saveHistory(updated);
+                        setViewingRound({ ...h, notes: draftNotes.trim() });
+                        setEditingNotes(false);
+                      }}
+                        style={{ flex: 2, padding: "8px", background: "#c8f55a", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 }}>
+                        SAVE NOTES
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ fontSize: 12, color: h.notes ? "#e8e8e0" : "#333", fontStyle: h.notes ? "normal" : "italic", lineHeight: 1.6 }}>
+                    {h.notes || "No notes recorded."}
+                  </div>
+                )}
+              </div>
+
+              {/* Scorecard */}
+              <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 6 }}>SCORECARD</div>
+              <div style={{ background: "#1a1d25", borderRadius: 10, overflow: "hidden" }}>
+                {(() => {
+                  const roundDef  = ROUNDS[h.round];
+                  const dists     = roundDef?.distances;
+                  const rows      = [];
+                  let endIndex    = 0;
+
+                  if (dists) {
+                    let distStartIdx = 0;
+                    dists.forEach((dist, di) => {
+                      const distEnds     = h.ends.slice(distStartIdx, distStartIdx + dist.ends);
+                      const distTotal    = distEnds.flat().reduce((s, v) => s + arrowToScore(v), 0);
+                      const distAvg      = distEnds.length > 0 ? (distTotal / (distEnds.length * roundDef.arrowsPerEnd)).toFixed(2) : null;
+
+                      rows.push(
+                        <div key={`dh-${di}`} style={{ padding: "6px 12px", background: "#141720", borderBottom: "1px solid #1f2230", borderTop: di > 0 ? "2px solid #252830" : "none", display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ fontSize: 9, color: "#c8862a", letterSpacing: 1.5, fontWeight: 500 }}>{dist.label}</span>
+                          <span style={{ fontSize: 9, color: "#444" }}>{dist.ends * roundDef.arrowsPerEnd} arrows</span>
+                        </div>
+                      );
+
+                      for (let e = 0; e < dist.ends; e++, endIndex++) {
+                        const end = h.ends[endIndex];
+                        if (!end) continue;
+                        const endTotal     = end.reduce((s, v) => s + arrowToScore(v), 0);
+                        const runningTotal = h.ends.slice(0, endIndex + 1).flat().reduce((s, v) => s + arrowToScore(v), 0);
+                        rows.push(
+                          <div key={`e-${endIndex}`} style={{ display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230" }}>
+                            <div style={{ width: 24, color: "#444", fontSize: 9 }}>E{endIndex + 1}</div>
+                            <div style={{ flex: 1, display: "flex", gap: 3, flexWrap: "wrap" }}>
+                              {end.map((v, j) => (
+                                <div key={j} style={{ width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 }}>{v}</div>
+                              ))}
+                            </div>
+                            <div style={{ width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" }}>{endTotal}</div>
+                            <div style={{ width: 38, textAlign: "right", fontSize: 10, color: "#555" }}>{runningTotal}</div>
+                          </div>
+                        );
+                      }
+
+                      if (distAvg) {
+                        rows.push(
+                          <div key={`davg-${di}`} style={{ padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: 9, color: "#555" }}>{dist.label} avg</span>
+                            <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, color: "#c8f55a" }}>{distAvg}</span>
+                          </div>
+                        );
+                      }
+                      distStartIdx += dist.ends;
+                    });
+                  } else {
+                    (h.ends || []).forEach((end, i) => {
+                      const endTotal     = end.reduce((s, v) => s + arrowToScore(v), 0);
+                      const runningTotal = h.ends.slice(0, i + 1).flat().reduce((s, v) => s + arrowToScore(v), 0);
+                      rows.push(
+                        <div key={i} style={{ display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: i < h.ends.length - 1 ? "1px solid #1f2230" : "none" }}>
+                          <div style={{ width: 24, color: "#444", fontSize: 9 }}>E{i + 1}</div>
+                          <div style={{ flex: 1, display: "flex", gap: 3, flexWrap: "wrap" }}>
+                            {end.map((v, j) => (
+                              <div key={j} style={{ width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 }}>{v}</div>
+                            ))}
+                          </div>
+                          <div style={{ width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" }}>{endTotal}</div>
+                          <div style={{ width: 38, textAlign: "right", fontSize: 10, color: "#555" }}>{runningTotal}</div>
+                        </div>
+                      );
+                    });
+                  }
+
+                  if (h.ends && h.ends.length > 0) {
+                    const roundAvg = (h.score / h.ends.flat().length).toFixed(2);
+                    rows.push(
+                      <div key="roundavg" style={{ padding: "10px 14px", background: "#141720", borderTop: "2px solid #252830", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span style={{ fontSize: 9, color: "#888", letterSpacing: 1.5 }}>ROUND AVERAGE</span>
+                        <span style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#c8f55a" }}>{roundAvg}</span>
+                      </div>
+                    );
+                  }
+                  return rows;
+                })()}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* ══ SIGHTS — list ══ */}
+        {screen === "sights" && !activeSetup && (
+          <div style={{ animation: "fadeUp 0.2s ease" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+              <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5 }}>MY SETUPS</div>
+              <button onClick={createSetup}
+                style={{ background: "#c8f55a", border: "none", borderRadius: 8, padding: "7px 14px", color: "#0f1117", fontFamily: "'Bebas Neue',sans-serif", fontSize: 14, letterSpacing: 2, cursor: "pointer" }}>
+                + NEW SETUP
+              </button>
+            </div>
+
+            {setups.length === 0 ? (
+              <div style={{ textAlign: "center", color: "#555", marginTop: 60 }}>
+                <div style={{ fontSize: 38, marginBottom: 10 }}>🎯</div>
+                <div style={{ fontSize: 12 }}>No setups yet. Create one to record your sight marks.</div>
+              </div>
+            ) : (
+              setups.map(s => (
+                <div key={s.id} onClick={() => { setActiveSetup(s.id); setEditingSetup(false); setAddingMark(false); }}
+                  style={{ background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 13, marginBottom: 4 }}>{s.name}</div>
+                    <div style={{ fontSize: 10, color: "#555" }}>
+                      {[s.poundage && `${s.poundage}`, s.arrowType].filter(Boolean).join(" · ") || "No details added"}
+                      {" · "}{s.marks.length} mark{s.marks.length !== 1 ? "s" : ""}
+                    </div>
+                  </div>
+                  <div style={{ color: "#333", fontSize: 14 }}>›</div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* ══ SIGHTS — setup detail ══ */}
+        {screen === "sights" && activeSetup && currentSetup && (
+          <div style={{ animation: "fadeUp 0.2s ease" }}>
+            <button onClick={() => { setActiveSetup(null); setEditingSetup(false); setAddingMark(false); }}
+              style={{ background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 12, padding: "0 0 16px 0" }}>
+              ← BACK
+            </button>
+
+            <div style={{ background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+              {editingSetup ? (
+                <>
+                  <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 12 }}>EDIT SETUP</div>
+                  {[
+                    { label: "Setup name", key: "name",      placeholder: "e.g. Summer outdoor limbs" },
+                    { label: "Poundage",   key: "poundage",  placeholder: "e.g. 36 lbs" },
+                    { label: "Arrow",      key: "arrowType", placeholder: "e.g. Easton X10 700" },
+                    { label: "Notes",      key: "notes",     placeholder: "e.g. String, button settings…" },
+                  ].map(({ label, key, placeholder }) => (
+                    <div key={key} style={{ marginBottom: 10 }}>
+                      <div style={{ fontSize: 9, color: "#555", marginBottom: 4 }}>{label.toUpperCase()}</div>
+                      <input value={draftSetup[key] || ""} onChange={e => setDraftSetup(d => ({ ...d, [key]: e.target.value }))}
+                        placeholder={placeholder} onFocus={e => e.target.select()}
+                        style={{ width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "9px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, outline: "none" }} />
+                    </div>
+                  ))}
+                  <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                    <button onClick={() => setEditingSetup(false)}
+                      style={{ flex: 1, padding: "9px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 }}>
+                      CANCEL
+                    </button>
+                    <button onClick={updateSetupMeta}
+                      style={{ flex: 2, padding: "9px", background: "#c8f55a", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 }}>
+                      SAVE
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                  <div>
+                    <div style={{ fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 2, marginBottom: 4 }}>{currentSetup.name}</div>
+                    {currentSetup.poundage  && <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>⚖ {currentSetup.poundage}</div>}
+                    {currentSetup.arrowType && <div style={{ fontSize: 11, color: "#888", marginBottom: 2 }}>🏹 {currentSetup.arrowType}</div>}
+                    {currentSetup.notes     && <div style={{ fontSize: 11, color: "#555", marginTop: 6, lineHeight: 1.5 }}>{currentSetup.notes}</div>}
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button onClick={() => { setDraftSetup({ name: currentSetup.name, poundage: currentSetup.poundage, arrowType: currentSetup.arrowType, notes: currentSetup.notes }); setEditingSetup(true); }}
+                      style={{ background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 }}>
+                      EDIT
+                    </button>
+                    <button onClick={() => { if (window.confirm(`Delete "${currentSetup.name}"?`)) deleteSetup(activeSetup); }}
+                      style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 }}>
+                      DELETE
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5 }}>SIGHT MARKS</div>
+              {!addingMark && (
+                <button onClick={() => { setAddingMark(true); setDraftMark({ distance: ALL_DISTANCES[0], setting: "" }); }}
+                  style={{ background: "#c8f55a", border: "none", borderRadius: 8, padding: "6px 12px", color: "#0f1117", fontFamily: "'Bebas Neue',sans-serif", fontSize: 13, letterSpacing: 2, cursor: "pointer" }}>
+                  + ADD MARK
+                </button>
+              )}
+            </div>
+
+            {addingMark && (
+              <div style={{ background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 12 }}>
+                <div style={{ fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 12 }}>NEW SIGHT MARK</div>
+                <div style={{ marginBottom: 10 }}>
+                  <div style={{ fontSize: 9, color: "#555", marginBottom: 4 }}>DISTANCE</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                    <div style={{ width: "100%", fontSize: 8, color: "#c8862a", marginBottom: 2, letterSpacing: 1 }}>IMPERIAL</div>
+                    {IMPERIAL_DISTANCES.map(d => (
+                      <button key={d} onClick={() => setDraftMark(m => ({ ...m, distance: d }))}
+                        style={{ padding: "5px 10px", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
+                          background: draftMark.distance === d ? "#c8862a" : "#0f1117",
+                          color: draftMark.distance === d ? "#0f1117" : "#888" }}>
+                        {d}
+                      </button>
+                    ))}
+                    <div style={{ width: "100%", fontSize: 8, color: "#4ab3f4", marginBottom: 2, marginTop: 6, letterSpacing: 1 }}>METRIC</div>
+                    {METRIC_DISTANCES.map(d => (
+                      <button key={d} onClick={() => setDraftMark(m => ({ ...m, distance: d }))}
+                        style={{ padding: "5px 10px", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
+                          background: draftMark.distance === d ? "#4ab3f4" : "#0f1117",
+                          color: draftMark.distance === d ? "#0f1117" : "#888" }}>
+                        {d}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ marginBottom: 12 }}>
+                  <div style={{ fontSize: 9, color: "#555", marginBottom: 4 }}>SETTING</div>
+                  <input value={draftMark.setting} onChange={e => setDraftMark(m => ({ ...m, setting: e.target.value }))}
+                    placeholder="e.g. 100  or  920 block 4" onFocus={e => e.target.select()}
+                    style={{ width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "9px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 12, outline: "none" }} />
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => setAddingMark(false)}
+                    style={{ flex: 1, padding: "9px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 }}>
+                    CANCEL
+                  </button>
+                  <button onClick={addMark} disabled={!draftMark.setting.trim()}
+                    style={{ flex: 2, padding: "9px", background: draftMark.setting.trim() ? "#c8f55a" : "#1a1d25", border: "none", borderRadius: 8, color: draftMark.setting.trim() ? "#0f1117" : "#444", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 }}>
+                    SAVE MARK
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {currentSetup.marks.length === 0 && !addingMark ? (
+              <div style={{ textAlign: "center", color: "#333", fontSize: 12, padding: "30px 0" }}>No sight marks yet.</div>
+            ) : (
+              <div style={{ background: "#1a1d25", borderRadius: 10, overflow: "hidden" }}>
+                {[...currentSetup.marks]
+                  .sort((a, b) => {
+                    const aImp = a.distance.includes("yds");
+                    const bImp = b.distance.includes("yds");
+                    if (aImp !== bImp) return aImp ? -1 : 1;
+                    return parseInt(a.distance) - parseInt(b.distance);
+                  })
+                  .map((mark, i, arr) => (
+                    <div key={mark.id} style={{ padding: "10px 14px", borderBottom: i < arr.length - 1 ? "1px solid #1f2230" : "none" }}>
+                      {editingMarkId === mark.id ? (
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <div style={{ fontSize: 11, color: mark.distance.includes("yds") ? "#c8862a" : "#4ab3f4", width: 52, flexShrink: 0 }}>{mark.distance}</div>
+                          <input defaultValue={mark.setting}
+                            onBlur={e => { updateMark(mark.id, e.target.value); setEditingMarkId(null); }}
+                            autoFocus onFocus={e => e.target.select()}
+                            style={{ flex: 1, background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 6, padding: "6px 10px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 12, outline: "none" }} />
+                          <button onClick={() => setEditingMarkId(null)}
+                            style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 11, fontFamily: "'DM Mono',monospace" }}>✕</button>
+                        </div>
+                      ) : (
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <div style={{ fontSize: 11, color: mark.distance.includes("yds") ? "#c8862a" : "#4ab3f4", width: 52, flexShrink: 0 }}>{mark.distance}</div>
+                          <div style={{ flex: 1, fontSize: 13 }}>{mark.setting}</div>
+                          <button onClick={() => setEditingMarkId(mark.id)}
+                            style={{ background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 }}>EDIT</button>
+                          <button onClick={() => deleteMark(mark.id)}
+                            style={{ background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 }}>✕</button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
