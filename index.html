@@ -8,11 +8,17 @@
   <meta name="apple-mobile-web-app-title" content="Line Cutters"/>
   <meta name="theme-color" content="#0f1117"/>
   <link rel="manifest" href="manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet"/>
   <title>Line Cutters</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
     html,body,#root{height:100%;}
     body{background:#0f1117;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}
+    .abtn{border:none;cursor:pointer;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}
+    .abtn:active{transform:scale(0.90);}
+    .abtn:disabled{opacity:0.3;cursor:default;}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
 <body>
@@ -20,14 +26,12 @@
   <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading React...</div>
   <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"
     onload="document.getElementById('msg').textContent='React loaded, loading ReactDOM...'"
-    onerror="document.getElementById('msg').textContent='FAILED: React CDN blocked. Try refreshing.'"></script>
+    onerror="document.getElementById('msg').textContent='FAILED: React CDN blocked'"></script>
   <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"
     onload="document.getElementById('msg').textContent='Both loaded, starting app...'"
-    onerror="document.getElementById('msg').textContent='FAILED: ReactDOM CDN blocked.'"></script>
+    onerror="document.getElementById('msg').textContent='FAILED: ReactDOM CDN blocked'"></script>
   <script>
-  window.onerror = function(msg,src,line,col,err){ document.getElementById('msg').style.display='block'; document.getElementById('msg').innerHTML='<b style=color:red>ERROR:</b> '+msg+' line '+line; };
-  if(typeof React==='undefined'){ document.getElementById('msg').textContent='React not loaded'; }
-  else { document.getElementById('msg').textContent='React OK - starting app...'; }
+  window.onerror = function(m,s,l){ document.getElementById('msg').style.display='block'; document.getElementById('msg').innerHTML='<b style=color:red>ERROR:</b> '+m+' line '+l; };
   const { useState, useRef, useEffect } = React;
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
@@ -803,16 +807,7 @@ function ArcheryScorer() {
     var currentSetup = setups.find(function (s) { return s.id === activeSetup; });
     // ─── Render ───────────────────────────────────────────────────────────────
     return (React.createElement("div", { style: { minHeight: "100vh", background: "#0f1117", fontFamily: "'DM Mono','Courier New',monospace", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "center" } },
-        React.createElement("style", null, "
-        @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
-        * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #2a2d38; border-radius: 2px; }
-        .abtn { border: none; cursor: pointer; border-radius: 6px; font-family: 'DM Mono',monospace; font-weight: 500; font-size: 14px; transition: transform 0.08s, opacity 0.15s; display: flex; align-items: center; justify-content: center; padding: 0; }
-        .abtn:active { transform: scale(0.90); }
-        .abtn:disabled { opacity: 0.3; cursor: default; }
-        @keyframes fadeUp { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
-      "),
+        React.createElement("style", null, ".abtn{border:none;cursor:pointer;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}.abtn:active{transform:scale(0.90);}.abtn:disabled{opacity:0.3;cursor:default;}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}"),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" } },
             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3, color: "#c8f55a" } }, "LINE CUTTERS"),
             React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "SCORE"], ["history", "HISTORY"], ["sights", "EQUIPMENT"]].map(function (_a) {
@@ -1328,9 +1323,12 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: function () { return setEditingMarkId(mark.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
                     React.createElement("button", { onClick: function () { return deleteMark(mark.id); }, style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715"))))); }))))))));
 }
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  document.getElementById('msg').style.display = 'none';
-  root.render(React.createElement(ArcheryScorer));
+  if(typeof ArcheryScorer==='undefined'){ document.getElementById('msg').textContent='ERROR: App failed to parse'; }
+  else {
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    document.getElementById('msg').style.display='none';
+    root.render(React.createElement(ArcheryScorer));
+  }
   </script>
 </body>
 </html>
