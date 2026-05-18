@@ -20,25 +20,6 @@
   <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading...</div>
   <script>
     window.onerror = function(msg, src, line, col, err) {
-      document.getElementById('msg').innerHTML = '<b style="color:red">ERROR:</b><br>' + msg + '<br>Line: ' + line + '<br>' + (err ? err.stack : '');
-      return false;
-    };
-  </script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" 
-    onerror="document.getElementById('msg').textContent='Failed to load React from CDN. Check internet connection.'">
-  </script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
-    onerror="document.getElementById('msg').textContent='Failed to load ReactDOM from CDN.'">
-  </script>
-  <script>
-    if (typeof React === 'undefined') {
-      document.getElementById('msg').textContent = 'React did not load. CDN may be blocked.';
-    } else {
-      document.getElementById('msg').textContent = 'React loaded OK. Starting app...';
-    }
-  </script>
-  <script>
-  const { useState, useRef, useEffect } = React;
 // ─── Round definitions ────────────────────────────────────────────────────────
 // imperial: true  → 5-zone scoring (9,7,5,3,1), no X ring, max arrow = 9
 // imperial: false → 10-zone scoring (X,10..1),   X ring,    max arrow = 10
@@ -764,7 +745,7 @@ function ArcheryScorer() {
       `),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" } },
             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3, color: "#c8f55a" } }, "LINE CUTTERS"),
-            React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "SCORE"], ["history", "HISTORY"], ["sights", "SIGHTS"]].map(([s, label]) => (React.createElement("button", { key: s, onClick: () => {
+            React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "SCORE"], ["history", "HISTORY"], ["sights", "EQUIPMENT"]].map(([s, label]) => (React.createElement("button", { key: s, onClick: () => {
                     if (screen !== "scoring") {
                         setScreen(s);
                         setViewingRound(null);
@@ -808,15 +789,20 @@ function ArcheryScorer() {
                             padding: "12px 8px", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, r))))))),
                 homeStep === "round" && (React.createElement("div", null,
                     React.createElement("button", { onClick: () => { setHomeStep(homeEnv === "indoor" ? "env" : "category"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 14px 0" } }, "\u2190 BACK"),
-                    setups.length > 0 && (React.createElement("div", { style: { marginBottom: 14 } },
-                        React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 6 } }, "SIGHT MARKS SETUP"),
+                    setups.length > 0 && (React.createElement("div", { style: { marginBottom: 14, background: "#1a1d25", borderRadius: 10, padding: "12px 14px" } },
+                        React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 8 } }, "SIGHT MARKS SETUP"),
+                        scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8f55a", marginBottom: 8 } },
+                            "\u2713 Using: ",
+                            React.createElement("strong", null, setups.find(s => s.id === scoringSetupId)?.name))),
+                        !scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8862a", marginBottom: 8 } }, "\u26A0 No setup selected \u2014 sight marks won't show at distance changes")),
                         React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
                             React.createElement("button", { onClick: () => updateScoringSetup(null), style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
-                                    background: scoringSetupId === null ? "#2a2d38" : "#1a1d25",
-                                    color: scoringSetupId === null ? "#e8e8e0" : "#555" } }, "None"),
+                                    background: scoringSetupId === null ? "#2a2d38" : "#141720",
+                                    color: scoringSetupId === null ? "#e8e8e0" : "#444" } }, "None"),
                             setups.map(s => (React.createElement("button", { key: s.id, onClick: () => updateScoringSetup(s.id), style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
-                                    background: scoringSetupId === s.id ? "#c8f55a" : "#1a1d25",
-                                    color: scoringSetupId === s.id ? "#0f1117" : "#666" } }, s.name)))))),
+                                    background: scoringSetupId === s.id ? "#c8f55a" : "#141720",
+                                    color: scoringSetupId === s.id ? "#0f1117" : "#888",
+                                    fontWeight: scoringSetupId === s.id ? "600" : "400" } }, s.name)))))),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(r => {
                         const isSelected = selectedRound === r;
                         return (React.createElement("div", { key: r },
@@ -1244,8 +1230,9 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: () => setEditingMarkId(mark.id), style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
                     React.createElement("button", { onClick: () => deleteMark(mark.id), style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715")))))))))))));
 }
-  const root = ReactDOM.createRoot(document.getElementById('root'));
-  document.getElementById('msg').style.display = 'none';
+
+  const root = ReactDOM.createRoot(document.getElementById("root"));
+  document.getElementById("msg").style.display = "none";
   root.render(React.createElement(ArcheryScorer));
   </script>
 </body>
