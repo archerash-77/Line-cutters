@@ -17,16 +17,26 @@
 </head>
 <body>
   <div id="root"></div>
-  <div id="err" style="color:red;font-size:16px;padding:20px;display:none"></div>
+  <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading...</div>
   <script>
-    window.onerror = function(msg, src, line) {
-      var e = document.getElementById('err');
-      e.style.display = 'block';
-      e.textContent = 'Error: ' + msg + ' (line ' + line + ')';
+    window.onerror = function(msg, src, line, col, err) {
+      document.getElementById('msg').innerHTML = '<b style="color:red">ERROR:</b><br>' + msg + '<br>Line: ' + line + '<br>' + (err ? err.stack : '');
+      return false;
     };
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" 
+    onerror="document.getElementById('msg').textContent='Failed to load React from CDN. Check internet connection.'">
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
+    onerror="document.getElementById('msg').textContent='Failed to load ReactDOM from CDN.'">
+  </script>
+  <script>
+    if (typeof React === 'undefined') {
+      document.getElementById('msg').textContent = 'React did not load. CDN may be blocked.';
+    } else {
+      document.getElementById('msg').textContent = 'React loaded OK. Starting app...';
+    }
+  </script>
   <script>
   const { useState, useRef, useEffect } = React;
 // ─── Round definitions ────────────────────────────────────────────────────────
@@ -1235,6 +1245,7 @@ export default function ArcheryScorer() {
                     React.createElement("button", { onClick: () => deleteMark(mark.id), style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715")))))))))))));
 }
   const root = ReactDOM.createRoot(document.getElementById('root'));
+  document.getElementById('msg').style.display = 'none';
   root.render(React.createElement(ArcheryScorer));
   </script>
 </body>
