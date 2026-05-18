@@ -550,7 +550,7 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
             zoom > 1.5 ? React.createElement("span", null, "DRAG TO PAN") : React.createElement("span", null, "PINCH TO ZOOM"))));
 }
 // ─── Main Component ───────────────────────────────────────────────────────────
-export default function ArcheryScorer() {
+function ArcheryScorer() {
     const [screen, setScreen] = useState("home");
     const [selectedGroup, setSelectedGroup] = useState("Indoor");
     const [selectedRound, setSelectedRound] = useState("WA 18m");
