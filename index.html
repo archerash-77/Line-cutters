@@ -20,10 +20,57 @@
   <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading...</div>
   <script>
     window.onerror = function(msg, src, line, col, err) {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
+    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+};
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
+import { useState, useRef, useEffect } from "react";
 // ─── Round definitions ────────────────────────────────────────────────────────
 // imperial: true  → 5-zone scoring (9,7,5,3,1), no X ring, max arrow = 9
 // imperial: false → 10-zone scoring (X,10..1),   X ring,    max arrow = 10
-const ROUND_GROUPS = {
+var ROUND_GROUPS = {
     "WA / Metric Outdoor": {
         "WA 1440 (90m)": { ends: 24, arrowsPerEnd: 6, imperial: false },
         "WA 1440 (70m)": { ends: 24, arrowsPerEnd: 6, imperial: false },
@@ -102,34 +149,35 @@ const ROUND_GROUPS = {
         "Worcester": { ends: 12, arrowsPerEnd: 5, imperial: false, worcester: true },
     },
 };
-const ROUNDS = Object.values(ROUND_GROUPS).reduce((acc, g) => ({ ...acc, ...g }), {});
+var ROUNDS = Object.values(ROUND_GROUPS).reduce(function (acc, g) { return (__assign(__assign({}, acc), g)); }, {});
 // ─── Scoring helpers ──────────────────────────────────────────────────────────
-const IMPERIAL_VALUES = ["9", "7", "5", "3", "1", "M"];
-const METRIC_VALUES = ["X", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "M"];
-const WORCESTER_VALUES = ["5", "4", "3", "2", "1", "M"];
-const getArrowValues = (roundName) => {
+var IMPERIAL_VALUES = ["9", "7", "5", "3", "1", "M"];
+var METRIC_VALUES = ["X", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "M"];
+var WORCESTER_VALUES = ["5", "4", "3", "2", "1", "M"];
+var getArrowValues = function (roundName) {
+    var _a;
     if (roundName === "Worcester")
         return WORCESTER_VALUES;
-    return ROUNDS[roundName]?.imperial ? IMPERIAL_VALUES : METRIC_VALUES;
+    return ((_a = ROUNDS[roundName]) === null || _a === void 0 ? void 0 : _a.imperial) ? IMPERIAL_VALUES : METRIC_VALUES;
 };
-const arrowToScore = (v) => {
+var arrowToScore = function (v) {
     if (v === "X")
         return 10;
     if (v === "M")
         return 0;
     return parseInt(v, 10);
 };
-const maxRoundScore = (roundName) => {
-    const r = ROUNDS[roundName];
+var maxRoundScore = function (roundName) {
+    var r = ROUNDS[roundName];
     if (roundName === "Worcester")
         return r.ends * r.arrowsPerEnd * 5;
     return r.ends * r.arrowsPerEnd * (r.imperial ? 9 : 10);
 };
 // ─── Colours ─────────────────────────────────────────────────────────────────
-const arrowBg = (v, isImperial) => {
+var arrowBg = function (v, isImperial) {
     if (v === "M")
         return "#2a2d38";
-    const n = arrowToScore(v);
+    var n = arrowToScore(v);
     if (isImperial) {
         if (n === 9)
             return "#ffd700";
@@ -160,10 +208,10 @@ const arrowBg = (v, isImperial) => {
     }
     return "#444";
 };
-const arrowText = (v, isImperial) => {
+var arrowText = function (v, isImperial) {
     if (!v || v === "M")
         return "#666";
-    const n = arrowToScore(v);
+    var n = arrowToScore(v);
     if (isImperial) {
         return (n === 9 || n === 1) ? "#1a1a1a" : "#fff";
     }
@@ -176,45 +224,46 @@ const arrowText = (v, isImperial) => {
     }
 };
 // ─── Persistence ─────────────────────────────────────────────────────────────
-const STORAGE_KEY = "archery_history_v2";
-const loadHistory = () => { try {
+var STORAGE_KEY = "archery_history_v2";
+var loadHistory = function () { try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
 }
-catch {
+catch (_a) {
     return [];
 } };
-const saveHistory = (h) => { try {
+var saveHistory = function (h) { try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(h));
 }
-catch { } };
-const SIGHTS_KEY = "archery_sights_v1";
-const loadSights = () => { try {
+catch (_a) { } };
+var SIGHTS_KEY = "archery_sights_v1";
+var loadSights = function () { try {
     return JSON.parse(localStorage.getItem(SIGHTS_KEY)) || [];
 }
-catch {
+catch (_a) {
     return [];
 } };
-const saveSights = (s) => { try {
+var saveSights = function (s) { try {
     localStorage.setItem(SIGHTS_KEY, JSON.stringify(s));
 }
-catch { } };
-const IMPERIAL_DISTANCES = ["10 yds", "20 yds", "30 yds", "40 yds", "50 yds", "60 yds", "80 yds", "100 yds"];
-const METRIC_DISTANCES = ["18 m", "20 m", "25 m", "30 m", "40 m", "50 m", "60 m", "70 m", "80 m", "90 m"];
-const ALL_DISTANCES = [...IMPERIAL_DISTANCES, ...METRIC_DISTANCES];
+catch (_a) { } };
+var IMPERIAL_DISTANCES = ["10 yds", "20 yds", "30 yds", "40 yds", "50 yds", "60 yds", "80 yds", "100 yds"];
+var METRIC_DISTANCES = ["18 m", "20 m", "25 m", "30 m", "40 m", "50 m", "60 m", "70 m", "80 m", "90 m"];
+var ALL_DISTANCES = __spreadArray(__spreadArray([], __read(IMPERIAL_DISTANCES), false), __read(METRIC_DISTANCES), false);
 // ─── Target Face Component ────────────────────────────────────────────────────
-function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo, arrows = [], readOnlyHits }) {
-    const [hits, setHits] = useState([]);
-    const [lastHit, setLastHit] = useState(null);
-    const [zoom, setZoom] = useState(1.4);
-    const [pan, setPan] = useState({ x: 0, y: 0 });
-    const pinchRef = useRef(null);
-    const dragRef = useRef(null);
-    const containerRef = useRef(null);
+function TargetFace(_a) {
+    var isImperial = _a.isImperial, isWorcester = _a.isWorcester, disabled = _a.disabled, onScore = _a.onScore, onHit = _a.onHit, onUndo = _a.onUndo, _b = _a.arrows, arrows = _b === void 0 ? [] : _b, readOnlyHits = _a.readOnlyHits;
+    var _c = __read(useState([]), 2), hits = _c[0], setHits = _c[1];
+    var _d = __read(useState(null), 2), lastHit = _d[0], setLastHit = _d[1];
+    var _e = __read(useState(1.4), 2), zoom = _e[0], setZoom = _e[1];
+    var _f = __read(useState({ x: 0, y: 0 }), 2), pan = _f[0], setPan = _f[1];
+    var pinchRef = useRef(null);
+    var dragRef = useRef(null);
+    var containerRef = useRef(null);
     // In read-only mode, display the stored hits directly
-    const displayHits = readOnlyHits || hits;
+    var displayHits = readOnlyHits || hits;
     // Sync hits count with arrows (handles undo)
-    useEffect(() => {
-        setHits(prev => prev.slice(0, arrows.length));
+    useEffect(function () {
+        setHits(function (prev) { return prev.slice(0, arrows.length); });
     }, [arrows.length]);
     // High-res viewBox
     // Zone fractions are relative to the COLOURED face radius (black outer = 1.0).
@@ -229,18 +278,18 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
     //   Each colour band (2 rings) = 2/8 = 0.25 of coloured radius
     //   So: black outer=1.0, blue outer=0.75, red outer=0.50, gold outer=0.25
     //   10-ring = 0.125, X = 0.0625
-    const VSIZE = 1000;
-    const VCX = VSIZE / 2;
-    const VCY = VSIZE / 2;
-    const VR = 500; // full target fills the square — each ring = 50 units = 10% of radius
-    const SIZE = 300;
+    var VSIZE = 1000;
+    var VCX = VSIZE / 2;
+    var VCY = VSIZE / 2;
+    var VR = 500; // full target fills the square — each ring = 50 units = 10% of radius
+    var SIZE = 300;
     // ── Zone definitions ──────────────────────────────────────────────────────
     // Ring N outer boundary = (10-N+1) × 0.1. So ring 1 outer=1.0, ring 9 outer=0.2, ring 10 outer=0.1.
     // Drawing: one filled circle per COLOUR CHANGE, drawn largest→smallest.
     //   White circle r=0.90 (rings 1+2), Black r=0.70, Blue r=0.50, Red r=0.40 (NOT 0.30),
     //   Gold r=0.20 overwrites red → red visible 0.20→0.40 = two rings wide ✓
     // Ring LINES drawn at every 0.10 boundary.
-    const colourFills = [
+    var colourFills = [
         { r: 1.00, fill: "#ffffff" },
         { r: 0.80, fill: "#1c1c1c" },
         { r: 0.60, fill: "#45c0e8" },
@@ -248,7 +297,7 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
         { r: 0.20, fill: "#f5e018" }, // gold fills from here to centre
     ];
     // Ring boundary lines at every scoring boundary
-    const ringLines = [
+    var ringLines = [
         { r: 1.00, stroke: "#bbb", sw: 2 },
         { r: 0.90, stroke: "#bbb", sw: 1.5 },
         { r: 0.80, stroke: "#000", sw: 3 },
@@ -262,7 +311,7 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
         { r: 0.05, stroke: "#c8b800", sw: 1 }, // X outer — thin, not bold
     ];
     // zones10: r=outer boundary, inner=inner boundary of that ring
-    const zones10 = [
+    var zones10 = [
         { r: 1.00, inner: 0.90, score: "1" },
         { r: 0.90, inner: 0.80, score: "2" },
         { r: 0.80, inner: 0.70, score: "3" },
@@ -275,18 +324,18 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
         { r: 0.10, inner: 0.05, score: "10" },
         { r: 0.05, inner: 0.025, score: "X" },
     ];
-    const whiteR = 0.90;
+    var whiteR = 0.90;
     // Imperial colour fills — same structure
-    const zones5colours = [
+    var zones5colours = [
         { r: 1.00, fill: "#ffffff" }, // white (outer=1.0)
         { r: 0.80, fill: "#1c1c1c" }, // black (outer=0.80)
         { r: 0.60, fill: "#45c0e8" }, // blue  (outer=0.60)
         { r: 0.40, fill: "#e83820" }, // red   (outer=0.40)
         { r: 0.20, fill: "#f5e018" }, // gold  (outer=0.20)
     ];
-    const imp5boundaries = [1.00, 0.80, 0.60, 0.40, 0.20];
-    const imp10rings = [1.00, 0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10, 0.05];
-    const imp5labels = [
+    var imp5boundaries = [1.00, 0.80, 0.60, 0.40, 0.20];
+    var imp10rings = [1.00, 0.90, 0.80, 0.70, 0.60, 0.50, 0.40, 0.30, 0.20, 0.10, 0.05];
+    var imp5labels = [
         { r: 1.00, inner: 0.80, score: "1" },
         { r: 0.80, inner: 0.60, score: "3" },
         { r: 0.60, inner: 0.40, score: "5" },
@@ -296,7 +345,7 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
     // Worcester: 5 equal bands each 0.20 of radius. Centre=white (5), 4 black bands (4,3,2,1).
     // Scores 5→1 from centre outward. Black background beyond scoring area.
     // Each band width = 4.064cm on a 20.32cm radius face = exactly 0.20 of radius.
-    const zonesWorcester = [
+    var zonesWorcester = [
         { r: 1.00, score: "1", fill: "#111111", stroke: "#333", sw: 1 }, // black band 1 (outermost)
         { r: 0.80, score: "2", fill: "#111111", stroke: "#fff", sw: 1 }, // black band 2
         { r: 0.60, score: "3", fill: "#111111", stroke: "#fff", sw: 1 }, // black band 3
@@ -305,16 +354,27 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
     ];
     // Scoring: each zone scores when d <= its OUTER boundary.
     // Array ordered innermost→outermost. Loop finds smallest r that contains the tap.
-    const scoringZones = isWorcester
+    var scoringZones = isWorcester
         ? [{ r: 0.20, score: "5" }, { r: 0.40, score: "4" }, { r: 0.60, score: "3" }, { r: 0.80, score: "2" }, { r: 1.00, score: "1" }, { r: 99, score: "M" }]
         : isImperial
             ? [{ r: 0.20, score: "9" }, { r: 0.40, score: "7" }, { r: 0.60, score: "5" }, { r: 0.80, score: "3" }, { r: 1.00, score: "1" }, { r: 99, score: "M" }]
             : [{ r: 0.025, score: "X" }, { r: 0.05, score: "10" }, { r: 0.10, score: "9" }, { r: 0.20, score: "8" }, { r: 0.30, score: "7" }, { r: 0.40, score: "6" }, { r: 0.50, score: "5" }, { r: 0.60, score: "4" }, { r: 0.70, score: "3" }, { r: 0.80, score: "2" }, { r: 0.90, score: "1" }, { r: 99, score: "M" }];
     function scoreAt(vx, vy) {
-        const d = Math.sqrt((vx - VCX) ** 2 + (vy - VCY) ** 2) / VR;
-        for (const zone of scoringZones) {
-            if (d <= zone.r)
-                return zone.score;
+        var e_1, _a;
+        var d = Math.sqrt(Math.pow((vx - VCX), 2) + Math.pow((vy - VCY), 2)) / VR;
+        try {
+            for (var scoringZones_1 = __values(scoringZones), scoringZones_1_1 = scoringZones_1.next(); !scoringZones_1_1.done; scoringZones_1_1 = scoringZones_1.next()) {
+                var zone = scoringZones_1_1.value;
+                if (d <= zone.r)
+                    return zone.score;
+            }
+        }
+        catch (e_1_1) { e_1 = { error: e_1_1 }; }
+        finally {
+            try {
+                if (scoringZones_1_1 && !scoringZones_1_1.done && (_a = scoringZones_1.return)) _a.call(scoringZones_1);
+            }
+            finally { if (e_1) throw e_1.error; }
         }
         return "M";
     }
@@ -322,16 +382,16 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
     // Container is SIZE×SIZE square. SVG has viewBox 0 0 VSIZE VSIZE.
     // CSS transform: translate(pan.x, pan.y) scale(zoom), origin = centre.
     function clientToVB(clientX, clientY) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const dx = clientX - (rect.left + SIZE / 2);
-        const dy = clientY - (rect.top + SIZE / 2);
-        const vx = ((dx - pan.x) / zoom) / SIZE * VSIZE + VCX;
-        const vy = ((dy - pan.y) / zoom) / SIZE * VSIZE + VCY;
-        return { vx, vy };
+        var rect = containerRef.current.getBoundingClientRect();
+        var dx = clientX - (rect.left + SIZE / 2);
+        var dy = clientY - (rect.top + SIZE / 2);
+        var vx = ((dx - pan.x) / zoom) / SIZE * VSIZE + VCX;
+        var vy = ((dy - pan.y) / zoom) / SIZE * VSIZE + VCY;
+        return { vx: vx, vy: vy };
     }
     // ── Pan clamp — allow target to move freely within ~1 radius of centre ────
     function clampPan(x, y, z) {
-        const limit = SIZE * 0.5 * (z - 1.4) + SIZE * 0.45;
+        var limit = SIZE * 0.5 * (z - 1.4) + SIZE * 0.45;
         return { x: Math.max(-limit, Math.min(limit, x)), y: Math.max(-limit, Math.min(limit, y)) };
     }
     // ── Touch handlers ────────────────────────────────────────────────────────
@@ -339,36 +399,36 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
         e.preventDefault();
         if (e.touches.length === 2) {
             dragRef.current = null;
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            pinchRef.current = { dist: Math.sqrt(dx * dx + dy * dy), zoom, pan: { ...pan } };
+            var dx = e.touches[0].clientX - e.touches[1].clientX;
+            var dy = e.touches[0].clientY - e.touches[1].clientY;
+            pinchRef.current = { dist: Math.sqrt(dx * dx + dy * dy), zoom: zoom, pan: __assign({}, pan) };
         }
         else if (e.touches.length === 1 && !pinchRef.current) {
-            dragRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, pan: { ...pan }, moved: false };
+            dragRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY, pan: __assign({}, pan), moved: false };
         }
     }
     function handleTouchMove(e) {
         e.preventDefault();
         if (e.touches.length === 2 && pinchRef.current) {
-            const dx = e.touches[0].clientX - e.touches[1].clientX;
-            const dy = e.touches[0].clientY - e.touches[1].clientY;
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            const newZ = Math.min(20, Math.max(1.4, pinchRef.current.zoom * dist / pinchRef.current.dist));
+            var dx = e.touches[0].clientX - e.touches[1].clientX;
+            var dy = e.touches[0].clientY - e.touches[1].clientY;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            var newZ = Math.min(20, Math.max(1.4, pinchRef.current.zoom * dist / pinchRef.current.dist));
             if (newZ <= 1.4) {
                 setZoom(1.4);
                 setPan({ x: 0, y: 0 });
                 return;
             }
-            const rect = containerRef.current.getBoundingClientRect();
-            const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left - SIZE / 2;
-            const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top - SIZE / 2;
-            const dz = newZ - pinchRef.current.zoom;
+            var rect = containerRef.current.getBoundingClientRect();
+            var midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left - SIZE / 2;
+            var midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top - SIZE / 2;
+            var dz = newZ - pinchRef.current.zoom;
             setZoom(newZ);
             setPan(clampPan(pinchRef.current.pan.x + midX * dz * 0.5, pinchRef.current.pan.y + midY * dz * 0.5, newZ));
         }
         else if (e.touches.length === 1 && dragRef.current) {
-            const dx = e.touches[0].clientX - dragRef.current.x;
-            const dy = e.touches[0].clientY - dragRef.current.y;
+            var dx = e.touches[0].clientX - dragRef.current.x;
+            var dy = e.touches[0].clientY - dragRef.current.y;
             if (Math.abs(dx) > 4 || Math.abs(dy) > 4)
                 dragRef.current.moved = true;
             if (dragRef.current.moved)
@@ -380,7 +440,7 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
         if (e.touches.length < 2)
             pinchRef.current = null;
         if (e.touches.length === 0 && e.changedTouches.length === 1 && !pinchRef.current && dragRef.current && !dragRef.current.moved && !disabled) {
-            const t = e.changedTouches[0];
+            var t = e.changedTouches[0];
             registerScore(t.clientX, t.clientY);
         }
         if (e.touches.length === 0)
@@ -392,18 +452,18 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
         registerScore(e.clientX, e.clientY);
     }
     function registerScore(clientX, clientY) {
-        const { vx, vy } = clientToVB(clientX, clientY);
-        const score = scoreAt(vx, vy);
-        setLastHit({ vx, vy });
-        setHits(prev => [...prev, { vx, vy, score }]);
-        setTimeout(() => setLastHit(null), 500);
+        var _a = clientToVB(clientX, clientY), vx = _a.vx, vy = _a.vy;
+        var score = scoreAt(vx, vy);
+        setLastHit({ vx: vx, vy: vy });
+        setHits(function (prev) { return __spreadArray(__spreadArray([], __read(prev), false), [{ vx: vx, vy: vy, score: score }], false); });
+        setTimeout(function () { return setLastHit(null); }, 500);
         onScore(score);
         if (onHit)
-            onHit({ vx, vy, score });
+            onHit({ vx: vx, vy: vy, score: score });
     }
     // Sync hits with arrows length (undo support)
-    useEffect(() => {
-        setHits(prev => {
+    useEffect(function () {
+        setHits(function (prev) {
             if (prev.length > arrows.length) {
                 if (onUndo)
                     onUndo();
@@ -412,14 +472,14 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
             return prev;
         });
     }, [arrows.length]);
-    useEffect(() => {
-        const el = containerRef.current;
+    useEffect(function () {
+        var el = containerRef.current;
         if (!el)
             return;
         el.addEventListener("touchstart", handleTouchStart, { passive: false });
         el.addEventListener("touchmove", handleTouchMove, { passive: false });
         el.addEventListener("touchend", handleTouchEnd, { passive: false });
-        return () => {
+        return function () {
             el.removeEventListener("touchstart", handleTouchStart);
             el.removeEventListener("touchmove", handleTouchMove);
             el.removeEventListener("touchend", handleTouchEnd);
@@ -427,12 +487,12 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
     });
     // ── Marker sizing — fixed physical size regardless of zoom ────────────────
     // MR in viewBox units; dividing by zoom keeps it constant in screen pixels
-    const MR_BASE = VR * 0.018; // base marker radius at zoom=1
-    const MR = MR_BASE / zoom;
-    const markerFill = (score) => {
+    var MR_BASE = VR * 0.018; // base marker radius at zoom=1
+    var MR = MR_BASE / zoom;
+    var markerFill = function (score) {
         if (score === "M")
             return "#666";
-        const n = score === "X" ? 10 : parseInt(score, 10);
+        var n = score === "X" ? 10 : parseInt(score, 10);
         if (n >= 9)
             return "#111"; // dark on yellow
         if (n >= 7)
@@ -443,10 +503,10 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
             return "#ddd"; // light on black
         return "#555"; // grey on white
     };
-    const markerTextFill = (score) => {
+    var markerTextFill = function (score) {
         if (score === "M")
             return "#fff";
-        const n = score === "X" ? 10 : parseInt(score, 10);
+        var n = score === "X" ? 10 : parseInt(score, 10);
         if (n >= 9)
             return "#f5e018"; // yellow on dark marker
         return markerFill(score) === "#fff" ? "#000" : "#fff";
@@ -461,66 +521,66 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
                 touchAction: "none",
                 boxShadow: "0 0 0 1px #333, 0 4px 16px rgba(0,0,0,0.5)",
             }, onClick: handleClick },
-            React.createElement("svg", { width: SIZE, height: SIZE, viewBox: `0 0 ${VSIZE} ${VSIZE}`, style: {
-                    transform: `translate(${pan.x}px,${pan.y}px) scale(${zoom})`,
+            React.createElement("svg", { width: SIZE, height: SIZE, viewBox: "0 0 ".concat(VSIZE, " ").concat(VSIZE), style: {
+                    transform: "translate(".concat(pan.x, "px,").concat(pan.y, "px) scale(").concat(zoom, ")"),
                     transformOrigin: "center center",
                     display: "block", userSelect: "none", overflow: "visible",
                 } },
                 React.createElement("rect", { x: 0, y: 0, width: VSIZE, height: VSIZE, fill: "#ffffff" }),
                 !isImperial && !isWorcester && React.createElement(React.Fragment, null,
-                    colourFills.map((z, i) => (React.createElement("circle", { key: i, cx: VCX, cy: VCY, r: z.r * VR, fill: z.fill, stroke: "none" }))),
-                    ringLines.map((z, i) => (React.createElement("circle", { key: `r${i}`, cx: VCX, cy: VCY, r: z.r * VR, fill: "none", stroke: z.stroke, strokeWidth: z.sw }))),
-                    zones10.map((z, i) => {
-                        const midR = (z.r + z.inner) / 2 * VR;
-                        const ang = -Math.PI / 4;
-                        const fs = 28; // uniform size
-                        const col = (z.score === "1" || z.score === "2") ? "#aaa"
+                    colourFills.map(function (z, i) { return (React.createElement("circle", { key: i, cx: VCX, cy: VCY, r: z.r * VR, fill: z.fill, stroke: "none" })); }),
+                    ringLines.map(function (z, i) { return (React.createElement("circle", { key: "r".concat(i), cx: VCX, cy: VCY, r: z.r * VR, fill: "none", stroke: z.stroke, strokeWidth: z.sw })); }),
+                    zones10.map(function (z, i) {
+                        var midR = (z.r + z.inner) / 2 * VR;
+                        var ang = -Math.PI / 4;
+                        var fs = 28; // uniform size
+                        var col = (z.score === "1" || z.score === "2") ? "#aaa"
                             : (z.score === "3" || z.score === "4") ? "#888"
                                 : (z.score === "9" || z.score === "10" || z.score === "X") ? "#999"
                                     : "rgba(255,255,255,0.8)";
                         // X goes exactly at centre
-                        const tx = z.score === "X" ? VCX : VCX + midR * Math.cos(ang);
-                        const ty = z.score === "X" ? VCY + fs * 0.38 : VCY + midR * Math.sin(ang) + fs * 0.38;
-                        return (React.createElement("text", { key: `l${i}`, x: tx, y: ty, textAnchor: "middle", fontSize: fs, fill: col, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "400", style: { pointerEvents: "none" } }, z.score));
+                        var tx = z.score === "X" ? VCX : VCX + midR * Math.cos(ang);
+                        var ty = z.score === "X" ? VCY + fs * 0.38 : VCY + midR * Math.sin(ang) + fs * 0.38;
+                        return (React.createElement("text", { key: "l".concat(i), x: tx, y: ty, textAnchor: "middle", fontSize: fs, fill: col, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "400", style: { pointerEvents: "none" } }, z.score));
                     })),
                 isImperial && !isWorcester && React.createElement(React.Fragment, null,
-                    zones5colours.map((z, i) => (React.createElement("circle", { key: i, cx: VCX, cy: VCY, r: z.r * VR, fill: z.fill, stroke: "none" }))),
-                    imp10rings.map((rv, i) => {
-                        const isBoundary = imp5boundaries.includes(rv);
-                        return (React.createElement("circle", { key: `g${i}`, cx: VCX, cy: VCY, r: rv * VR, fill: "none", stroke: isBoundary ? "#000" : "rgba(0,0,0,0.25)", strokeWidth: isBoundary ? 3 : 1.5 }));
+                    zones5colours.map(function (z, i) { return (React.createElement("circle", { key: i, cx: VCX, cy: VCY, r: z.r * VR, fill: z.fill, stroke: "none" })); }),
+                    imp10rings.map(function (rv, i) {
+                        var isBoundary = imp5boundaries.includes(rv);
+                        return (React.createElement("circle", { key: "g".concat(i), cx: VCX, cy: VCY, r: rv * VR, fill: "none", stroke: isBoundary ? "#000" : "rgba(0,0,0,0.25)", strokeWidth: isBoundary ? 3 : 1.5 }));
                     }),
-                    imp5labels.map((z, i) => {
-                        const midR = (z.r + z.inner) / 2 * VR;
-                        const ang = -Math.PI / 4;
-                        const fs = 28;
-                        const col = (z.score === "1") ? "#aaa"
+                    imp5labels.map(function (z, i) {
+                        var midR = (z.r + z.inner) / 2 * VR;
+                        var ang = -Math.PI / 4;
+                        var fs = 28;
+                        var col = (z.score === "1") ? "#aaa"
                             : (z.score === "3") ? "#888"
                                 : (z.score === "9") ? "#999"
                                     : "rgba(255,255,255,0.8)";
-                        return (React.createElement("text", { key: `il${i}`, x: VCX + midR * Math.cos(ang), y: VCY + midR * Math.sin(ang) + fs * 0.38, textAnchor: "middle", fontSize: fs, fill: col, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "400", style: { pointerEvents: "none" } }, z.score));
+                        return (React.createElement("text", { key: "il".concat(i), x: VCX + midR * Math.cos(ang), y: VCY + midR * Math.sin(ang) + fs * 0.38, textAnchor: "middle", fontSize: fs, fill: col, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "400", style: { pointerEvents: "none" } }, z.score));
                     })),
                 isWorcester && React.createElement(React.Fragment, null,
                     React.createElement("rect", { x: 0, y: 0, width: VSIZE, height: VSIZE, fill: "#111111" }),
                     React.createElement("circle", { cx: VCX, cy: VCY, r: 1.00 * VR, fill: "#111111", stroke: "none" }),
                     React.createElement("circle", { cx: VCX, cy: VCY, r: 0.20 * VR, fill: "#f0ece0", stroke: "none" }),
                     " ",
-                    [1.00, 0.80, 0.60, 0.40, 0.20].map((r, i) => (React.createElement("circle", { key: `wl${i}`, cx: VCX, cy: VCY, r: r * VR, fill: "none", stroke: "#ffffff", strokeWidth: i === 0 ? 1 : 2 }))),
+                    [1.00, 0.80, 0.60, 0.40, 0.20].map(function (r, i) { return (React.createElement("circle", { key: "wl".concat(i), cx: VCX, cy: VCY, r: r * VR, fill: "none", stroke: "#ffffff", strokeWidth: i === 0 ? 1 : 2 })); }),
                     [
                         { r: 1.00, inner: 0.80, score: "1" },
                         { r: 0.80, inner: 0.60, score: "2" },
                         { r: 0.60, inner: 0.40, score: "3" },
                         { r: 0.40, inner: 0.20, score: "4" },
                         { r: 0.20, inner: 0.00, score: "5" },
-                    ].map((z, i) => {
-                        const midR = (z.r + z.inner) / 2 * VR;
-                        const ang = -Math.PI / 4;
-                        const fs = 28;
-                        const col = z.score === "5" ? "#555" : "#ccc";
-                        return (React.createElement("text", { key: `wsc${i}`, x: VCX + midR * Math.cos(ang), y: VCY + midR * Math.sin(ang) + fs * 0.38, textAnchor: "middle", fontSize: fs, fill: col, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "400", style: { pointerEvents: "none" } }, z.score));
+                    ].map(function (z, i) {
+                        var midR = (z.r + z.inner) / 2 * VR;
+                        var ang = -Math.PI / 4;
+                        var fs = 28;
+                        var col = z.score === "5" ? "#555" : "#ccc";
+                        return (React.createElement("text", { key: "wsc".concat(i), x: VCX + midR * Math.cos(ang), y: VCY + midR * Math.sin(ang) + fs * 0.38, textAnchor: "middle", fontSize: fs, fill: col, fontFamily: "Arial, Helvetica, sans-serif", fontWeight: "400", style: { pointerEvents: "none" } }, z.score));
                     })),
-                displayHits.map((h, i) => (React.createElement("g", { key: i, style: { pointerEvents: "none" } },
+                displayHits.map(function (h, i) { return (React.createElement("g", { key: i, style: { pointerEvents: "none" } },
                     React.createElement("circle", { cx: h.vx, cy: h.vy, r: MR, fill: markerFill(h.score), stroke: "rgba(0,0,0,0.6)", strokeWidth: MR * 0.15 }),
-                    React.createElement("text", { x: h.vx, y: h.vy + MR * 0.38, textAnchor: "middle", fontSize: MR * 1.1, fill: markerTextFill(h.score), fontFamily: "Arial, sans-serif", fontWeight: "700", style: { pointerEvents: "none" } }, h.score)))),
+                    React.createElement("text", { x: h.vx, y: h.vy + MR * 0.38, textAnchor: "middle", fontSize: MR * 1.1, fill: markerTextFill(h.score), fontFamily: "Arial, sans-serif", fontWeight: "700", style: { pointerEvents: "none" } }, h.score))); }),
                 lastHit && (React.createElement("circle", { cx: lastHit.vx, cy: lastHit.vy, r: MR * 2.5, fill: "none", stroke: "#c8f55a", strokeWidth: MR * 0.5, opacity: 0.9, style: { pointerEvents: "none" } })))),
         React.createElement("div", { style: { fontSize: 9, color: "#555", letterSpacing: 1.5, marginTop: 6, display: "flex", gap: 14, alignItems: "center" } },
             React.createElement("span", null, "TAP TO SCORE"),
@@ -532,26 +592,27 @@ function TargetFace({ isImperial, isWorcester, disabled, onScore, onHit, onUndo,
 }
 // ─── Main Component ───────────────────────────────────────────────────────────
 function ArcheryScorer() {
-    const [screen, setScreen] = useState("home");
-    const [selectedGroup, setSelectedGroup] = useState("Indoor");
-    const [selectedRound, setSelectedRound] = useState("WA 18m");
-    const [ends, setEnds] = useState([]);
-    const [currentEnd, setCurrentEnd] = useState([]);
-    const [history, setHistory] = useState(loadHistory);
-    const [showFinish, setShowFinish] = useState(false);
-    const [finishNotes, setFinishNotes] = useState("");
-    const [viewingRound, setViewingRound] = useState(null);
-    const [editingNotes, setEditingNotes] = useState(false);
-    const [draftNotes, setDraftNotes] = useState("");
-    const [showTargetFace, setShowTargetFace] = useState(false);
-    const [scoringSetupId, setScoringSetupId] = useState(() => {
+    var _a;
+    var _b = __read(useState("home"), 2), screen = _b[0], setScreen = _b[1];
+    var _c = __read(useState("Indoor"), 2), selectedGroup = _c[0], setSelectedGroup = _c[1];
+    var _d = __read(useState("WA 18m"), 2), selectedRound = _d[0], setSelectedRound = _d[1];
+    var _e = __read(useState([]), 2), ends = _e[0], setEnds = _e[1];
+    var _f = __read(useState([]), 2), currentEnd = _f[0], setCurrentEnd = _f[1];
+    var _g = __read(useState(loadHistory), 2), history = _g[0], setHistory = _g[1];
+    var _h = __read(useState(false), 2), showFinish = _h[0], setShowFinish = _h[1];
+    var _j = __read(useState(""), 2), finishNotes = _j[0], setFinishNotes = _j[1];
+    var _k = __read(useState(null), 2), viewingRound = _k[0], setViewingRound = _k[1];
+    var _l = __read(useState(false), 2), editingNotes = _l[0], setEditingNotes = _l[1];
+    var _m = __read(useState(""), 2), draftNotes = _m[0], setDraftNotes = _m[1];
+    var _o = __read(useState(false), 2), showTargetFace = _o[0], setShowTargetFace = _o[1];
+    var _p = __read(useState(function () {
         try {
             return localStorage.getItem("archery_default_setup") || null;
         }
-        catch {
+        catch (_a) {
             return null;
         }
-    });
+    }), 2), scoringSetupId = _p[0], setScoringSetupId = _p[1];
     function updateScoringSetup(id) {
         setScoringSetupId(id);
         try {
@@ -560,78 +621,78 @@ function ArcheryScorer() {
             else
                 localStorage.removeItem("archery_default_setup");
         }
-        catch { }
+        catch (_a) { }
     }
-    const [inputMode, setInputMode] = useState("buttons");
-    const [hitPositions, setHitPositions] = useState([]);
-    const [homeStep, setHomeStep] = useState("env"); // "env" | "category" | "round"
-    const [homeEnv, setHomeEnv] = useState(null); // "outdoor" | "indoor" // [{vx,vy,score}] all hits this round
+    var _q = __read(useState("buttons"), 2), inputMode = _q[0], setInputMode = _q[1];
+    var _r = __read(useState([]), 2), hitPositions = _r[0], setHitPositions = _r[1];
+    var _s = __read(useState("env"), 2), homeStep = _s[0], setHomeStep = _s[1]; // "env" | "category" | "round"
+    var _t = __read(useState(null), 2), homeEnv = _t[0], setHomeEnv = _t[1]; // "outdoor" | "indoor" // [{vx,vy,score}] all hits this round
     // Sight marks
-    const [setups, setSetups] = useState(loadSights);
-    const [activeSetup, setActiveSetup] = useState(null);
-    const [editingSetup, setEditingSetup] = useState(false);
-    const [draftSetup, setDraftSetup] = useState({});
-    const [addingMark, setAddingMark] = useState(false);
-    const [draftMark, setDraftMark] = useState({ distance: ALL_DISTANCES[0], setting: "" });
-    const [editingMarkId, setEditingMarkId] = useState(null);
-    const activeRound = selectedRound || "WA 18m";
-    const round = ROUNDS[activeRound];
-    const isImperial = round.imperial;
-    const isWorcester = activeRound === "Worcester";
-    const arrowVals = getArrowValues(activeRound);
-    const maxScore = maxRoundScore(activeRound);
-    const totalScore = ends.flat().reduce((s, v) => s + arrowToScore(v), 0);
-    const xCount = ends.flat().filter(v => v === "X").length;
-    const goldCount = ends.flat().filter(v => v === "9").length;
-    const currentEndScore = currentEnd.reduce((s, v) => s + arrowToScore(v), 0);
-    const endNumber = ends.length + 1;
-    const allEndsComplete = ends.length === round.ends;
-    const arrowsShot = ends.flat().length + currentEnd.length;
-    const arrowsRemaining = round.ends * round.arrowsPerEnd - arrowsShot;
-    const maxArrow = isWorcester ? 5 : isImperial ? 9 : 10;
-    const livePossible = totalScore + currentEndScore + arrowsRemaining * maxArrow;
+    var _u = __read(useState(loadSights), 2), setups = _u[0], setSetups = _u[1];
+    var _v = __read(useState(null), 2), activeSetup = _v[0], setActiveSetup = _v[1];
+    var _w = __read(useState(false), 2), editingSetup = _w[0], setEditingSetup = _w[1];
+    var _x = __read(useState({}), 2), draftSetup = _x[0], setDraftSetup = _x[1];
+    var _y = __read(useState(false), 2), addingMark = _y[0], setAddingMark = _y[1];
+    var _z = __read(useState({ distance: ALL_DISTANCES[0], setting: "" }), 2), draftMark = _z[0], setDraftMark = _z[1];
+    var _0 = __read(useState(null), 2), editingMarkId = _0[0], setEditingMarkId = _0[1];
+    var activeRound = selectedRound || "WA 18m";
+    var round = ROUNDS[activeRound];
+    var isImperial = round.imperial;
+    var isWorcester = activeRound === "Worcester";
+    var arrowVals = getArrowValues(activeRound);
+    var maxScore = maxRoundScore(activeRound);
+    var totalScore = ends.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+    var xCount = ends.flat().filter(function (v) { return v === "X"; }).length;
+    var goldCount = ends.flat().filter(function (v) { return v === "9"; }).length;
+    var currentEndScore = currentEnd.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+    var endNumber = ends.length + 1;
+    var allEndsComplete = ends.length === round.ends;
+    var arrowsShot = ends.flat().length + currentEnd.length;
+    var arrowsRemaining = round.ends * round.arrowsPerEnd - arrowsShot;
+    var maxArrow = isWorcester ? 5 : isImperial ? 9 : 10;
+    var livePossible = totalScore + currentEndScore + arrowsRemaining * maxArrow;
     // Distance breakdown
-    const distances = round.distances || null;
-    const distStartEnd = distances
-        ? distances.reduce((acc, d, i) => { acc.push(i === 0 ? 0 : acc[i - 1] + distances[i - 1].ends); return acc; }, [])
+    var distances = round.distances || null;
+    var distStartEnd = distances
+        ? distances.reduce(function (acc, d, i) { acc.push(i === 0 ? 0 : acc[i - 1] + distances[i - 1].ends); return acc; }, [])
         : [];
-    const currentDistIndex = (() => {
+    var currentDistIndex = (function () {
         if (!distances)
             return null;
-        let e = 0;
-        for (let d = 0; d < distances.length; d++) {
+        var e = 0;
+        for (var d = 0; d < distances.length; d++) {
             e += distances[d].ends;
             if (ends.length < e)
                 return d;
         }
         return distances.length - 1;
     })();
-    const scoringSetup = setups.find(s => s.id === scoringSetupId) || null;
-    const getSightMark = (distLabel) => scoringSetup?.marks.find(m => m.distance === distLabel) || null;
-    const distScore = (di) => {
+    var scoringSetup = setups.find(function (s) { return s.id === scoringSetupId; }) || null;
+    var getSightMark = function (distLabel) { return (scoringSetup === null || scoringSetup === void 0 ? void 0 : scoringSetup.marks.find(function (m) { return m.distance === distLabel; })) || null; };
+    var distScore = function (di) {
         if (!distances)
             return 0;
-        return ends.slice(distStartEnd[di], distStartEnd[di] + distances[di].ends).flat().reduce((s, v) => s + arrowToScore(v), 0);
+        return ends.slice(distStartEnd[di], distStartEnd[di] + distances[di].ends).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
     };
-    const distArrows = (di) => distances ? distances[di].ends * round.arrowsPerEnd : 0;
-    const personalBest = history
-        .filter(h => h.round === activeRound)
-        .reduce((best, h) => Math.max(best, h.score), 0);
+    var distArrows = function (di) { return distances ? distances[di].ends * round.arrowsPerEnd : 0; };
+    var personalBest = history
+        .filter(function (h) { return h.round === activeRound; })
+        .reduce(function (best, h) { return Math.max(best, h.score); }, 0);
     function selectGroup(g) {
         setSelectedGroup(g);
         setSelectedRound(null);
     }
-    const [showSightModal, setShowSightModal] = useState(false);
-    const [sightModalDist, setSightModalDist] = useState(null);
+    var _1 = __read(useState(false), 2), showSightModal = _1[0], setShowSightModal = _1[1];
+    var _2 = __read(useState(null), 2), sightModalDist = _2[0], setSightModalDist = _2[1];
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
-        const newEnd = [...currentEnd, val];
+        var newEnd = __spreadArray(__spreadArray([], __read(currentEnd), false), [val], false);
         setCurrentEnd(newEnd);
         // Auto-submit when last arrow entered
         if (newEnd.length === round.arrowsPerEnd) {
-            const sorted = [...newEnd].sort((a, b) => arrowToScore(b) - arrowToScore(a));
-            const newEnds = [...ends, sorted];
+            var sorted = __spreadArray([], __read(newEnd), false).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); });
+            var newEnds = __spreadArray(__spreadArray([], __read(ends), false), [sorted], false);
             setEnds(newEnds);
             setCurrentEnd([]);
             if (newEnds.length === round.ends) {
@@ -639,8 +700,8 @@ function ArcheryScorer() {
             }
             else if (distances) {
                 // Check if this end completes a distance — if so, show sight modal
-                for (let di = 0; di < distances.length - 1; di++) {
-                    const distEnd = distStartEnd[di] + distances[di].ends;
+                for (var di = 0; di < distances.length - 1; di++) {
+                    var distEnd = distStartEnd[di] + distances[di].ends;
                     if (newEnds.length === distEnd) {
                         setSightModalDist(distances[di + 1]);
                         setShowSightModal(true);
@@ -651,34 +712,34 @@ function ArcheryScorer() {
         }
     }
     function removeLastArrow() {
-        setCurrentEnd(prev => prev.slice(0, -1));
+        setCurrentEnd(function (prev) { return prev.slice(0, -1); });
     }
     function submitEnd() {
         if (currentEnd.length !== round.arrowsPerEnd)
             return;
-        const sorted = [...currentEnd].sort((a, b) => arrowToScore(b) - arrowToScore(a));
-        const newEnds = [...ends, sorted];
+        var sorted = __spreadArray([], __read(currentEnd), false).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); });
+        var newEnds = __spreadArray(__spreadArray([], __read(ends), false), [sorted], false);
         setEnds(newEnds);
         setCurrentEnd([]);
         if (newEnds.length === round.ends)
             setShowFinish(true);
     }
     function finishRound() {
-        const score = ends.flat().reduce((s, v) => s + arrowToScore(v), 0);
-        const entry = {
+        var score = ends.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+        var entry = {
             id: Date.now(),
             round: activeRound,
             imperial: isImperial,
-            score,
+            score: score,
             maxPossible: maxScore,
-            xs: ends.flat().filter(v => v === "X").length,
-            golds: ends.flat().filter(v => v === "9").length,
+            xs: ends.flat().filter(function (v) { return v === "X"; }).length,
+            golds: ends.flat().filter(function (v) { return v === "9"; }).length,
             date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
-            ends,
+            ends: ends,
             notes: finishNotes.trim(),
-            hitPositions,
+            hitPositions: hitPositions,
         };
-        const newHistory = [entry, ...history];
+        var newHistory = __spreadArray([entry], __read(history), false);
         setHistory(newHistory);
         saveHistory(newHistory);
         setEnds([]);
@@ -700,40 +761,40 @@ function ArcheryScorer() {
     // ─── Sight marks helpers ──────────────────────────────────────────────────
     function saveSetups(updated) { setSetups(updated); saveSights(updated); }
     function createSetup() {
-        const s = { id: Date.now(), name: "New Setup", poundage: "", arrowType: "", notes: "", marks: [] };
-        saveSetups([...setups, s]);
+        var s = { id: Date.now(), name: "New Setup", poundage: "", arrowType: "", notes: "", marks: [] };
+        saveSetups(__spreadArray(__spreadArray([], __read(setups), false), [s], false));
         setActiveSetup(s.id);
         setDraftSetup({ name: s.name, poundage: "", arrowType: "", notes: "" });
         setEditingSetup(true);
     }
     function updateSetupMeta() {
-        saveSetups(setups.map(s => s.id === activeSetup ? { ...s, ...draftSetup } : s));
+        saveSetups(setups.map(function (s) { return s.id === activeSetup ? __assign(__assign({}, s), draftSetup) : s; }));
         setEditingSetup(false);
     }
     function deleteSetup(id) {
-        saveSetups(setups.filter(s => s.id !== id));
+        saveSetups(setups.filter(function (s) { return s.id !== id; }));
         setActiveSetup(null);
     }
     function addMark() {
         if (!draftMark.setting.trim())
             return;
-        const mark = { id: Date.now(), distance: draftMark.distance, setting: draftMark.setting.trim() };
-        saveSetups(setups.map(s => s.id === activeSetup ? { ...s, marks: [...s.marks, mark] } : s));
+        var mark = { id: Date.now(), distance: draftMark.distance, setting: draftMark.setting.trim() };
+        saveSetups(setups.map(function (s) { return s.id === activeSetup ? __assign(__assign({}, s), { marks: __spreadArray(__spreadArray([], __read(s.marks), false), [mark], false) }) : s; }));
         setDraftMark({ distance: draftMark.distance, setting: "" });
         setAddingMark(false);
     }
     function updateMark(markId, setting) {
-        saveSetups(setups.map(s => s.id === activeSetup
-            ? { ...s, marks: s.marks.map(m => m.id === markId ? { ...m, setting } : m) } : s));
+        saveSetups(setups.map(function (s) { return s.id === activeSetup
+            ? __assign(__assign({}, s), { marks: s.marks.map(function (m) { return m.id === markId ? __assign(__assign({}, m), { setting: setting }) : m; }) }) : s; }));
     }
     function deleteMark(markId) {
-        saveSetups(setups.map(s => s.id === activeSetup
-            ? { ...s, marks: s.marks.filter(m => m.id !== markId) } : s));
+        saveSetups(setups.map(function (s) { return s.id === activeSetup
+            ? __assign(__assign({}, s), { marks: s.marks.filter(function (m) { return m.id !== markId; }) }) : s; }));
     }
-    const currentSetup = setups.find(s => s.id === activeSetup);
+    var currentSetup = setups.find(function (s) { return s.id === activeSetup; });
     // ─── Render ───────────────────────────────────────────────────────────────
     return (React.createElement("div", { style: { minHeight: "100vh", background: "#0f1117", fontFamily: "'DM Mono','Courier New',monospace", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "center" } },
-        React.createElement("style", null, `
+        React.createElement("style", null, "
         @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap');
         * { box-sizing: border-box; }
         ::-webkit-scrollbar { width: 4px; }
@@ -742,25 +803,28 @@ function ArcheryScorer() {
         .abtn:active { transform: scale(0.90); }
         .abtn:disabled { opacity: 0.3; cursor: default; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:translateY(0) } }
-      `),
+      "),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" } },
             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3, color: "#c8f55a" } }, "LINE CUTTERS"),
-            React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "SCORE"], ["history", "HISTORY"], ["sights", "EQUIPMENT"]].map(([s, label]) => (React.createElement("button", { key: s, onClick: () => {
-                    if (screen !== "scoring") {
-                        setScreen(s);
-                        setViewingRound(null);
-                        setActiveSetup(null);
-                        setEditingSetup(false);
-                        setAddingMark(false);
-                        if (s === "home")
-                            setHomeStep("env");
-                    }
-                }, style: { background: "none", border: "none", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "8px 10px",
-                    color: screen === s ? "#c8f55a" : "#555",
-                    borderBottom: screen === s ? "2px solid #c8f55a" : "2px solid transparent" } }, label))))),
+            React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "SCORE"], ["history", "HISTORY"], ["sights", "EQUIPMENT"]].map(function (_a) {
+                var _b = __read(_a, 2), s = _b[0], label = _b[1];
+                return (React.createElement("button", { key: s, onClick: function () {
+                        if (screen !== "scoring") {
+                            setScreen(s);
+                            setViewingRound(null);
+                            setActiveSetup(null);
+                            setEditingSetup(false);
+                            setAddingMark(false);
+                            if (s === "home")
+                                setHomeStep("env");
+                        }
+                    }, style: { background: "none", border: "none", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "8px 10px",
+                        color: screen === s ? "#c8f55a" : "#555",
+                        borderBottom: screen === s ? "2px solid #c8f55a" : "2px solid transparent" } }, label));
+            }))),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "18px 20px 60px", flex: 1 } },
             screen === "home" && (React.createElement("div", { style: { animation: "fadeUp 0.25s ease" } },
-                (ends.length > 0 || currentEnd.length > 0) && (React.createElement("button", { onClick: () => setScreen("scoring"), style: { width: "100%", padding: 14, marginBottom: 20,
+                (ends.length > 0 || currentEnd.length > 0) && (React.createElement("button", { onClick: function () { return setScreen("scoring"); }, style: { width: "100%", padding: 14, marginBottom: 20,
                         background: "#0d2015", color: "#c8f55a",
                         border: "2px solid #2a6a3a", borderRadius: 10,
                         fontFamily: "'Bebas Neue',sans-serif", fontSize: 17, letterSpacing: 2, cursor: "pointer" } },
@@ -772,68 +836,76 @@ function ArcheryScorer() {
                     round.ends)),
                 homeStep === "env" && (React.createElement("div", null,
                     React.createElement("div", { style: { fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 16, textAlign: "center" } }, "SELECT ENVIRONMENT"),
-                    React.createElement("div", { style: { display: "flex", gap: 10 } }, [["outdoor", "🌤 OUTDOOR"], ["indoor", "🏛 INDOOR"]].map(([env, label]) => (React.createElement("button", { key: env, onClick: () => {
-                            setHomeEnv(env);
-                            setSelectedRound(null);
-                            setHomeStep("category");
-                        }, style: { flex: 1, padding: "28px 10px", border: "none", borderRadius: 12, cursor: "pointer",
-                            fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3,
-                            background: "#1a1d25", color: "#e8e8e0",
-                            transition: "all 0.15s" } }, label)))))),
+                    React.createElement("div", { style: { display: "flex", gap: 10 } }, [["outdoor", "🌤 OUTDOOR"], ["indoor", "🏛 INDOOR"]].map(function (_a) {
+                        var _b = __read(_a, 2), env = _b[0], label = _b[1];
+                        return (React.createElement("button", { key: env, onClick: function () {
+                                setHomeEnv(env);
+                                setSelectedRound(null);
+                                setHomeStep("category");
+                            }, style: { flex: 1, padding: "28px 10px", border: "none", borderRadius: 12, cursor: "pointer",
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3,
+                                background: "#1a1d25", color: "#e8e8e0",
+                                transition: "all 0.15s" } }, label));
+                    })))),
                 homeStep === "category" && (React.createElement("div", null,
-                    React.createElement("button", { onClick: () => { setHomeStep("env"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 16px 0" } }, "\u2190 BACK"),
+                    React.createElement("button", { onClick: function () { setHomeStep("env"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 16px 0" } }, "\u2190 BACK"),
                     React.createElement("div", { style: { fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 14, textAlign: "center" } }, homeEnv === "outdoor" ? "SELECT ROUND TYPE" : "SELECT ROUND"),
-                    homeEnv === "outdoor" ? (React.createElement("div", { style: { display: "flex", gap: 10, marginBottom: 10 } }, [["WA / Metric Outdoor", "METRIC"], ["Imperial Outdoor", "IMPERIAL"]].map(([group, label]) => (React.createElement("button", { key: group, onClick: () => { selectGroup(group); setSelectedRound(null); setHomeStep("round"); }, style: { flex: 1, padding: "28px 10px", border: "none", borderRadius: 12, cursor: "pointer",
-                            fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3,
-                            background: "#1a1d25", color: "#e8e8e0" } }, label))))) : (React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, Object.keys(ROUND_GROUPS["Indoor"]).map(r => (React.createElement("button", { key: r, onClick: () => { selectGroup("Indoor"); setSelectedRound(r); setHomeStep("round"); }, style: { background: "#1a1d25", color: "#888", border: "none", borderRadius: 8,
-                            padding: "12px 8px", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, r))))))),
+                    homeEnv === "outdoor" ? (React.createElement("div", { style: { display: "flex", gap: 10, marginBottom: 10 } }, [["WA / Metric Outdoor", "METRIC"], ["Imperial Outdoor", "IMPERIAL"]].map(function (_a) {
+                        var _b = __read(_a, 2), group = _b[0], label = _b[1];
+                        return (React.createElement("button", { key: group, onClick: function () { selectGroup(group); setSelectedRound(null); setHomeStep("round"); }, style: { flex: 1, padding: "28px 10px", border: "none", borderRadius: 12, cursor: "pointer",
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3,
+                                background: "#1a1d25", color: "#e8e8e0" } }, label));
+                    }))) : (React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, Object.keys(ROUND_GROUPS["Indoor"]).map(function (r) { return (React.createElement("button", { key: r, onClick: function () { selectGroup("Indoor"); setSelectedRound(r); setHomeStep("round"); }, style: { background: "#1a1d25", color: "#888", border: "none", borderRadius: 8,
+                            padding: "12px 8px", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, r)); }))))),
                 homeStep === "round" && (React.createElement("div", null,
-                    React.createElement("button", { onClick: () => { setHomeStep(homeEnv === "indoor" ? "env" : "category"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 14px 0" } }, "\u2190 BACK"),
+                    React.createElement("button", { onClick: function () { setHomeStep(homeEnv === "indoor" ? "env" : "category"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 14px 0" } }, "\u2190 BACK"),
                     setups.length > 0 && (React.createElement("div", { style: { marginBottom: 14, background: "#1a1d25", borderRadius: 10, padding: "12px 14px" } },
                         React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 8 } }, "SIGHT MARKS SETUP"),
                         scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8f55a", marginBottom: 8 } },
                             "\u2713 Using: ",
-                            React.createElement("strong", null, setups.find(s => s.id === scoringSetupId)?.name))),
+                            React.createElement("strong", null, (_a = setups.find(function (s) { return s.id === scoringSetupId; })) === null || _a === void 0 ? void 0 : _a.name))),
                         !scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8862a", marginBottom: 8 } }, "\u26A0 No setup selected \u2014 sight marks won't show at distance changes")),
                         React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
-                            React.createElement("button", { onClick: () => updateScoringSetup(null), style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
+                            React.createElement("button", { onClick: function () { return updateScoringSetup(null); }, style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
                                     background: scoringSetupId === null ? "#2a2d38" : "#141720",
                                     color: scoringSetupId === null ? "#e8e8e0" : "#444" } }, "None"),
-                            setups.map(s => (React.createElement("button", { key: s.id, onClick: () => updateScoringSetup(s.id), style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
+                            setups.map(function (s) { return (React.createElement("button", { key: s.id, onClick: function () { return updateScoringSetup(s.id); }, style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
                                     background: scoringSetupId === s.id ? "#c8f55a" : "#141720",
                                     color: scoringSetupId === s.id ? "#0f1117" : "#888",
-                                    fontWeight: scoringSetupId === s.id ? "600" : "400" } }, s.name)))))),
-                    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(r => {
-                        const isSelected = selectedRound === r;
+                                    fontWeight: scoringSetupId === s.id ? "600" : "400" } }, s.name)); })))),
+                    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(function (r) {
+                        var isSelected = selectedRound === r;
                         return (React.createElement("div", { key: r },
-                            React.createElement("button", { onClick: () => setSelectedRound(isSelected ? null : r), style: { width: "100%", background: isSelected ? "#c8f55a" : "#1a1d25",
+                            React.createElement("button", { onClick: function () { return setSelectedRound(isSelected ? null : r); }, style: { width: "100%", background: isSelected ? "#c8f55a" : "#1a1d25",
                                     color: isSelected ? "#0f1117" : "#888",
                                     border: "none", borderRadius: isSelected ? "8px 8px 0 0" : 8,
                                     padding: "11px 14px", cursor: "pointer",
                                     fontFamily: "'DM Mono',monospace", fontSize: 12,
                                     fontWeight: isSelected ? "500" : "400",
                                     textAlign: "left", transition: "all 0.15s" } }, r),
-                            isSelected && (() => {
-                                const selRound = ROUNDS[r];
-                                const selIsImperial = selRound.imperial;
-                                const selIsWorcester = r === "Worcester";
-                                const selMaxScore = maxRoundScore(r);
-                                const selPB = history.filter(h => h.round === r).reduce((b, h) => Math.max(b, h.score), 0);
+                            isSelected && (function () {
+                                var selRound = ROUNDS[r];
+                                var selIsImperial = selRound.imperial;
+                                var selIsWorcester = r === "Worcester";
+                                var selMaxScore = maxRoundScore(r);
+                                var selPB = history.filter(function (h) { return h.round === r; }).reduce(function (b, h) { return Math.max(b, h.score); }, 0);
                                 return (React.createElement("div", { style: { background: "#141720", borderRadius: "0 0 8px 8px", padding: "12px 14px", marginBottom: 2, animation: "fadeUp 0.15s ease" } },
                                     selIsImperial && (React.createElement("div", { style: { fontSize: 10, color: "#c8862a", marginBottom: 8 } }, "\u26A0 5-zone: Gold=9 \u00B7 Red=7 \u00B7 Blue=5 \u00B7 Black=3 \u00B7 White=1")),
-                                    React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" } }, [
-                                        [`${selRound.ends} ends`, null],
-                                        [`${selRound.arrowsPerEnd} arrows/end`, null],
-                                        [`max ${selMaxScore}`, "#c8f55a"],
-                                        ...(selPB > 0 ? [`PB ${selPB}`, "#ffd700"] : []),
-                                    ].flat().reduce((acc, item, i) => {
+                                    React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" } }, __spreadArray([
+                                        ["".concat(selRound.ends, " ends"), null],
+                                        ["".concat(selRound.arrowsPerEnd, " arrows/end"), null],
+                                        ["max ".concat(selMaxScore), "#c8f55a"]
+                                    ], __read((selPB > 0 ? ["PB ".concat(selPB), "#ffd700"] : [])), false).flat().reduce(function (acc, item, i) {
                                         if (i % 2 === 0)
                                             acc.push({ label: item });
                                         else
                                             acc[acc.length - 1].color = item;
                                         return acc;
-                                    }, []).map(({ label, color }, i) => (React.createElement("span", { key: i, style: { fontSize: 10, color: color || "#666",
-                                            background: "#1a1d25", borderRadius: 6, padding: "3px 8px" } }, label)))),
+                                    }, []).map(function (_a, i) {
+                                        var label = _a.label, color = _a.color;
+                                        return (React.createElement("span", { key: i, style: { fontSize: 10, color: color || "#666",
+                                                background: "#1a1d25", borderRadius: 6, padding: "3px 8px" } }, label));
+                                    })),
                                     React.createElement("button", { onClick: startRound, style: { width: "100%", padding: "13px", background: "#c8f55a", color: "#0f1117",
                                             border: "none", borderRadius: 8, cursor: "pointer",
                                             fontFamily: "'Bebas Neue',sans-serif", fontSize: 19, letterSpacing: 3 } }, "START ROUND")));
@@ -842,31 +914,34 @@ function ArcheryScorer() {
             screen === "scoring" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
-                        React.createElement("button", { onClick: () => setScreen("home"), style: { background: "none", border: "none", color: "#555", cursor: "pointer",
+                        React.createElement("button", { onClick: function () { return setScreen("home"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer",
                                 fontFamily: "'DM Mono',monospace", fontSize: 11, padding: 0 } }, "\u2190 MENU"),
                         React.createElement("div", { style: { fontSize: 11, color: "#888" } }, activeRound)),
                     React.createElement("div", { style: { fontSize: 9, padding: "3px 9px", borderRadius: 999,
                             background: isImperial ? "#2a1800" : "#001828",
                             color: isImperial ? "#c8862a" : "#4ab3f4",
-                            border: `1px solid ${isImperial ? "#5a3a00" : "#0a3a5a"}` } }, isWorcester ? "WORCESTER 5-ZONE" : isImperial ? "5-ZONE IMPERIAL" : "10-ZONE METRIC")),
+                            border: "1px solid ".concat(isImperial ? "#5a3a00" : "#0a3a5a") } }, isWorcester ? "WORCESTER 5-ZONE" : isImperial ? "5-ZONE IMPERIAL" : "10-ZONE METRIC")),
                 React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 14 } }, [
-                    { label: "TOTAL", value: totalScore, sub: `/ ${maxScore}`, color: "#c8f55a" },
+                    { label: "TOTAL", value: totalScore, sub: "/ ".concat(maxScore), color: "#c8f55a" },
                     { label: "HIGHEST POSSIBLE", value: livePossible, sub: "if perfect now",
                         color: livePossible === maxScore ? "#c8f55a" : "#e8e8e0" },
-                    { label: `END ${Math.min(endNumber, round.ends)}`, value: currentEndScore, sub: `${round.arrowsPerEnd - currentEnd.length} left` },
+                    { label: "END ".concat(Math.min(endNumber, round.ends)), value: currentEndScore, sub: "".concat(round.arrowsPerEnd - currentEnd.length, " left") },
                     { label: isImperial ? "GOLDS" : "X COUNT", value: isImperial ? goldCount : xCount, color: "#ffd700" },
-                ].map(({ label, value, sub, color }) => (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 8px" } },
-                    React.createElement("div", { style: { fontSize: 7, color: "#555", letterSpacing: 1.2 } }, label),
-                    React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color || "#e8e8e0", lineHeight: 1 } }, value),
-                    sub && React.createElement("div", { style: { fontSize: 8, color: "#444" } }, sub))))),
+                ].map(function (_a) {
+                    var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
+                    return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 8px" } },
+                        React.createElement("div", { style: { fontSize: 7, color: "#555", letterSpacing: 1.2 } }, label),
+                        React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color || "#e8e8e0", lineHeight: 1 } }, value),
+                        sub && React.createElement("div", { style: { fontSize: 8, color: "#444" } }, sub)));
+                })),
                 React.createElement("div", { style: { marginBottom: 10 } },
                     React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 7 } },
                         "CURRENT END \u2014 ",
                         currentEnd.length,
                         "/",
                         round.arrowsPerEnd),
-                    React.createElement("div", { style: { display: "flex", gap: 5 } }, Array.from({ length: round.arrowsPerEnd }).map((_, i) => {
-                        const v = currentEnd[i];
+                    React.createElement("div", { style: { display: "flex", gap: 5 } }, Array.from({ length: round.arrowsPerEnd }).map(function (_, i) {
+                        var v = currentEnd[i];
                         return (React.createElement("div", { key: i, style: {
                                 flex: 1, height: 40, borderRadius: 6,
                                 background: v ? arrowBg(v, isImperial) : "#1a1d25",
@@ -877,11 +952,14 @@ function ArcheryScorer() {
                                 transition: "background 0.12s",
                             } }, v || "·"));
                     }))),
-                React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 10 } }, [["buttons", "🔢 Numbers"], ["target", "🎯 Target"]].map(([mode, label]) => (React.createElement("button", { key: mode, onClick: () => setInputMode(mode), style: { flex: 1, padding: "8px", border: "none", borderRadius: 8, cursor: "pointer",
-                        fontFamily: "'DM Mono',monospace", fontSize: 11,
-                        background: inputMode === mode ? "#c8f55a" : "#1a1d25",
-                        color: inputMode === mode ? "#0f1117" : "#555" } }, label)))),
-                inputMode === "buttons" && (React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 5, marginBottom: 10 } }, arrowVals.map(v => (React.createElement("button", { key: v, className: "abtn", onClick: () => addArrow(v), disabled: currentEnd.length >= round.arrowsPerEnd, style: { height: 46, background: arrowBg(v, isImperial), color: arrowText(v, isImperial) } }, v))))),
+                React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 10 } }, [["buttons", "🔢 Numbers"], ["target", "🎯 Target"]].map(function (_a) {
+                    var _b = __read(_a, 2), mode = _b[0], label = _b[1];
+                    return (React.createElement("button", { key: mode, onClick: function () { return setInputMode(mode); }, style: { flex: 1, padding: "8px", border: "none", borderRadius: 8, cursor: "pointer",
+                            fontFamily: "'DM Mono',monospace", fontSize: 11,
+                            background: inputMode === mode ? "#c8f55a" : "#1a1d25",
+                            color: inputMode === mode ? "#0f1117" : "#555" } }, label));
+                })),
+                inputMode === "buttons" && (React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 5, marginBottom: 10 } }, arrowVals.map(function (v) { return (React.createElement("button", { key: v, className: "abtn", onClick: function () { return addArrow(v); }, disabled: currentEnd.length >= round.arrowsPerEnd, style: { height: 46, background: arrowBg(v, isImperial), color: arrowText(v, isImperial) } }, v)); }))),
                 React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12 } },
                     React.createElement("button", { className: "abtn", onClick: removeLastArrow, disabled: currentEnd.length === 0, style: { flex: 1, height: 44, background: "#1a1d25", color: "#e8e8e0", fontSize: 12 } }, "\u2190 UNDO"),
                     React.createElement("button", { className: "abtn", onClick: submitEnd, disabled: currentEnd.length !== round.arrowsPerEnd || allEndsComplete, style: { flex: 2, height: 44, fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2,
@@ -891,7 +969,7 @@ function ArcheryScorer() {
                         endNumber,
                         "/",
                         round.ends)),
-                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: (hit) => setHitPositions(prev => [...prev, hit]), onUndo: () => setHitPositions(prev => prev.slice(0, -1)), arrows: currentEnd })),
+                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], __read(prev), false), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
                 showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
                     React.createElement("div", { style: { background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 } },
                         React.createElement("div", { style: { fontSize: 9, color: "#4caf70", letterSpacing: 2, marginBottom: 6 } }, "DISTANCE CHANGE"),
@@ -902,8 +980,8 @@ function ArcheryScorer() {
                             React.createElement("div", { style: { fontSize: 9, color: "#4caf70", letterSpacing: 1.5, marginBottom: 10 } },
                                 scoringSetup.name,
                                 " \u2014 SIGHT MARKS"),
-                            (() => {
-                                const mark = getSightMark(sightModalDist.label);
+                            (function () {
+                                var mark = getSightMark(sightModalDist.label);
                                 return mark ? (React.createElement("div", { style: { background: "#0a1a0f", borderRadius: 10, padding: "14px 18px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } },
                                     React.createElement("div", { style: { fontSize: 13, color: "#c8f55a" } }, sightModalDist.label),
                                     React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 42, color: "#c8f55a", letterSpacing: 2, lineHeight: 1 } }, mark.setting))) : (React.createElement("div", { style: { background: "#0a1a0f", borderRadius: 10, padding: "14px 18px", marginBottom: 14 } },
@@ -913,52 +991,51 @@ function ArcheryScorer() {
                             })(),
                             scoringSetup.marks.length > 0 && (React.createElement("div", null,
                                 React.createElement("div", { style: { fontSize: 8, color: "#2a5a30", letterSpacing: 1.5, marginBottom: 6 } }, "ALL MARKS"),
-                                React.createElement("div", { style: { background: "#0a1a0f", borderRadius: 10, overflow: "hidden" } }, [...scoringSetup.marks]
-                                    .sort((a, b) => {
-                                    const ai = a.distance.includes("yds");
-                                    const bi = b.distance.includes("yds");
+                                React.createElement("div", { style: { background: "#0a1a0f", borderRadius: 10, overflow: "hidden" } }, __spreadArray([], __read(scoringSetup.marks), false).sort(function (a, b) {
+                                    var ai = a.distance.includes("yds");
+                                    var bi = b.distance.includes("yds");
                                     if (ai !== bi)
                                         return ai ? -1 : 1;
                                     return parseInt(a.distance) - parseInt(b.distance);
                                 })
-                                    .map((m, i, arr) => (React.createElement("div", { key: m.id, style: { display: "flex", justifyContent: "space-between", alignItems: "center",
+                                    .map(function (m, i, arr) { return (React.createElement("div", { key: m.id, style: { display: "flex", justifyContent: "space-between", alignItems: "center",
                                         padding: "9px 14px", borderBottom: i < arr.length - 1 ? "1px solid #0d2015" : "none",
                                         background: m.distance === sightModalDist.label ? "#0f2a18" : "transparent" } },
                                     React.createElement("div", { style: { fontSize: 11, color: m.distance === sightModalDist.label ? "#c8f55a" : "#4caf70" } }, m.distance),
-                                    React.createElement("div", { style: { fontSize: 15, fontWeight: 500, color: m.distance === sightModalDist.label ? "#c8f55a" : "#e8e8e0" } }, m.setting))))))))) : (React.createElement("div", { style: { marginBottom: 20, fontSize: 11, color: "#2a5a30", fontStyle: "italic" } }, "Select a setup on the home screen to see sight marks here.")),
-                        React.createElement("button", { onClick: () => setShowSightModal(false), style: { width: "100%", padding: 14, background: "#c8f55a", color: "#0f1117", border: "none", borderRadius: 10,
+                                    React.createElement("div", { style: { fontSize: 15, fontWeight: 500, color: m.distance === sightModalDist.label ? "#c8f55a" : "#e8e8e0" } }, m.setting))); })))))) : (React.createElement("div", { style: { marginBottom: 20, fontSize: 11, color: "#2a5a30", fontStyle: "italic" } }, "Select a setup on the home screen to see sight marks here.")),
+                        React.createElement("button", { onClick: function () { return setShowSightModal(false); }, style: { width: "100%", padding: 14, background: "#c8f55a", color: "#0f1117", border: "none", borderRadius: 10,
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3, cursor: "pointer" } }, "CONTINUE SHOOTING")))),
                 ends.length > 0 && (React.createElement("div", null,
                     React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 6 } }, "SCORECARD"),
-                    React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, (() => {
-                        const rows = [];
+                    React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, (function () {
+                        var rows = [];
                         if (distances) {
-                            distances.forEach((dist, di) => {
-                                const distEndsShot = ends.slice(distStartEnd[di], distStartEnd[di] + dist.ends);
-                                const isDistComplete = distEndsShot.length === dist.ends;
-                                const isDistStarted = distEndsShot.length > 0;
+                            distances.forEach(function (dist, di) {
+                                var distEndsShot = ends.slice(distStartEnd[di], distStartEnd[di] + dist.ends);
+                                var isDistComplete = distEndsShot.length === dist.ends;
+                                var isDistStarted = distEndsShot.length > 0;
                                 if (isDistStarted || di === currentDistIndex) {
-                                    rows.push(React.createElement("div", { key: `dh-${di}`, style: { padding: "7px 12px", background: "#141720", borderTop: di > 0 ? "2px solid #252830" : "none", display: "flex", justifyContent: "space-between", alignItems: "center" } },
+                                    rows.push(React.createElement("div", { key: "dh-".concat(di), style: { padding: "7px 12px", background: "#141720", borderTop: di > 0 ? "2px solid #252830" : "none", display: "flex", justifyContent: "space-between", alignItems: "center" } },
                                         React.createElement("span", { style: { fontSize: 9, color: "#c8862a", letterSpacing: 1.5, fontWeight: 500 } }, dist.label),
                                         React.createElement("span", { style: { fontSize: 9, color: "#444" } },
                                             dist.ends * round.arrowsPerEnd,
                                             " arrows")));
                                 }
-                                distEndsShot.forEach((end, ei) => {
-                                    const globalIdx = distStartEnd[di] + ei;
-                                    const endTotal = end.reduce((s, v) => s + arrowToScore(v), 0);
-                                    const runningTotal = ends.slice(0, globalIdx + 1).flat().reduce((s, v) => s + arrowToScore(v), 0);
-                                    rows.push(React.createElement("div", { key: `e-${globalIdx}`, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230" } },
+                                distEndsShot.forEach(function (end, ei) {
+                                    var globalIdx = distStartEnd[di] + ei;
+                                    var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                                    var runningTotal = ends.slice(0, globalIdx + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                                    rows.push(React.createElement("div", { key: "e-".concat(globalIdx), style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230" } },
                                         React.createElement("div", { style: { width: 24, color: "#444", fontSize: 9 } },
                                             "E",
                                             globalIdx + 1),
-                                        React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map((v, j) => (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)))),
+                                        React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)); })),
                                         React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" } }, endTotal),
                                         React.createElement("div", { style: { width: 38, textAlign: "right", fontSize: 10, color: "#555" } }, runningTotal)));
                                 });
                                 if (isDistComplete) {
-                                    const dAvg = (distScore(di) / distArrows(di)).toFixed(2);
-                                    rows.push(React.createElement("div", { key: `davg-${di}`, style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
+                                    var dAvg = (distScore(di) / distArrows(di)).toFixed(2);
+                                    rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
                                         React.createElement("span", { style: { fontSize: 9, color: "#555" } },
                                             dist.label,
                                             " total"),
@@ -969,20 +1046,20 @@ function ArcheryScorer() {
                             });
                         }
                         else {
-                            ends.forEach((end, i) => {
-                                const endTotal = end.reduce((s, v) => s + arrowToScore(v), 0);
-                                const runningTotal = ends.slice(0, i + 1).flat().reduce((s, v) => s + arrowToScore(v), 0);
+                            ends.forEach(function (end, i) {
+                                var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                                var runningTotal = ends.slice(0, i + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                 rows.push(React.createElement("div", { key: i, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: i < ends.length - 1 ? "1px solid #1f2230" : "none" } },
                                     React.createElement("div", { style: { width: 24, color: "#444", fontSize: 9 } },
                                         "E",
                                         i + 1),
-                                    React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map((v, j) => (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)))),
+                                    React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)); })),
                                     React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" } }, endTotal),
                                     React.createElement("div", { style: { width: 38, textAlign: "right", fontSize: 10, color: "#555" } }, runningTotal)));
                             });
                         }
                         if (allEndsComplete) {
-                            const roundAvg = (totalScore / ends.flat().length).toFixed(2);
+                            var roundAvg = (totalScore / ends.flat().length).toFixed(2);
                             rows.push(React.createElement("div", { key: "roundavg", style: { padding: "10px 14px", background: "#141720", borderTop: "2px solid #252830", display: "flex", justifyContent: "space-between", alignItems: "center" } },
                                 React.createElement("span", { style: { fontSize: 9, color: "#888", letterSpacing: 1.5 } }, "ROUND AVERAGE"),
                                 React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#c8f55a" } }, roundAvg)));
@@ -1000,16 +1077,16 @@ function ArcheryScorer() {
                             "avg ",
                             React.createElement("span", { style: { color: "#e8e8e0" } }, (totalScore / (ends.flat().length || 1)).toFixed(2)),
                             " per arrow"),
-                        React.createElement("div", { style: { color: "#ffd700", fontSize: 13, marginBottom: 16 } }, isImperial ? `${goldCount} Gold${goldCount !== 1 ? "s" : ""}` : `${xCount} X${xCount !== 1 ? "s" : ""}`),
+                        React.createElement("div", { style: { color: "#ffd700", fontSize: 13, marginBottom: 16 } }, isImperial ? "".concat(goldCount, " Gold").concat(goldCount !== 1 ? "s" : "") : "".concat(xCount, " X").concat(xCount !== 1 ? "s" : "")),
                         personalBest > 0 && totalScore > personalBest && (React.createElement("div", { style: { background: "#c8f55a", color: "#0f1117", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, fontWeight: 500 } }, "\uD83C\uDFF9 NEW PERSONAL BEST!")),
-                        React.createElement("textarea", { value: finishNotes, onChange: e => setFinishNotes(e.target.value), placeholder: "Add notes\u2026 weather, equipment, how it felt", rows: 3, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, resize: "none", marginBottom: 14, outline: "none" } }),
+                        React.createElement("textarea", { value: finishNotes, onChange: function (e) { return setFinishNotes(e.target.value); }, placeholder: "Add notes\u2026 weather, equipment, how it felt", rows: 3, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, resize: "none", marginBottom: 14, outline: "none" } }),
                         React.createElement("button", { onClick: finishRound, style: { width: "100%", padding: 14, background: "#c8f55a", color: "#0f1117", border: "none", borderRadius: 8, fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 2, cursor: "pointer" } }, "SAVE & FINISH")))))),
             screen === "history" && !viewingRound && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } }, history.length === 0 ? (React.createElement("div", { style: { textAlign: "center", color: "#555", marginTop: 60 } },
                 React.createElement("div", { style: { fontSize: 38, marginBottom: 10 } }, "\uD83C\uDFF9"),
                 React.createElement("div", { style: { fontSize: 12 } }, "No rounds scored yet."))) : (React.createElement(React.Fragment, null,
                 React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 8 } }, "PERSONAL BESTS"),
-                React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 20 } }, Object.keys(ROUNDS).map(r => {
-                    const best = history.filter(h => h.round === r).reduce((b, h) => Math.max(b, h.score), 0);
+                React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 20 } }, Object.keys(ROUNDS).map(function (r) {
+                    var best = history.filter(function (h) { return h.round === r; }).reduce(function (b, h) { return Math.max(b, h.score); }, 0);
                     if (!best)
                         return null;
                     return (React.createElement("div", { key: r, style: { background: "#1a1d25", borderRadius: 8, padding: "7px 11px" } },
@@ -1017,129 +1094,136 @@ function ArcheryScorer() {
                         React.createElement("div", { style: { fontSize: 16, fontFamily: "'Bebas Neue',sans-serif", color: "#c8f55a" } }, best)));
                 })),
                 React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 8 } }, "RECENT ROUNDS"),
-                history.map(h => (React.createElement("div", { key: h.id, onClick: () => setViewingRound(h), style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginBottom: 7, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" } },
-                    React.createElement("div", { style: { flex: 1 } },
-                        React.createElement("div", { style: { fontSize: 12, marginBottom: 3 } }, h.round),
-                        React.createElement("div", { style: { fontSize: 10, color: "#555" } },
-                            h.date,
-                            " · ",
-                            React.createElement("span", { style: { color: h.round === "Worcester" ? "#4ab3f4" : h.imperial ? "#c8862a" : "#4ab3f4" } }, h.round === "Worcester" ? "5-zone (5·4·3·2·1)" : h.imperial ? "5-zone" : "10-zone"),
-                            " · ",
-                            h.imperial ? `${h.golds ?? "?"}G` : `${h.xs}X`,
-                            h.notes ? " · 📝" : "")),
-                    React.createElement("div", { style: { textAlign: "right" } },
-                        React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, color: "#c8f55a", lineHeight: 1 } }, h.score),
-                        React.createElement("div", { style: { fontSize: 9, color: "#555" } }, h.maxPossible ? `avg ${(h.score / (h.maxPossible / (h.round === "Worcester" ? 5 : h.imperial ? 9 : 10))).toFixed(2)}` : "")),
-                    React.createElement("div", { style: { color: "#333", fontSize: 14 } }, "\u203A")))),
-                React.createElement("button", { onClick: () => { if (window.confirm("Clear all history?")) {
+                history.map(function (h) {
+                    var _a;
+                    return (React.createElement("div", { key: h.id, onClick: function () { return setViewingRound(h); }, style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginBottom: 7, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" } },
+                        React.createElement("div", { style: { flex: 1 } },
+                            React.createElement("div", { style: { fontSize: 12, marginBottom: 3 } }, h.round),
+                            React.createElement("div", { style: { fontSize: 10, color: "#555" } },
+                                h.date,
+                                " · ",
+                                React.createElement("span", { style: { color: h.round === "Worcester" ? "#4ab3f4" : h.imperial ? "#c8862a" : "#4ab3f4" } }, h.round === "Worcester" ? "5-zone (5·4·3·2·1)" : h.imperial ? "5-zone" : "10-zone"),
+                                " · ",
+                                h.imperial ? "".concat((_a = h.golds) !== null && _a !== void 0 ? _a : "?", "G") : "".concat(h.xs, "X"),
+                                h.notes ? " · 📝" : "")),
+                        React.createElement("div", { style: { textAlign: "right" } },
+                            React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, color: "#c8f55a", lineHeight: 1 } }, h.score),
+                            React.createElement("div", { style: { fontSize: 9, color: "#555" } }, h.maxPossible ? "avg ".concat((h.score / (h.maxPossible / (h.round === "Worcester" ? 5 : h.imperial ? 9 : 10))).toFixed(2)) : "")),
+                        React.createElement("div", { style: { color: "#333", fontSize: 14 } }, "\u203A")));
+                }),
+                React.createElement("button", { onClick: function () { if (window.confirm("Clear all history?")) {
                         setHistory([]);
                         saveHistory([]);
                     } }, style: { width: "100%", marginTop: 10, padding: 10, background: "none", border: "1px solid #252830", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, "CLEAR HISTORY"))))),
-            screen === "history" && viewingRound && (() => {
-                const h = viewingRound;
-                const imp = h.imperial;
+            screen === "history" && viewingRound && (function () {
+                var h = viewingRound;
+                var imp = h.imperial;
                 return (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
-                    React.createElement("button", { onClick: () => { setViewingRound(null); setEditingNotes(false); setShowTargetFace(false); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 12, padding: "0 0 16px 0", display: "flex", alignItems: "center", gap: 6 } }, "\u2190 BACK"),
+                    React.createElement("button", { onClick: function () { setViewingRound(null); setEditingNotes(false); setShowTargetFace(false); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 12, padding: "0 0 16px 0", display: "flex", alignItems: "center", gap: 6 } }, "\u2190 BACK"),
                     React.createElement("div", { style: { marginBottom: 16 } },
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 2 } }, h.round),
                         React.createElement("div", { style: { fontSize: 10, color: "#555" } },
                             h.date,
                             " · ",
                             React.createElement("span", { style: { color: h.round === "Worcester" ? "#4ab3f4" : imp ? "#c8862a" : "#4ab3f4" } }, h.round === "Worcester" ? "5-zone (5·4·3·2·1)" : imp ? "5-zone (9·7·5·3·1)" : "10-zone"))),
-                    React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16 } }, (() => {
-                        const isWorc = h.round === "Worcester";
-                        const maxArrowVal = isWorc ? 5 : h.imperial ? 9 : 10;
-                        const totalArrows = h.maxPossible / maxArrowVal;
-                        const avg = (h.score / totalArrows).toFixed(2);
+                    React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16 } }, (function () {
+                        var _a;
+                        var isWorc = h.round === "Worcester";
+                        var maxArrowVal = isWorc ? 5 : h.imperial ? 9 : 10;
+                        var totalArrows = h.maxPossible / maxArrowVal;
+                        var avg = (h.score / totalArrows).toFixed(2);
                         return [
-                            { label: "SCORE", value: h.score, sub: `/ ${h.maxPossible}`, color: "#c8f55a" },
+                            { label: "SCORE", value: h.score, sub: "/ ".concat(h.maxPossible), color: "#c8f55a" },
                             { label: "AVG ARROW", value: avg, color: "#e8e8e0" },
-                            { label: h.imperial ? "GOLDS" : "X COUNT", value: h.imperial ? (h.golds ?? "?") : h.xs, color: "#ffd700" },
-                        ].map(({ label, value, sub, color }) => (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 10px" } },
-                            React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5 } }, label),
-                            React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color, lineHeight: 1 } }, value),
-                            sub && React.createElement("div", { style: { fontSize: 9, color: "#444" } }, sub))));
+                            { label: h.imperial ? "GOLDS" : "X COUNT", value: h.imperial ? ((_a = h.golds) !== null && _a !== void 0 ? _a : "?") : h.xs, color: "#ffd700" },
+                        ].map(function (_a) {
+                            var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
+                            return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 10px" } },
+                                React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5 } }, label),
+                                React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color, lineHeight: 1 } }, value),
+                                sub && React.createElement("div", { style: { fontSize: 9, color: "#444" } }, sub)));
+                        });
                     })()),
                     h.hitPositions && h.hitPositions.length > 0 && (React.createElement("div", { style: { marginBottom: 16 } },
-                        React.createElement("button", { onClick: () => setShowTargetFace(v => !v), style: { width: "100%", padding: "10px", background: showTargetFace ? "#1a1d25" : "#0f1117",
-                                border: `1px solid ${showTargetFace ? "#c8f55a" : "#252830"}`, borderRadius: 10,
+                        React.createElement("button", { onClick: function () { return setShowTargetFace(function (v) { return !v; }); }, style: { width: "100%", padding: "10px", background: showTargetFace ? "#1a1d25" : "#0f1117",
+                                border: "1px solid ".concat(showTargetFace ? "#c8f55a" : "#252830"), borderRadius: 10,
                                 color: showTargetFace ? "#c8f55a" : "#555", cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2 } },
                             "\uD83C\uDFAF ",
                             showTargetFace ? "HIDE TARGET FACE" : "VIEW TARGET FACE"),
                         showTargetFace && (React.createElement("div", { style: { marginTop: 12, display: "flex", flexDirection: "column", alignItems: "center" } },
-                            React.createElement(TargetFace, { isImperial: h.imperial, isWorcester: h.round === "Worcester", disabled: true, onScore: () => { }, arrows: h.hitPositions.map(p => p.score), readOnlyHits: h.hitPositions }))))),
+                            React.createElement(TargetFace, { isImperial: h.imperial, isWorcester: h.round === "Worcester", disabled: true, onScore: function () { }, arrows: h.hitPositions.map(function (p) { return p.score; }), readOnlyHits: h.hitPositions }))))),
                     React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginBottom: 16 } },
                         React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
                             React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5 } }, "NOTES"),
-                            !editingNotes && (React.createElement("button", { onClick: () => { setDraftNotes(h.notes || ""); setEditingNotes(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, h.notes ? "EDIT" : "+ ADD"))),
+                            !editingNotes && (React.createElement("button", { onClick: function () { setDraftNotes(h.notes || ""); setEditingNotes(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, h.notes ? "EDIT" : "+ ADD"))),
                         editingNotes ? (React.createElement(React.Fragment, null,
-                            React.createElement("textarea", { value: draftNotes, onChange: e => setDraftNotes(e.target.value), placeholder: "Weather, equipment, how it felt\u2026", rows: 4, autoFocus: true, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, resize: "none", outline: "none", marginBottom: 10 } }),
+                            React.createElement("textarea", { value: draftNotes, onChange: function (e) { return setDraftNotes(e.target.value); }, placeholder: "Weather, equipment, how it felt\u2026", rows: 4, autoFocus: true, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, resize: "none", outline: "none", marginBottom: 10 } }),
                             React.createElement("div", { style: { display: "flex", gap: 8 } },
-                                React.createElement("button", { onClick: () => setEditingNotes(false), style: { flex: 1, padding: "8px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, "CANCEL"),
-                                React.createElement("button", { onClick: () => {
-                                        const updated = history.map(entry => entry.id === h.id ? { ...entry, notes: draftNotes.trim() } : entry);
+                                React.createElement("button", { onClick: function () { return setEditingNotes(false); }, style: { flex: 1, padding: "8px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, "CANCEL"),
+                                React.createElement("button", { onClick: function () {
+                                        var updated = history.map(function (entry) { return entry.id === h.id ? __assign(__assign({}, entry), { notes: draftNotes.trim() }) : entry; });
                                         setHistory(updated);
                                         saveHistory(updated);
-                                        setViewingRound({ ...h, notes: draftNotes.trim() });
+                                        setViewingRound(__assign(__assign({}, h), { notes: draftNotes.trim() }));
                                         setEditingNotes(false);
                                     }, style: { flex: 2, padding: "8px", background: "#c8f55a", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE NOTES")))) : (React.createElement("div", { style: { fontSize: 12, color: h.notes ? "#e8e8e0" : "#333", fontStyle: h.notes ? "normal" : "italic", lineHeight: 1.6 } }, h.notes || "No notes recorded."))),
                     React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 6 } }, "SCORECARD"),
-                    React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, (() => {
-                        const roundDef = ROUNDS[h.round];
-                        const dists = roundDef?.distances;
-                        const rows = [];
-                        let endIndex = 0;
+                    React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, (function () {
+                        var roundDef = ROUNDS[h.round];
+                        var dists = roundDef === null || roundDef === void 0 ? void 0 : roundDef.distances;
+                        var rows = [];
+                        var endIndex = 0;
                         if (dists) {
-                            let distStartIdx = 0;
-                            dists.forEach((dist, di) => {
-                                const distEnds = h.ends.slice(distStartIdx, distStartIdx + dist.ends);
-                                const distTotal = distEnds.flat().reduce((s, v) => s + arrowToScore(v), 0);
-                                const distAvg = distEnds.length > 0 ? (distTotal / (distEnds.length * roundDef.arrowsPerEnd)).toFixed(2) : null;
-                                rows.push(React.createElement("div", { key: `dh-${di}`, style: { padding: "6px 12px", background: "#141720", borderBottom: "1px solid #1f2230", borderTop: di > 0 ? "2px solid #252830" : "none", display: "flex", justifyContent: "space-between" } },
+                            var distStartIdx_1 = 0;
+                            dists.forEach(function (dist, di) {
+                                var distEnds = h.ends.slice(distStartIdx_1, distStartIdx_1 + dist.ends);
+                                var distTotal = distEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                                var distAvg = distEnds.length > 0 ? (distTotal / (distEnds.length * roundDef.arrowsPerEnd)).toFixed(2) : null;
+                                rows.push(React.createElement("div", { key: "dh-".concat(di), style: { padding: "6px 12px", background: "#141720", borderBottom: "1px solid #1f2230", borderTop: di > 0 ? "2px solid #252830" : "none", display: "flex", justifyContent: "space-between" } },
                                     React.createElement("span", { style: { fontSize: 9, color: "#c8862a", letterSpacing: 1.5, fontWeight: 500 } }, dist.label),
                                     React.createElement("span", { style: { fontSize: 9, color: "#444" } },
                                         dist.ends * roundDef.arrowsPerEnd,
                                         " arrows")));
-                                for (let e = 0; e < dist.ends; e++, endIndex++) {
-                                    const end = h.ends[endIndex];
+                                for (var e = 0; e < dist.ends; e++, endIndex++) {
+                                    var end = h.ends[endIndex];
                                     if (!end)
                                         continue;
-                                    const endTotal = end.reduce((s, v) => s + arrowToScore(v), 0);
-                                    const runningTotal = h.ends.slice(0, endIndex + 1).flat().reduce((s, v) => s + arrowToScore(v), 0);
-                                    rows.push(React.createElement("div", { key: `e-${endIndex}`, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230" } },
+                                    var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                                    var runningTotal = h.ends.slice(0, endIndex + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                                    rows.push(React.createElement("div", { key: "e-".concat(endIndex), style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230" } },
                                         React.createElement("div", { style: { width: 24, color: "#444", fontSize: 9 } },
                                             "E",
                                             endIndex + 1),
-                                        React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map((v, j) => (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)))),
+                                        React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)); })),
                                         React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" } }, endTotal),
                                         React.createElement("div", { style: { width: 38, textAlign: "right", fontSize: 10, color: "#555" } }, runningTotal)));
                                 }
                                 if (distAvg) {
-                                    rows.push(React.createElement("div", { key: `davg-${di}`, style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
+                                    rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
                                         React.createElement("span", { style: { fontSize: 9, color: "#555" } },
                                             dist.label,
                                             " avg"),
                                         React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, color: "#c8f55a" } }, distAvg)));
                                 }
-                                distStartIdx += dist.ends;
+                                distStartIdx_1 += dist.ends;
                             });
                         }
                         else {
-                            (h.ends || []).forEach((end, i) => {
-                                const endTotal = end.reduce((s, v) => s + arrowToScore(v), 0);
-                                const runningTotal = h.ends.slice(0, i + 1).flat().reduce((s, v) => s + arrowToScore(v), 0);
+                            (h.ends || []).forEach(function (end, i) {
+                                var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                                var runningTotal = h.ends.slice(0, i + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                 rows.push(React.createElement("div", { key: i, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: i < h.ends.length - 1 ? "1px solid #1f2230" : "none" } },
                                     React.createElement("div", { style: { width: 24, color: "#444", fontSize: 9 } },
                                         "E",
                                         i + 1),
-                                    React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map((v, j) => (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)))),
+                                    React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)); })),
                                     React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" } }, endTotal),
                                     React.createElement("div", { style: { width: 38, textAlign: "right", fontSize: 10, color: "#555" } }, runningTotal)));
                             });
                         }
                         if (h.ends && h.ends.length > 0) {
-                            const roundAvg = (h.score / h.ends.flat().length).toFixed(2);
+                            var roundAvg = (h.score / h.ends.flat().length).toFixed(2);
                             rows.push(React.createElement("div", { key: "roundavg", style: { padding: "10px 14px", background: "#141720", borderTop: "2px solid #252830", display: "flex", justifyContent: "space-between", alignItems: "center" } },
                                 React.createElement("span", { style: { fontSize: 9, color: "#888", letterSpacing: 1.5 } }, "ROUND AVERAGE"),
                                 React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#c8f55a" } }, roundAvg)));
@@ -1153,18 +1237,18 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: createSetup, style: { background: "#c8f55a", border: "none", borderRadius: 8, padding: "7px 14px", color: "#0f1117", fontFamily: "'Bebas Neue',sans-serif", fontSize: 14, letterSpacing: 2, cursor: "pointer" } }, "+ NEW SETUP")),
                 setups.length === 0 ? (React.createElement("div", { style: { textAlign: "center", color: "#555", marginTop: 60 } },
                     React.createElement("div", { style: { fontSize: 38, marginBottom: 10 } }, "\uD83C\uDFAF"),
-                    React.createElement("div", { style: { fontSize: 12 } }, "No setups yet. Create one to record your sight marks."))) : (setups.map(s => (React.createElement("div", { key: s.id, onClick: () => { setActiveSetup(s.id); setEditingSetup(false); setAddingMark(false); }, style: { background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 } },
+                    React.createElement("div", { style: { fontSize: 12 } }, "No setups yet. Create one to record your sight marks."))) : (setups.map(function (s) { return (React.createElement("div", { key: s.id, onClick: function () { setActiveSetup(s.id); setEditingSetup(false); setAddingMark(false); }, style: { background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 } },
                     React.createElement("div", { style: { flex: 1 } },
                         React.createElement("div", { style: { fontSize: 13, marginBottom: 4 } }, s.name),
                         React.createElement("div", { style: { fontSize: 10, color: "#555" } },
-                            [s.poundage && `${s.poundage}`, s.arrowType].filter(Boolean).join(" · ") || "No details added",
+                            [s.poundage && "".concat(s.poundage), s.arrowType].filter(Boolean).join(" · ") || "No details added",
                             " · ",
                             s.marks.length,
                             " mark",
                             s.marks.length !== 1 ? "s" : "")),
-                    React.createElement("div", { style: { color: "#333", fontSize: 14 } }, "\u203A"))))))),
+                    React.createElement("div", { style: { color: "#333", fontSize: 14 } }, "\u203A"))); })))),
             screen === "sights" && activeSetup && currentSetup && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
-                React.createElement("button", { onClick: () => { setActiveSetup(null); setEditingSetup(false); setAddingMark(false); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 12, padding: "0 0 16px 0" } }, "\u2190 BACK"),
+                React.createElement("button", { onClick: function () { setActiveSetup(null); setEditingSetup(false); setAddingMark(false); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 12, padding: "0 0 16px 0" } }, "\u2190 BACK"),
                 React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 16 } }, editingSetup ? (React.createElement(React.Fragment, null,
                     React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 12 } }, "EDIT SETUP"),
                     [
@@ -1172,11 +1256,17 @@ function ArcheryScorer() {
                         { label: "Poundage", key: "poundage", placeholder: "e.g. 36 lbs" },
                         { label: "Arrow", key: "arrowType", placeholder: "e.g. Easton X10 700" },
                         { label: "Notes", key: "notes", placeholder: "e.g. String, button settings…" },
-                    ].map(({ label, key, placeholder }) => (React.createElement("div", { key: key, style: { marginBottom: 10 } },
-                        React.createElement("div", { style: { fontSize: 9, color: "#555", marginBottom: 4 } }, label.toUpperCase()),
-                        React.createElement("input", { value: draftSetup[key] || "", onChange: e => setDraftSetup(d => ({ ...d, [key]: e.target.value })), placeholder: placeholder, onFocus: e => e.target.select(), style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "9px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, outline: "none" } })))),
+                    ].map(function (_a) {
+                        var label = _a.label, key = _a.key, placeholder = _a.placeholder;
+                        return (React.createElement("div", { key: key, style: { marginBottom: 10 } },
+                            React.createElement("div", { style: { fontSize: 9, color: "#555", marginBottom: 4 } }, label.toUpperCase()),
+                            React.createElement("input", { value: draftSetup[key] || "", onChange: function (e) { return setDraftSetup(function (d) {
+                                    var _a;
+                                    return (__assign(__assign({}, d), (_a = {}, _a[key] = e.target.value, _a)));
+                                }); }, placeholder: placeholder, onFocus: function (e) { return e.target.select(); }, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "9px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 11, outline: "none" } })));
+                    }),
                     React.createElement("div", { style: { display: "flex", gap: 8, marginTop: 4 } },
-                        React.createElement("button", { onClick: () => setEditingSetup(false), style: { flex: 1, padding: "9px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, "CANCEL"),
+                        React.createElement("button", { onClick: function () { return setEditingSetup(false); }, style: { flex: 1, padding: "9px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, "CANCEL"),
                         React.createElement("button", { onClick: updateSetupMeta, style: { flex: 2, padding: "9px", background: "#c8f55a", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE")))) : (React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" } },
                     React.createElement("div", null,
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 2, marginBottom: 4 } }, currentSetup.name),
@@ -1188,52 +1278,56 @@ function ArcheryScorer() {
                             currentSetup.arrowType),
                         currentSetup.notes && React.createElement("div", { style: { fontSize: 11, color: "#555", marginTop: 6, lineHeight: 1.5 } }, currentSetup.notes)),
                     React.createElement("div", { style: { display: "flex", gap: 8 } },
-                        React.createElement("button", { onClick: () => { setDraftSetup({ name: currentSetup.name, poundage: currentSetup.poundage, arrowType: currentSetup.arrowType, notes: currentSetup.notes }); setEditingSetup(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
-                        React.createElement("button", { onClick: () => { if (window.confirm(`Delete "${currentSetup.name}"?`))
+                        React.createElement("button", { onClick: function () { setDraftSetup({ name: currentSetup.name, poundage: currentSetup.poundage, arrowType: currentSetup.arrowType, notes: currentSetup.notes }); setEditingSetup(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
+                        React.createElement("button", { onClick: function () { if (window.confirm("Delete \"".concat(currentSetup.name, "\"?")))
                                 deleteSetup(activeSetup); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "DELETE"))))),
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
                     React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5 } }, "SIGHT MARKS"),
-                    !addingMark && (React.createElement("button", { onClick: () => { setAddingMark(true); setDraftMark({ distance: ALL_DISTANCES[0], setting: "" }); }, style: { background: "#c8f55a", border: "none", borderRadius: 8, padding: "6px 12px", color: "#0f1117", fontFamily: "'Bebas Neue',sans-serif", fontSize: 13, letterSpacing: 2, cursor: "pointer" } }, "+ ADD MARK"))),
+                    !addingMark && (React.createElement("button", { onClick: function () { setAddingMark(true); setDraftMark({ distance: ALL_DISTANCES[0], setting: "" }); }, style: { background: "#c8f55a", border: "none", borderRadius: 8, padding: "6px 12px", color: "#0f1117", fontFamily: "'Bebas Neue',sans-serif", fontSize: 13, letterSpacing: 2, cursor: "pointer" } }, "+ ADD MARK"))),
                 addingMark && (React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 12 } },
                     React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 12 } }, "NEW SIGHT MARK"),
                     React.createElement("div", { style: { marginBottom: 10 } },
                         React.createElement("div", { style: { fontSize: 9, color: "#555", marginBottom: 4 } }, "DISTANCE"),
                         React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 5 } },
                             React.createElement("div", { style: { width: "100%", fontSize: 8, color: "#c8862a", marginBottom: 2, letterSpacing: 1 } }, "IMPERIAL"),
-                            IMPERIAL_DISTANCES.map(d => (React.createElement("button", { key: d, onClick: () => setDraftMark(m => ({ ...m, distance: d })), style: { padding: "5px 10px", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
+                            IMPERIAL_DISTANCES.map(function (d) { return (React.createElement("button", { key: d, onClick: function () { return setDraftMark(function (m) { return (__assign(__assign({}, m), { distance: d })); }); }, style: { padding: "5px 10px", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
                                     background: draftMark.distance === d ? "#c8862a" : "#0f1117",
-                                    color: draftMark.distance === d ? "#0f1117" : "#888" } }, d))),
+                                    color: draftMark.distance === d ? "#0f1117" : "#888" } }, d)); }),
                             React.createElement("div", { style: { width: "100%", fontSize: 8, color: "#4ab3f4", marginBottom: 2, marginTop: 6, letterSpacing: 1 } }, "METRIC"),
-                            METRIC_DISTANCES.map(d => (React.createElement("button", { key: d, onClick: () => setDraftMark(m => ({ ...m, distance: d })), style: { padding: "5px 10px", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
+                            METRIC_DISTANCES.map(function (d) { return (React.createElement("button", { key: d, onClick: function () { return setDraftMark(function (m) { return (__assign(__assign({}, m), { distance: d })); }); }, style: { padding: "5px 10px", border: "none", borderRadius: 6, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
                                     background: draftMark.distance === d ? "#4ab3f4" : "#0f1117",
-                                    color: draftMark.distance === d ? "#0f1117" : "#888" } }, d))))),
+                                    color: draftMark.distance === d ? "#0f1117" : "#888" } }, d)); }))),
                     React.createElement("div", { style: { marginBottom: 12 } },
                         React.createElement("div", { style: { fontSize: 9, color: "#555", marginBottom: 4 } }, "SETTING"),
-                        React.createElement("input", { value: draftMark.setting, onChange: e => setDraftMark(m => ({ ...m, setting: e.target.value })), placeholder: "e.g. 100  or  920 block 4", onFocus: e => e.target.select(), style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "9px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 12, outline: "none" } })),
+                        React.createElement("input", { value: draftMark.setting, onChange: function (e) { return setDraftMark(function (m) { return (__assign(__assign({}, m), { setting: e.target.value })); }); }, placeholder: "e.g. 100  or  920 block 4", onFocus: function (e) { return e.target.select(); }, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "9px 12px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 12, outline: "none" } })),
                     React.createElement("div", { style: { display: "flex", gap: 8 } },
-                        React.createElement("button", { onClick: () => setAddingMark(false), style: { flex: 1, padding: "9px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, "CANCEL"),
+                        React.createElement("button", { onClick: function () { return setAddingMark(false); }, style: { flex: 1, padding: "9px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, "CANCEL"),
                         React.createElement("button", { onClick: addMark, disabled: !draftMark.setting.trim(), style: { flex: 2, padding: "9px", background: draftMark.setting.trim() ? "#c8f55a" : "#1a1d25", border: "none", borderRadius: 8, color: draftMark.setting.trim() ? "#0f1117" : "#444", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE MARK")))),
-                currentSetup.marks.length === 0 && !addingMark ? (React.createElement("div", { style: { textAlign: "center", color: "#333", fontSize: 12, padding: "30px 0" } }, "No sight marks yet.")) : (React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, [...currentSetup.marks]
-                    .sort((a, b) => {
-                    const aImp = a.distance.includes("yds");
-                    const bImp = b.distance.includes("yds");
+                currentSetup.marks.length === 0 && !addingMark ? (React.createElement("div", { style: { textAlign: "center", color: "#333", fontSize: 12, padding: "30px 0" } }, "No sight marks yet.")) : (React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, __spreadArray([], __read(currentSetup.marks), false).sort(function (a, b) {
+                    var aImp = a.distance.includes("yds");
+                    var bImp = b.distance.includes("yds");
                     if (aImp !== bImp)
                         return aImp ? -1 : 1;
                     return parseInt(a.distance) - parseInt(b.distance);
                 })
-                    .map((mark, i, arr) => (React.createElement("div", { key: mark.id, style: { padding: "10px 14px", borderBottom: i < arr.length - 1 ? "1px solid #1f2230" : "none" } }, editingMarkId === mark.id ? (React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center" } },
+                    .map(function (mark, i, arr) { return (React.createElement("div", { key: mark.id, style: { padding: "10px 14px", borderBottom: i < arr.length - 1 ? "1px solid #1f2230" : "none" } }, editingMarkId === mark.id ? (React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center" } },
                     React.createElement("div", { style: { fontSize: 11, color: mark.distance.includes("yds") ? "#c8862a" : "#4ab3f4", width: 52, flexShrink: 0 } }, mark.distance),
-                    React.createElement("input", { defaultValue: mark.setting, onBlur: e => { updateMark(mark.id, e.target.value); setEditingMarkId(null); }, autoFocus: true, onFocus: e => e.target.select(), style: { flex: 1, background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 6, padding: "6px 10px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 12, outline: "none" } }),
-                    React.createElement("button", { onClick: () => setEditingMarkId(null), style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 11, fontFamily: "'DM Mono',monospace" } }, "\u2715"))) : (React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
+                    React.createElement("input", { defaultValue: mark.setting, onBlur: function (e) { updateMark(mark.id, e.target.value); setEditingMarkId(null); }, autoFocus: true, onFocus: function (e) { return e.target.select(); }, style: { flex: 1, background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 6, padding: "6px 10px", color: "#e8e8e0", fontFamily: "'DM Mono',monospace", fontSize: 12, outline: "none" } }),
+                    React.createElement("button", { onClick: function () { return setEditingMarkId(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 11, fontFamily: "'DM Mono',monospace" } }, "\u2715"))) : (React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
                     React.createElement("div", { style: { fontSize: 11, color: mark.distance.includes("yds") ? "#c8862a" : "#4ab3f4", width: 52, flexShrink: 0 } }, mark.distance),
                     React.createElement("div", { style: { flex: 1, fontSize: 13 } }, mark.setting),
-                    React.createElement("button", { onClick: () => setEditingMarkId(mark.id), style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
-                    React.createElement("button", { onClick: () => deleteMark(mark.id), style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715")))))))))))));
+                    React.createElement("button", { onClick: function () { return setEditingMarkId(mark.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
+                    React.createElement("button", { onClick: function () { return deleteMark(mark.id); }, style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715"))))); }))))))));
 }
 
   const root = ReactDOM.createRoot(document.getElementById("root"));
   document.getElementById("msg").style.display = "none";
-  root.render(React.createElement(ArcheryScorer));
+  try {
+    root.render(React.createElement(ArcheryScorer));
+  } catch(e) {
+    document.getElementById("msg").style.display = "block";
+    document.getElementById("msg").innerHTML = "<b style=color:red>ERROR:</b><br>" + e.message;
+  }
   </script>
 </body>
 </html>
