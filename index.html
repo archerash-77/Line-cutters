@@ -20,6 +20,7 @@
   <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading...</div>
   <script>
     window.onerror = function(msg, src, line, col, err) {
+var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
             s = arguments[i];
@@ -66,7 +67,6 @@ var __values = (this && this.__values) || function(o) {
     };
     throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 };
-import { useState, useRef, useEffect } from "react";
 // ─── Round definitions ────────────────────────────────────────────────────────
 // imperial: true  → 5-zone scoring (9,7,5,3,1), no X ring, max arrow = 9
 // imperial: false → 10-zone scoring (X,10..1),   X ring,    max arrow = 10
