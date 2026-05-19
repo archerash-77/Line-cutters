@@ -638,16 +638,34 @@ function ArcheryScorer() {
     }
     var _q = __read(useState("buttons"), 2), inputMode = _q[0], setInputMode = _q[1];
     var _r = __read(useState([]), 2), hitPositions = _r[0], setHitPositions = _r[1];
-    var _s = __read(useState("env"), 2), homeStep = _s[0], setHomeStep = _s[1]; // "env" | "category" | "round"
-    var _t = __read(useState(null), 2), homeEnv = _t[0], setHomeEnv = _t[1]; // "outdoor" | "indoor" // [{vx,vy,score}] all hits this round
+    var _s = __read(useState("main"), 2), homeStep = _s[0], setHomeStep = _s[1]; // "main" | "env" | "category" | "round"
+    var _t = __read(useState(null), 2), homeEnv = _t[0], setHomeEnv = _t[1];
+    var _u = __read(useState(function () {
+        try {
+            return JSON.parse(localStorage.getItem("archery_favourites")) || [];
+        }
+        catch (_a) {
+            return [];
+        }
+    }), 2), favourites = _u[0], setFavourites = _u[1];
+    function toggleFavourite(roundName) {
+        var updated = favourites.includes(roundName)
+            ? favourites.filter(function (r) { return r !== roundName; })
+            : __spreadArray(__spreadArray([], __read(favourites), false), [roundName], false);
+        setFavourites(updated);
+        try {
+            localStorage.setItem("archery_favourites", JSON.stringify(updated));
+        }
+        catch (_a) { }
+    } // [{vx,vy,score}] all hits this round
     // Sight marks
-    var _u = __read(useState(loadSights), 2), setups = _u[0], setSetups = _u[1];
-    var _v = __read(useState(null), 2), activeSetup = _v[0], setActiveSetup = _v[1];
-    var _w = __read(useState(false), 2), editingSetup = _w[0], setEditingSetup = _w[1];
-    var _x = __read(useState({}), 2), draftSetup = _x[0], setDraftSetup = _x[1];
-    var _y = __read(useState(false), 2), addingMark = _y[0], setAddingMark = _y[1];
-    var _z = __read(useState({ distance: ALL_DISTANCES[0], setting: "" }), 2), draftMark = _z[0], setDraftMark = _z[1];
-    var _0 = __read(useState(null), 2), editingMarkId = _0[0], setEditingMarkId = _0[1];
+    var _v = __read(useState(loadSights), 2), setups = _v[0], setSetups = _v[1];
+    var _w = __read(useState(null), 2), activeSetup = _w[0], setActiveSetup = _w[1];
+    var _x = __read(useState(false), 2), editingSetup = _x[0], setEditingSetup = _x[1];
+    var _y = __read(useState({}), 2), draftSetup = _y[0], setDraftSetup = _y[1];
+    var _z = __read(useState(false), 2), addingMark = _z[0], setAddingMark = _z[1];
+    var _0 = __read(useState({ distance: ALL_DISTANCES[0], setting: "" }), 2), draftMark = _0[0], setDraftMark = _0[1];
+    var _1 = __read(useState(null), 2), editingMarkId = _1[0], setEditingMarkId = _1[1];
     var activeRound = selectedRound || "WA 18m";
     var round = ROUNDS[activeRound];
     var isImperial = round.imperial;
@@ -701,8 +719,8 @@ function ArcheryScorer() {
         setSelectedGroup(g);
         setSelectedRound(null);
     }
-    var _1 = __read(useState(false), 2), showSightModal = _1[0], setShowSightModal = _1[1];
-    var _2 = __read(useState(null), 2), sightModalDist = _2[0], setSightModalDist = _2[1];
+    var _2 = __read(useState(false), 2), showSightModal = _2[0], setShowSightModal = _2[1];
+    var _3 = __read(useState(null), 2), sightModalDist = _3[0], setSightModalDist = _3[1];
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
@@ -811,6 +829,47 @@ function ArcheryScorer() {
             ? __assign(__assign({}, s), { marks: s.marks.filter(function (m) { return m.id !== markId; }) }) : s; }));
     }
     var currentSetup = setups.find(function (s) { return s.id === activeSetup; });
+    // ─── Round row — shared between round list and favourites ────────────────
+    function renderRoundRow(r, isFavouritesView, onGroupSelect) {
+        var isSelected = selectedRound === r;
+        var isFav = favourites.includes(r);
+        return (React.createElement("div", { key: r },
+            React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } },
+                React.createElement("button", { onClick: function () {
+                        if (onGroupSelect)
+                            onGroupSelect();
+                        setSelectedRound(isSelected ? null : r);
+                    }, style: { flex: 1, background: isSelected ? "#c8f55a" : "#1a1d25",
+                        color: isSelected ? "#0f1117" : "#888",
+                        border: "none", borderRadius: isSelected ? "8px 8px 0 0" : 8,
+                        padding: "11px 14px", cursor: "pointer",
+                        fontFamily: "'DM Mono',monospace", fontSize: 12,
+                        fontWeight: isSelected ? "500" : "400",
+                        textAlign: "left", transition: "all 0.15s" } }, r),
+                React.createElement("button", { onClick: function () { return toggleFavourite(r); }, title: "Add to favourites", style: { background: "none", border: "none", cursor: "pointer",
+                        fontSize: 18, padding: "8px 6px",
+                        color: isFav ? "#e87070" : "#333", flexShrink: 0 } }, isFav ? "♥" : "♡")),
+            isSelected && (function () {
+                var selRound = ROUNDS[r];
+                var selIsImperial = selRound.imperial;
+                var selMaxScore = maxRoundScore(r);
+                var selPB = history.filter(function (h) { return h.round === r; }).reduce(function (b, h) { return Math.max(b, h.score); }, 0);
+                return (React.createElement("div", { style: { background: "#141720", borderRadius: "0 0 8px 8px", padding: "12px 14px", marginBottom: 2, animation: "fadeUp 0.15s ease" } },
+                    selIsImperial && (React.createElement("div", { style: { fontSize: 10, color: "#c8862a", marginBottom: 8 } }, "\u26A0 5-zone: Gold=9 \u00B7 Red=7 \u00B7 Blue=5 \u00B7 Black=3 \u00B7 White=1")),
+                    React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" } }, __spreadArray([
+                        { label: "".concat(selRound.ends, " ends"), color: null },
+                        { label: "".concat(selRound.arrowsPerEnd, " arrows/end"), color: null },
+                        { label: "max ".concat(selMaxScore), color: "#c8f55a" }
+                    ], __read((selPB > 0 ? [{ label: "PB ".concat(selPB), color: "#ffd700" }] : [])), false).map(function (_a, i) {
+                        var label = _a.label, color = _a.color;
+                        return (React.createElement("span", { key: i, style: { fontSize: 10, color: color || "#666",
+                                background: "#1a1d25", borderRadius: 6, padding: "3px 8px" } }, label));
+                    })),
+                    React.createElement("button", { onClick: startRound, style: { width: "100%", padding: "13px", background: "#c8f55a", color: "#0f1117",
+                            border: "none", borderRadius: 8, cursor: "pointer",
+                            fontFamily: "'Bebas Neue',sans-serif", fontSize: 19, letterSpacing: 3 } }, "START ROUND")));
+            })()));
+    }
     // ─── Render ───────────────────────────────────────────────────────────────
     return (React.createElement("div", { style: { minHeight: "100vh", background: "#0f1117", fontFamily: "'DM Mono','Courier New',monospace", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "center" } },
         React.createElement("style", null, ".abtn{border:none;cursor:pointer;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}.abtn:active{transform:scale(0.90);}.abtn:disabled{opacity:0.3;cursor:default;}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}"),
@@ -826,7 +885,7 @@ function ArcheryScorer() {
                             setEditingSetup(false);
                             setAddingMark(false);
                             if (s === "home")
-                                setHomeStep("env");
+                                setHomeStep("main");
                         }
                     }, style: { background: "none", border: "none", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "8px 10px",
                         color: screen === s ? "#c8f55a" : "#555",
@@ -844,29 +903,68 @@ function ArcheryScorer() {
                     ends.length + 1,
                     "/",
                     round.ends)),
+                homeStep === "main" && (React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center" } },
+                    React.createElement("svg", { width: "220", height: "220", viewBox: "0 0 360 360", style: { marginBottom: 28, marginTop: 8 } },
+                        React.createElement("circle", { cx: "180", cy: "180", r: "130", fill: "none", stroke: "#c8f55a", "stroke-width": "7" }),
+                        React.createElement("circle", { cx: "180", cy: "180", r: "104", fill: "none", stroke: "#c8f55a", "stroke-width": "6" }),
+                        React.createElement("circle", { cx: "180", cy: "180", r: "78", fill: "none", stroke: "#c8f55a", "stroke-width": "5.5" }),
+                        React.createElement("circle", { cx: "180", cy: "180", r: "52", fill: "none", stroke: "#c8f55a", "stroke-width": "5" }),
+                        React.createElement("circle", { cx: "180", cy: "180", r: "26", fill: "none", stroke: "#c8f55a", "stroke-width": "4.5" }),
+                        React.createElement("polygon", { points: "193.9,196.1  198.1,191.9  307.9,301.9  312.1,306.1", fill: "#c8f55a" }),
+                        React.createElement("polygon", { points: "278.1,271.9  307.1,276.9  307.9,301.9", fill: "#c8f55a" }),
+                        React.createElement("polygon", { points: "273.9,276.1  278.9,305.1  312.1,306.1", fill: "#c8f55a" }),
+                        React.createElement("line", { x1: "310", y1: "308", x2: "304", y2: "317", stroke: "#c8f55a", "stroke-width": "3", "stroke-linecap": "round" }),
+                        React.createElement("line", { x1: "310", y1: "308", x2: "319", y2: "302", stroke: "#c8f55a", "stroke-width": "3", "stroke-linecap": "round" })),
+                    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12, width: "100%" } },
+                        React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { width: "100%", padding: "18px", background: "#c8f55a", color: "#0f1117",
+                                border: "none", borderRadius: 12, cursor: "pointer",
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "SCORE ROUND"),
+                        React.createElement("button", { onClick: function () { setScreen("history"); setViewingRound(null); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
+                                border: "none", borderRadius: 12, cursor: "pointer",
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "HISTORY"),
+                        React.createElement("button", { onClick: function () { setScreen("sights"); setActiveSetup(null); setEditingSetup(false); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
+                                border: "none", borderRadius: 12, cursor: "pointer",
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "EQUIPMENT")))),
                 homeStep === "env" && (React.createElement("div", null,
-                    React.createElement("div", { style: { fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 16, textAlign: "center" } }, "SELECT ENVIRONMENT"),
-                    React.createElement("div", { style: { display: "flex", gap: 10 } }, [["outdoor", "🌤 OUTDOOR"], ["indoor", "🏛 INDOOR"]].map(function (_a) {
+                    React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 18px 0" } }, "\u2190 BACK"),
+                    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12 } }, [
+                        ["outdoor", "🌤  OUTDOOR"],
+                        ["indoor", "🏛  INDOOR"],
+                        ["favourites", "♥  FAVOURITES"],
+                    ].map(function (_a) {
                         var _b = __read(_a, 2), env = _b[0], label = _b[1];
                         return (React.createElement("button", { key: env, onClick: function () {
-                                setHomeEnv(env);
-                                setSelectedRound(null);
-                                setHomeStep("category");
-                            }, style: { flex: 1, padding: "28px 10px", border: "none", borderRadius: 12, cursor: "pointer",
+                                if (env === "favourites") {
+                                    setHomeStep("favourites");
+                                }
+                                else {
+                                    setHomeEnv(env);
+                                    setSelectedRound(null);
+                                    setHomeStep("category");
+                                }
+                            }, style: { width: "100%", padding: "20px", border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3,
-                                background: "#1a1d25", color: "#e8e8e0",
-                                transition: "all 0.15s" } }, label));
+                                background: "#1a1d25", color: env === "favourites" ? "#e87070" : "#e8e8e0" } },
+                            label,
+                            env === "favourites" && favourites.length > 0 && (React.createElement("span", { style: { fontSize: 12, fontFamily: "'DM Mono',monospace", marginLeft: 8, color: "#666" } },
+                                "(",
+                                favourites.length,
+                                ")"))));
                     })))),
+                homeStep === "favourites" && (React.createElement("div", null,
+                    React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 14px 0" } }, "\u2190 BACK"),
+                    favourites.length === 0 ? (React.createElement("div", { style: { textAlign: "center", color: "#444", fontSize: 13, marginTop: 40 } },
+                        React.createElement("div", { style: { fontSize: 32, marginBottom: 12 } }, "\u2661"),
+                        "No favourites yet. Add rounds using the \u2661 button.",
+                        React.createElement("div", { style: { fontSize: 11, marginTop: 8, color: "#444" } }, "Hold any round to add it."))) : (React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, favourites.map(function (r) { return renderRoundRow(r, true); }))))),
                 homeStep === "category" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { setHomeStep("env"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 16px 0" } }, "\u2190 BACK"),
-                    React.createElement("div", { style: { fontSize: 9, color: "#555", letterSpacing: 2, marginBottom: 14, textAlign: "center" } }, homeEnv === "outdoor" ? "SELECT ROUND TYPE" : "SELECT ROUND"),
-                    homeEnv === "outdoor" ? (React.createElement("div", { style: { display: "flex", gap: 10, marginBottom: 10 } }, [["WA / Metric Outdoor", "METRIC"], ["Imperial Outdoor", "IMPERIAL"]].map(function (_a) {
+                    homeEnv === "outdoor" ? (React.createElement("div", { style: { display: "flex", gap: 10 } }, [["WA / Metric Outdoor", "METRIC"], ["Imperial Outdoor", "IMPERIAL"]].map(function (_a) {
                         var _b = __read(_a, 2), group = _b[0], label = _b[1];
                         return (React.createElement("button", { key: group, onClick: function () { selectGroup(group); setSelectedRound(null); setHomeStep("round"); }, style: { flex: 1, padding: "28px 10px", border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3,
                                 background: "#1a1d25", color: "#e8e8e0" } }, label));
-                    }))) : (React.createElement("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 } }, Object.keys(ROUND_GROUPS["Indoor"]).map(function (r) { return (React.createElement("button", { key: r, onClick: function () { selectGroup("Indoor"); setSelectedRound(r); setHomeStep("round"); }, style: { background: "#1a1d25", color: "#888", border: "none", borderRadius: 8,
-                            padding: "12px 8px", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11 } }, r)); }))))),
+                    }))) : (React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS["Indoor"]).map(function (r) { return renderRoundRow(r, false, function () { selectGroup("Indoor"); setHomeStep("round"); }); }))))),
                 homeStep === "round" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { setHomeStep(homeEnv === "indoor" ? "env" : "category"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 14px 0" } }, "\u2190 BACK"),
                     setups.length > 0 && (React.createElement("div", { style: { marginBottom: 14, background: "#1a1d25", borderRadius: 10, padding: "12px 14px" } },
@@ -874,7 +972,7 @@ function ArcheryScorer() {
                         scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8f55a", marginBottom: 8 } },
                             "\u2713 Using: ",
                             React.createElement("strong", null, (_a = setups.find(function (s) { return s.id === scoringSetupId; })) === null || _a === void 0 ? void 0 : _a.name))),
-                        !scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8862a", marginBottom: 8 } }, "\u26A0 No setup selected \u2014 sight marks won't show at distance changes")),
+                        !scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8862a", marginBottom: 8 } }, "\u26A0 No setup selected")),
                         React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
                             React.createElement("button", { onClick: function () { return updateScoringSetup(null); }, style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
                                     background: scoringSetupId === null ? "#2a2d38" : "#141720",
@@ -883,44 +981,7 @@ function ArcheryScorer() {
                                     background: scoringSetupId === s.id ? "#c8f55a" : "#141720",
                                     color: scoringSetupId === s.id ? "#0f1117" : "#888",
                                     fontWeight: scoringSetupId === s.id ? "600" : "400" } }, s.name)); })))),
-                    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(function (r) {
-                        var isSelected = selectedRound === r;
-                        return (React.createElement("div", { key: r },
-                            React.createElement("button", { onClick: function () { return setSelectedRound(isSelected ? null : r); }, style: { width: "100%", background: isSelected ? "#c8f55a" : "#1a1d25",
-                                    color: isSelected ? "#0f1117" : "#888",
-                                    border: "none", borderRadius: isSelected ? "8px 8px 0 0" : 8,
-                                    padding: "11px 14px", cursor: "pointer",
-                                    fontFamily: "'DM Mono',monospace", fontSize: 12,
-                                    fontWeight: isSelected ? "500" : "400",
-                                    textAlign: "left", transition: "all 0.15s" } }, r),
-                            isSelected && (function () {
-                                var selRound = ROUNDS[r];
-                                var selIsImperial = selRound.imperial;
-                                var selIsWorcester = r === "Worcester";
-                                var selMaxScore = maxRoundScore(r);
-                                var selPB = history.filter(function (h) { return h.round === r; }).reduce(function (b, h) { return Math.max(b, h.score); }, 0);
-                                return (React.createElement("div", { style: { background: "#141720", borderRadius: "0 0 8px 8px", padding: "12px 14px", marginBottom: 2, animation: "fadeUp 0.15s ease" } },
-                                    selIsImperial && (React.createElement("div", { style: { fontSize: 10, color: "#c8862a", marginBottom: 8 } }, "\u26A0 5-zone: Gold=9 \u00B7 Red=7 \u00B7 Blue=5 \u00B7 Black=3 \u00B7 White=1")),
-                                    React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" } }, __spreadArray([
-                                        ["".concat(selRound.ends, " ends"), null],
-                                        ["".concat(selRound.arrowsPerEnd, " arrows/end"), null],
-                                        ["max ".concat(selMaxScore), "#c8f55a"]
-                                    ], __read((selPB > 0 ? ["PB ".concat(selPB), "#ffd700"] : [])), false).flat().reduce(function (acc, item, i) {
-                                        if (i % 2 === 0)
-                                            acc.push({ label: item });
-                                        else
-                                            acc[acc.length - 1].color = item;
-                                        return acc;
-                                    }, []).map(function (_a, i) {
-                                        var label = _a.label, color = _a.color;
-                                        return (React.createElement("span", { key: i, style: { fontSize: 10, color: color || "#666",
-                                                background: "#1a1d25", borderRadius: 6, padding: "3px 8px" } }, label));
-                                    })),
-                                    React.createElement("button", { onClick: startRound, style: { width: "100%", padding: "13px", background: "#c8f55a", color: "#0f1117",
-                                            border: "none", borderRadius: 8, cursor: "pointer",
-                                            fontFamily: "'Bebas Neue',sans-serif", fontSize: 19, letterSpacing: 3 } }, "START ROUND")));
-                            })()));
-                    })))))),
+                    React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(function (r) { return renderRoundRow(r, false); })))))),
             screen === "scoring" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
