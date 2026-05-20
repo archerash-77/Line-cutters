@@ -1694,11 +1694,18 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: function () { return setEditingMarkId(mark.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
                     React.createElement("button", { onClick: function () { return deleteMark(mark.id); }, style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715"))))); }))))))));
 }
-  if(typeof ArcheryScorer==='undefined'){ document.getElementById('msg').textContent='ERROR: App failed to parse'; }
-  else {
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    document.getElementById('msg').style.display='none';
-    root.render(React.createElement(ArcheryScorer));
+  if(typeof ArcheryScorer==='undefined'){ 
+    document.getElementById('msg').textContent='ERROR: App failed to parse'; 
+  } else {
+    document.getElementById('msg').textContent='Rendering...';
+    try {
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      document.getElementById('msg').style.display='none';
+      root.render(React.createElement(ArcheryScorer));
+    } catch(e) {
+      document.getElementById('msg').style.display='block';
+      document.getElementById('msg').innerHTML='<b style=color:red>RENDER ERROR:</b><br>' + e.message + '<br><small>' + (e.stack||'').replace(/</g,'&lt;').substring(0,500) + '</small>';
+    }
   }
   </script>
 </body>
