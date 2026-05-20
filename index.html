@@ -17,7 +17,7 @@ html,body,#root{height:100%;}
 body{background:#0f1117;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;}
 .abtn{border:none;cursor:pointer;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}
 .abtn:active{transform:scale(0.90);}
-.abtn:disabled{opacity:0.3;cursor:default;}
+.abtn:disabled{opacity:0.3;pointer-events:none;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 #msg{position:fixed;top:0;left:0;right:0;padding:20px;color:#c8f55a;font-family:monospace;font-size:14px;background:#0f1117;z-index:9999;}
 </style>
@@ -65,35 +65,35 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 var ROUND_GROUPS = {
     "WA / Metric Outdoor": {
-        "WA 1440 (90m)": { ends: 24, arrowsPerEnd: 6, imperial: false },
-        "WA 1440 (70m)": { ends: 24, arrowsPerEnd: 6, imperial: false },
-        "WA 900": { ends: 15, arrowsPerEnd: 6, imperial: false },
-        "WA 70m": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "WA 60m": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "WA 50m": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "WA Standard Bow": { ends: 18, arrowsPerEnd: 6, imperial: false },
+        "WA 1440 (90m)": { ends: 24, arrowsPerEnd: 6, imperial: false, distances: [{ label: "90m", ends: 6 }, { label: "70m", ends: 6 }, { label: "50m", ends: 6 }, { label: "30m", ends: 6 }] },
+        "WA 1440 (70m)": { ends: 24, arrowsPerEnd: 6, imperial: false, distances: [{ label: "70m", ends: 6 }, { label: "60m", ends: 6 }, { label: "50m", ends: 6 }, { label: "30m", ends: 6 }] },
+        "WA 900": { ends: 15, arrowsPerEnd: 6, imperial: false, distances: [{ label: "60m", ends: 5 }, { label: "50m", ends: 5 }, { label: "40m", ends: 5 }] },
+        "WA 70m": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "70m", ends: 12 }] },
+        "WA 60m": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "60m", ends: 12 }] },
+        "WA 50m": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "50m", ends: 12 }] },
+        "WA Standard Bow": { ends: 18, arrowsPerEnd: 6, imperial: false, distances: [{ label: "60m", ends: 9 }, { label: "50m", ends: 9 }] },
         "Metric I": { ends: 24, arrowsPerEnd: 6, imperial: false },
-        "Metric II": { ends: 24, arrowsPerEnd: 6, imperial: false },
-        "Metric III": { ends: 24, arrowsPerEnd: 6, imperial: false },
-        "Metric IV": { ends: 24, arrowsPerEnd: 6, imperial: false },
-        "Metric V": { ends: 24, arrowsPerEnd: 6, imperial: false },
-        "Long Metric (Men)": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Long Metric (Women)": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Long Metric I": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Long Metric II": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Long Metric III": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Long Metric IV": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Long Metric V": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Short Metric": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Short Metric II": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Short Metric III": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Short Metric IV": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Short Metric V": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Metric 122-50": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Metric 122-40": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Metric 122-30": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Metric 80-40": { ends: 12, arrowsPerEnd: 6, imperial: false },
-        "Metric 80-30": { ends: 12, arrowsPerEnd: 6, imperial: false },
+        "Metric II": { ends: 24, arrowsPerEnd: 6, imperial: false, distances: [{ label: "60m", ends: 6 }, { label: "50m", ends: 6 }, { label: "40m", ends: 6 }, { label: "30m", ends: 6 }] },
+        "Metric III": { ends: 24, arrowsPerEnd: 6, imperial: false, distances: [{ label: "50m", ends: 6 }, { label: "40m", ends: 6 }, { label: "30m", ends: 6 }, { label: "20m", ends: 6 }] },
+        "Metric IV": { ends: 24, arrowsPerEnd: 6, imperial: false, distances: [{ label: "40m", ends: 6 }, { label: "30m", ends: 6 }, { label: "20m", ends: 6 }, { label: "10m", ends: 6 }] },
+        "Metric V": { ends: 24, arrowsPerEnd: 6, imperial: false, distances: [{ label: "30m", ends: 6 }, { label: "20m", ends: 6 }, { label: "15m", ends: 6 }, { label: "10m", ends: 6 }] },
+        "Long Metric (Men)": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "90m", ends: 6 }, { label: "70m", ends: 6 }] },
+        "Long Metric (Women)": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "70m", ends: 6 }, { label: "60m", ends: 6 }] },
+        "Long Metric I": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "70m", ends: 6 }, { label: "60m", ends: 6 }] },
+        "Long Metric II": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "60m", ends: 6 }, { label: "50m", ends: 6 }] },
+        "Long Metric III": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "50m", ends: 6 }, { label: "40m", ends: 6 }] },
+        "Long Metric IV": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "40m", ends: 6 }, { label: "30m", ends: 6 }] },
+        "Long Metric V": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "30m", ends: 6 }, { label: "20m", ends: 6 }] },
+        "Short Metric": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "60m", ends: 12 }] },
+        "Short Metric II": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "50m", ends: 12 }] },
+        "Short Metric III": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "40m", ends: 12 }] },
+        "Short Metric IV": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "30m", ends: 12 }] },
+        "Short Metric V": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "20m", ends: 12 }] },
+        "Metric 122-50": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "50m ? 122cm face", ends: 12 }] },
+        "Metric 122-40": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "40m ? 122cm face", ends: 12 }] },
+        "Metric 122-30": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "30m ? 122cm face", ends: 12 }] },
+        "Metric 80-40": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "40m ? 80cm face", ends: 12 }] },
+        "Metric 80-30": { ends: 12, arrowsPerEnd: 6, imperial: false, distances: [{ label: "30m ? 80cm face", ends: 12 }] },
     },
     "Imperial Outdoor": {
         "York": { ends: 24, arrowsPerEnd: 6, imperial: true, distances: [{ label: "100 yds", ends: 12 }, { label: "80 yds", ends: 8 }, { label: "60 yds", ends: 4 }] },
@@ -131,15 +131,15 @@ var ROUND_GROUPS = {
         "Warwick 30": { ends: 8, arrowsPerEnd: 6, imperial: true, distances: [{ label: "30 yds", ends: 4 }, { label: "20 yds", ends: 4 }] },
     },
     "Indoor": {
-        "Portsmouth": { ends: 20, arrowsPerEnd: 3, imperial: false },
-        "WA 18m": { ends: 20, arrowsPerEnd: 3, imperial: false },
-        "WA 25m": { ends: 20, arrowsPerEnd: 3, imperial: false },
-        "WA 18/25 Combined": { ends: 40, arrowsPerEnd: 3, imperial: false },
-        "Vegas 300": { ends: 20, arrowsPerEnd: 3, imperial: false },
-        "Stafford": { ends: 24, arrowsPerEnd: 3, imperial: false },
-        "Bray I": { ends: 10, arrowsPerEnd: 3, imperial: false },
-        "Bray II": { ends: 10, arrowsPerEnd: 3, imperial: false },
-        "Worcester": { ends: 12, arrowsPerEnd: 5, imperial: false, worcester: true },
+        "Portsmouth": { ends: 20, arrowsPerEnd: 3, imperial: false, distances: [{ label: "18m ? 60cm face", ends: 20 }] },
+        "WA 18m": { ends: 20, arrowsPerEnd: 3, imperial: false, distances: [{ label: "18m", ends: 20 }] },
+        "WA 25m": { ends: 20, arrowsPerEnd: 3, imperial: false, distances: [{ label: "25m", ends: 20 }] },
+        "WA 18/25 Combined": { ends: 40, arrowsPerEnd: 3, imperial: false, distances: [{ label: "25m", ends: 20 }, { label: "18m", ends: 20 }] },
+        "Vegas 300": { ends: 20, arrowsPerEnd: 3, imperial: false, distances: [{ label: "18m ? Vegas triple face", ends: 20 }] },
+        "Stafford": { ends: 24, arrowsPerEnd: 3, imperial: false, distances: [{ label: "30m ? 80cm face", ends: 24 }] },
+        "Bray I": { ends: 10, arrowsPerEnd: 3, imperial: false, distances: [{ label: "20m ? 40cm face", ends: 10 }] },
+        "Bray II": { ends: 10, arrowsPerEnd: 3, imperial: false, distances: [{ label: "25m ? 40cm face", ends: 10 }] },
+        "Worcester": { ends: 12, arrowsPerEnd: 5, imperial: false, worcester: true, distances: [{ label: "18m ? 40cm face", ends: 12 }] },
     },
 };
 var ROUNDS = Object.values(ROUND_GROUPS).reduce(function (acc, g) { return Object.assign({}, acc, g); }, {});
@@ -751,14 +751,19 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
         fill: isFav ? "#e87070" : "none", stroke: isFav ? "#e87070" : "#444", strokeWidth: 2,
         strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" })))), isSelected && React.createElement("div", {
         style: { background: "#141720", borderRadius: "0 0 8px 8px", padding: "12px 14px", marginBottom: 2 }
-    }, selIsImperial && React.createElement("div", { style: { fontSize: 10, color: "#c8862a", marginBottom: 8 } }, "5-zone: Gold=9 ? Red=7 ? Blue=5 ? Black=3 ? White=1"), React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" } }, [
-        { label: selRound.ends + " ends", color: null },
-        { label: selRound.arrowsPerEnd + " arrows/end", color: null },
+    }, React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" } }, [
+        { label: selIsImperial ? "5-zone" : (selRound.worcester ? "Worcester" : "10-zone"), color: "#888" },
+        { label: (selRound.ends * selRound.arrowsPerEnd) + " arrows", color: null },
         { label: "max " + selMaxScore, color: "#c8f55a" },
     ].concat(selPB > 0 ? [{ label: "PB " + selPB, color: "#ffd700" }] : []).map(function (item, i) {
         return React.createElement("span", { key: i,
             style: { fontSize: 10, color: item.color || "#666", background: "#1a1d25", borderRadius: 6, padding: "3px 8px" }
         }, item.label);
+    })), selRound.distances && React.createElement("div", { style: { marginBottom: 10 } }, selRound.distances.map(function (d, i) {
+        return React.createElement("div", { key: i,
+            style: { display: "flex", justifyContent: "space-between", padding: "4px 0",
+                borderBottom: i < selRound.distances.length - 1 ? "1px solid #1a1d25" : "none" }
+        }, React.createElement("span", { style: { fontSize: 11, color: "#e8e8e0" } }, d.label), React.createElement("span", { style: { fontSize: 11, color: "#666" } }, (d.ends * selRound.arrowsPerEnd) + " arrows ? " + d.ends + " ends"));
     })), React.createElement("button", {
         onClick: function () { pickSetup(r); },
         style: { width: "100%", padding: "13px", background: "#c8f55a", color: "#0f1117",
