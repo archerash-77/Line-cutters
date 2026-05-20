@@ -740,8 +740,8 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
         style: { flex: 1, background: isSelected ? "#c8f55a" : "#1a1d25",
             color: isSelected ? "#0f1117" : "#888", border: "none",
             borderRadius: isSelected ? "8px 8px 0 0" : 8, padding: "11px 14px",
-            cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 12,
-            fontWeight: isSelected ? "500" : "400", textAlign: "left" }
+            cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 15,
+            fontWeight: isSelected ? "600" : "500", textAlign: "left" }
     }, r), React.createElement("button", {
         onClick: function () { toggleFavourite(r); },
         style: { background: "none", border: "none", cursor: "pointer",
@@ -1027,25 +1027,12 @@ function ArcheryScorer() {
         React.createElement("style", null, ".abtn{border:none;cursor:pointer;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}.abtn:active{transform:scale(0.90);}.abtn:disabled{opacity:0.3;cursor:default;}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}"),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" } },
             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3, color: "#c8f55a" } }, "LINE CUTTERS"),
-            React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "HOME"]].map(function (_a) {
-                var s = _a[0], label = _a[1];
-                return (React.createElement("button", { key: s, onClick: function () {
-                        if (s === "home") {
-                            setScreen("home");
-                            setHomeStep("main");
-                            setViewingRound(null);
-                        }
-                        else if (screen !== "scoring") {
-                            setScreen(s);
-                            setViewingRound(null);
-                            setActiveSetup(null);
-                            setEditingSetup(false);
-                            setAddingMark(false);
-                        }
-                    }, style: { background: "none", border: "none", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "8px 10px",
-                        color: screen === s ? "#c8f55a" : "#555",
-                        borderBottom: screen === s ? "2px solid #c8f55a" : "2px solid transparent" } }, label));
-            }))),
+            React.createElement("div", { style: { display: "flex", gap: 4 } },
+                React.createElement("button", { onClick: function () { setScreen("home"); setHomeStep("main"); setViewingRound(null); }, style: { background: "none", border: "none", cursor: "pointer", padding: "6px 10px",
+                        color: screen === "home" ? "#c8f55a" : "#555" } },
+                    React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" },
+                        React.createElement("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }),
+                        React.createElement("polyline", { points: "9 22 9 12 15 12 15 22" }))))),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "18px 20px 60px", flex: 1 } },
             showProfile && (React.createElement(ProfileModal, { profile: profile, onSave: function (p) { saveProfile(p); setShowProfile(false); }, onClose: function () { return setShowProfile(false); } })),
             pickingSetup && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", zIndex: 300,
@@ -1096,7 +1083,7 @@ function ArcheryScorer() {
                         React.createElement("line", { x1: "310", y1: "308", x2: "304", y2: "317", stroke: "#c8f55a", "stroke-width": "3", "stroke-linecap": "round" }),
                         React.createElement("line", { x1: "310", y1: "308", x2: "319", y2: "302", stroke: "#c8f55a", "stroke-width": "3", "stroke-linecap": "round" })),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12, width: "100%" } },
-                        React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { width: "100%", padding: "18px", background: "#c8f55a", color: "#0f1117",
+                        React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "SCORE ROUND"),
                         React.createElement("button", { onClick: function () { setScreen("history"); setViewingRound(null); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
@@ -1109,7 +1096,10 @@ function ArcheryScorer() {
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "PROFILE")))),
                 homeStep === "env" && (React.createElement("div", null,
-                    React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 18px 0" } }, "\u2190 BACK"),
+                    React.createElement("div", { style: { display: "flex", alignItems: "center", marginBottom: 24, marginTop: 8 } },
+                        React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 4px 0", color: "#555" } },
+                            React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
+                                React.createElement("polyline", { points: "15 18 9 12 15 6" })))),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12 } }, [
                         ["outdoor", "OUTDOOR"],
                         ["indoor", "INDOOR"],
