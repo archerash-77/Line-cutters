@@ -745,8 +745,11 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
     }, r), React.createElement("button", {
         onClick: function () { toggleFavourite(r); },
         style: { background: "none", border: "none", cursor: "pointer",
-            fontSize: 18, padding: "8px 6px", color: isFav ? "#e87070" : "#333", flexShrink: 0 }
-    }, isFav ? "?" : "?")), isSelected && React.createElement("div", {
+            padding: "8px 6px", color: isFav ? "#e87070" : "#333", flexShrink: 0,
+            display: "flex", alignItems: "center" }
+    }, React.createElement("svg", { width: 18, height: 18, viewBox: "0 0 24 24",
+        fill: isFav ? "#e87070" : "none", stroke: isFav ? "#e87070" : "#444", strokeWidth: 2,
+        strokeLinecap: "round", strokeLinejoin: "round" }, React.createElement("path", { d: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" })))), isSelected && React.createElement("div", {
         style: { background: "#141720", borderRadius: "0 0 8px 8px", padding: "12px 14px", marginBottom: 2 }
     }, selIsImperial && React.createElement("div", { style: { fontSize: 10, color: "#c8862a", marginBottom: 8 } }, "5-zone: Gold=9 ? Red=7 ? Blue=5 ? Black=3 ? White=1"), React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" } }, [
         { label: selRound.ends + " ends", color: null },
@@ -765,29 +768,28 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
 }
 // ??? Main Component ???????????????????????????????????????????????????????????
 function ArcheryScorer() {
-    var _a;
-    var _b = useState("home"), screen = _b[0], setScreen = _b[1];
-    var _c = useState("Indoor"), selectedGroup = _c[0], setSelectedGroup = _c[1];
-    var _d = useState("WA 18m"), selectedRound = _d[0], setSelectedRound = _d[1];
-    var _e = useState([]), ends = _e[0], setEnds = _e[1];
-    var _f = useState([]), currentEnd = _f[0], setCurrentEnd = _f[1];
-    var _g = useState(loadHistory), history = _g[0], setHistory = _g[1];
-    var _h = useState(false), showFinish = _h[0], setShowFinish = _h[1];
-    var _j = useState(""), finishNotes = _j[0], setFinishNotes = _j[1];
-    var _k = useState(null), viewingRound = _k[0], setViewingRound = _k[1];
-    var _l = useState(false), editingNotes = _l[0], setEditingNotes = _l[1];
-    var _m = useState(""), draftNotes = _m[0], setDraftNotes = _m[1];
-    var _o = useState(false), showTargetFace = _o[0], setShowTargetFace = _o[1];
+    var _a = useState("home"), screen = _a[0], setScreen = _a[1];
+    var _b = useState("Indoor"), selectedGroup = _b[0], setSelectedGroup = _b[1];
+    var _c = useState("WA 18m"), selectedRound = _c[0], setSelectedRound = _c[1];
+    var _d = useState([]), ends = _d[0], setEnds = _d[1];
+    var _e = useState([]), currentEnd = _e[0], setCurrentEnd = _e[1];
+    var _f = useState(loadHistory), history = _f[0], setHistory = _f[1];
+    var _g = useState(false), showFinish = _g[0], setShowFinish = _g[1];
+    var _h = useState(""), finishNotes = _h[0], setFinishNotes = _h[1];
+    var _j = useState(null), viewingRound = _j[0], setViewingRound = _j[1];
+    var _k = useState(false), editingNotes = _k[0], setEditingNotes = _k[1];
+    var _l = useState(""), draftNotes = _l[0], setDraftNotes = _l[1];
+    var _m = useState(false), showTargetFace = _m[0], setShowTargetFace = _m[1];
     // ?? Archer profile ????????????????????????????????????????????????????????
-    var _p = useState(function () {
+    var _o = useState(function () {
         try {
             return JSON.parse(localStorage.getItem("archery_profile")) || null;
         }
         catch (_a) {
             return null;
         }
-    }), profile = _p[0], setProfile = _p[1];
-    var _q = useState(false), showProfile = _q[0], setShowProfile = _q[1];
+    }), profile = _o[0], setProfile = _o[1];
+    var _p = useState(false), showProfile = _p[0], setShowProfile = _p[1];
     function saveProfile(p) {
         setProfile(p);
         try {
@@ -797,14 +799,14 @@ function ArcheryScorer() {
     }
     // ?? Running handicap ? placeholder for future implementation
     var currentHandicap = null;
-    var _r = useState(function () {
+    var _q = useState(function () {
         try {
             return localStorage.getItem("archery_default_setup") || null;
         }
         catch (_a) {
             return null;
         }
-    }), scoringSetupId = _r[0], setScoringSetupId = _r[1];
+    }), scoringSetupId = _q[0], setScoringSetupId = _q[1];
     function updateScoringSetup(id) {
         setScoringSetupId(id);
         try {
@@ -815,19 +817,19 @@ function ArcheryScorer() {
         }
         catch (_a) { }
     }
-    var _s = useState("buttons"), inputMode = _s[0], setInputMode = _s[1];
-    var _t = useState([]), hitPositions = _t[0], setHitPositions = _t[1];
-    var _u = useState(false), pickingSetup = _u[0], setPickingSetup = _u[1];
-    var _v = useState("main"), homeStep = _v[0], setHomeStep = _v[1]; // "main" | "env" | "category" | "round"
-    var _w = useState(null), homeEnv = _w[0], setHomeEnv = _w[1];
-    var _x = useState(function () {
+    var _r = useState("buttons"), inputMode = _r[0], setInputMode = _r[1];
+    var _s = useState([]), hitPositions = _s[0], setHitPositions = _s[1];
+    var _t = useState(false), pickingSetup = _t[0], setPickingSetup = _t[1];
+    var _u = useState("main"), homeStep = _u[0], setHomeStep = _u[1]; // "main" | "env" | "category" | "round"
+    var _v = useState(null), homeEnv = _v[0], setHomeEnv = _v[1];
+    var _w = useState(function () {
         try {
             return JSON.parse(localStorage.getItem("archery_favourites")) || [];
         }
         catch (_a) {
             return [];
         }
-    }), favourites = _x[0], setFavourites = _x[1];
+    }), favourites = _w[0], setFavourites = _w[1];
     function toggleFavourite(roundName) {
         var updated = favourites.includes(roundName)
             ? favourites.filter(function (r) { return r !== roundName; })
@@ -839,13 +841,13 @@ function ArcheryScorer() {
         catch (_a) { }
     } // [{vx,vy,score}] all hits this round
     // Sight marks
-    var _y = useState(loadSights), setups = _y[0], setSetups = _y[1];
-    var _z = useState(null), activeSetup = _z[0], setActiveSetup = _z[1];
-    var _0 = useState(false), editingSetup = _0[0], setEditingSetup = _0[1];
-    var _1 = useState({}), draftSetup = _1[0], setDraftSetup = _1[1];
-    var _2 = useState(false), addingMark = _2[0], setAddingMark = _2[1];
-    var _3 = useState({ distance: ALL_DISTANCES[0], setting: "" }), draftMark = _3[0], setDraftMark = _3[1];
-    var _4 = useState(null), editingMarkId = _4[0], setEditingMarkId = _4[1];
+    var _x = useState(loadSights), setups = _x[0], setSetups = _x[1];
+    var _y = useState(null), activeSetup = _y[0], setActiveSetup = _y[1];
+    var _z = useState(false), editingSetup = _z[0], setEditingSetup = _z[1];
+    var _0 = useState({}), draftSetup = _0[0], setDraftSetup = _0[1];
+    var _1 = useState(false), addingMark = _1[0], setAddingMark = _1[1];
+    var _2 = useState({ distance: ALL_DISTANCES[0], setting: "" }), draftMark = _2[0], setDraftMark = _2[1];
+    var _3 = useState(null), editingMarkId = _3[0], setEditingMarkId = _3[1];
     var activeRound = selectedRound || "WA 18m";
     var round = ROUNDS[activeRound];
     var isImperial = round.imperial;
@@ -899,8 +901,8 @@ function ArcheryScorer() {
         setSelectedGroup(g);
         setSelectedRound(null);
     }
-    var _5 = useState(false), showSightModal = _5[0], setShowSightModal = _5[1];
-    var _6 = useState(null), sightModalDist = _6[0], setSightModalDist = _6[1];
+    var _4 = useState(false), showSightModal = _4[0], setShowSightModal = _4[1];
+    var _5 = useState(null), sightModalDist = _5[0], setSightModalDist = _5[1];
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
@@ -1098,15 +1100,15 @@ function ArcheryScorer() {
                         React.createElement("button", { onClick: function () { setScreen("sights"); setActiveSetup(null); setEditingSetup(false); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "EQUIPMENT"),
-                        React.createElement("button", { onClick: function () { return setShowProfile(true); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#555",
+                        React.createElement("button", { onClick: function () { return setShowProfile(true); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "PROFILE")))),
                 homeStep === "env" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 18px 0" } }, "\u2190 BACK"),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12 } }, [
-                        ["outdoor", "?  OUTDOOR"],
-                        ["indoor", "?  INDOOR"],
-                        ["favourites", "?  FAVOURITES"],
+                        ["outdoor", "OUTDOOR"],
+                        ["indoor", "INDOOR"],
+                        ["favourites", "FAVOURITES"],
                     ].map(function (_a) {
                         var env = _a[0], label = _a[1];
                         return (React.createElement("button", { key: env, onClick: function () {
@@ -1119,7 +1121,7 @@ function ArcheryScorer() {
                                     setHomeStep("category");
                                 }
                             }, style: { width: "100%", padding: "20px", border: "none", borderRadius: 12, cursor: "pointer",
-                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3,
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3, textAlign: "center",
                                 background: "#1a1d25", color: env === "favourites" ? "#e87070" : "#e8e8e0" } },
                             label,
                             env === "favourites" && favourites.length > 0 && (React.createElement("span", { style: { fontSize: 12, fontFamily: "'DM Mono',monospace", marginLeft: 8, color: "#666" } },
@@ -1131,7 +1133,7 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 14px 0" } }, "\u2190 BACK"),
                     favourites.length === 0 ? (React.createElement("div", { style: { textAlign: "center", color: "#444", fontSize: 13, marginTop: 40 } },
                         React.createElement("div", { style: { fontSize: 32, marginBottom: 12 } }, "\u2661"),
-                        "No favourites yet. Add rounds using the \u2661 button.",
+                        "No favourites yet. Tap the heart button next to any round to add it.",
                         React.createElement("div", { style: { fontSize: 11, marginTop: 8, color: "#444" } }, "Hold any round to add it."))) : (React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, favourites.map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); }))))),
                 homeStep === "category" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { setHomeStep("env"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 16px 0" } }, "\u2190 BACK"),
@@ -1143,20 +1145,6 @@ function ArcheryScorer() {
                     }))) : (React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS["Indoor"]).map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); }))))),
                 homeStep === "round" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { setHomeStep(homeEnv === "indoor" ? "env" : "category"); setSelectedRound(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 14px 0" } }, "\u2190 BACK"),
-                    setups.length > 0 && (React.createElement("div", { style: { marginBottom: 14, background: "#1a1d25", borderRadius: 10, padding: "12px 14px" } },
-                        React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 8 } }, "SIGHT MARKS SETUP"),
-                        scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8f55a", marginBottom: 8 } },
-                            "\u2713 Using: ",
-                            React.createElement("strong", null, (_a = setups.find(function (s) { return s.id === scoringSetupId; })) === null || _a === void 0 ? void 0 : _a.name))),
-                        !scoringSetupId && (React.createElement("div", { style: { fontSize: 11, color: "#c8862a", marginBottom: 8 } }, "\u26A0 No setup selected")),
-                        React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } },
-                            React.createElement("button", { onClick: function () { return updateScoringSetup(null); }, style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
-                                    background: scoringSetupId === null ? "#2a2d38" : "#141720",
-                                    color: scoringSetupId === null ? "#e8e8e0" : "#444" } }, "None"),
-                            setups.map(function (s) { return (React.createElement("button", { key: s.id, onClick: function () { return updateScoringSetup(s.id); }, style: { padding: "6px 11px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10,
-                                    background: scoringSetupId === s.id ? "#c8f55a" : "#141720",
-                                    color: scoringSetupId === s.id ? "#0f1117" : "#888",
-                                    fontWeight: scoringSetupId === s.id ? "600" : "400" } }, s.name)); })))),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); })))))),
             screen === "scoring" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } },
