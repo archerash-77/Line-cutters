@@ -898,31 +898,35 @@ function ArcheryScorer() {
     }
     var _4 = useState(false), showSightModal = _4[0], setShowSightModal = _4[1];
     var _5 = useState(null), sightModalDist = _5[0], setSightModalDist = _5[1];
+    var _6 = useState(null), pendingEnd = _6[0], setPendingEnd = _6[1];
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
         var newEnd = __spreadArray(__spreadArray([], currentEnd, true), [val], false);
         setCurrentEnd(newEnd);
-        // Auto-submit when last arrow entered
+        // Auto-submit when last arrow entered ? brief pause so archer can see the end
         if (newEnd.length === round.arrowsPerEnd) {
-            var sorted = __spreadArray([], newEnd, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); });
-            var newEnds = __spreadArray(__spreadArray([], ends, true), [sorted], false);
-            setEnds(newEnds);
-            setCurrentEnd([]);
-            if (newEnds.length === round.ends) {
-                setShowFinish(true);
-            }
-            else if (distances) {
-                // Check if this end completes a distance ? if so, show sight modal
-                for (var di = 0; di < distances.length - 1; di++) {
-                    var distEnd = distStartEnd[di] + distances[di].ends;
-                    if (newEnds.length === distEnd) {
-                        setSightModalDist(distances[di + 1]);
-                        setShowSightModal(true);
-                        break;
+            setPendingEnd(newEnd);
+            setTimeout(function () {
+                setPendingEnd(null);
+                var sorted = __spreadArray([], newEnd, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); });
+                var newEnds = __spreadArray(__spreadArray([], ends, true), [sorted], false);
+                setEnds(newEnds);
+                setCurrentEnd([]);
+                if (newEnds.length === round.ends) {
+                    setShowFinish(true);
+                }
+                else if (distances) {
+                    for (var di = 0; di < distances.length - 1; di++) {
+                        var distEnd = distStartEnd[di] + distances[di].ends;
+                        if (newEnds.length === distEnd) {
+                            setSightModalDist(distances[di + 1]);
+                            setShowSightModal(true);
+                            break;
+                        }
                     }
                 }
-            }
+            }, 600);
         }
     }
     function removeLastArrow() {
@@ -1109,12 +1113,7 @@ function ArcheryScorer() {
                                 }
                             }, style: { width: "100%", padding: "20px", border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3, textAlign: "center",
-                                background: "#1a1d25", color: env === "favourites" ? "#e87070" : "#e8e8e0" } },
-                            label,
-                            env === "favourites" && favourites.length > 0 && (React.createElement("span", { style: { fontSize: 12, fontFamily: "'Roboto Mono',monospace", marginLeft: 8, color: "#666" } },
-                                "(",
-                                favourites.length,
-                                ")"))));
+                                background: "#1a1d25", color: env === "favourites" ? "#e87070" : "#e8e8e0" } }, label));
                     })))),
                 homeStep === "favourites" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#c8f55a" } },
@@ -1157,8 +1156,8 @@ function ArcheryScorer() {
                     { label: isImperial ? "GOLDS" : "X COUNT", value: isImperial ? goldCount : xCount, color: "#ffd700" },
                 ].map(function (_a) {
                     var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
-                    return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 8px" } },
-                        React.createElement("div", { style: { fontSize: 7, color: "#555", letterSpacing: 1.2 } }, label),
+                    return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 8px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" } },
+                        React.createElement("div", { style: { fontSize: 10, color: "#555", letterSpacing: 1.2, marginBottom: 2 } }, label),
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color || "#e8e8e0", lineHeight: 1 } }, value),
                         sub && React.createElement("div", { style: { fontSize: 12, color: "#444" } }, sub)));
                 })),
@@ -1178,9 +1177,9 @@ function ArcheryScorer() {
                                 fontSize: 13, fontWeight: 500,
                                 border: v ? "none" : "1px dashed #252830",
                                 transition: "background 0.12s",
-                            } }, v || "?"));
+                            } }, v || ""));
                     }))),
-                React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 10 } }, [["buttons", "? Numbers"], ["target", "? Target"]].map(function (_a) {
+                React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 10 } }, [["buttons", "NUMBERS"], ["target", "TARGET"]].map(function (_a) {
                     var mode = _a[0], label = _a[1];
                     return (React.createElement("button", { key: mode, onClick: function () { return setInputMode(mode); }, style: { flex: 1, padding: "8px", border: "none", borderRadius: 8, cursor: "pointer",
                             fontFamily: "'Roboto Mono',monospace", fontSize: 11,
@@ -1189,14 +1188,7 @@ function ArcheryScorer() {
                 })),
                 inputMode === "buttons" && (React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 5, marginBottom: 10 } }, arrowVals.map(function (v) { return (React.createElement("button", { key: v, className: "abtn", onClick: function () { return addArrow(v); }, disabled: currentEnd.length >= round.arrowsPerEnd, style: { height: 46, background: arrowBg(v, isImperial), color: arrowText(v, isImperial) } }, v)); }))),
                 React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12 } },
-                    React.createElement("button", { className: "abtn", onClick: removeLastArrow, disabled: currentEnd.length === 0, style: { flex: 1, height: 44, background: "#1a1d25", color: "#e8e8e0", fontSize: 12 } }, "\u2190 UNDO"),
-                    React.createElement("button", { className: "abtn", onClick: submitEnd, disabled: currentEnd.length !== round.arrowsPerEnd || allEndsComplete, style: { flex: 2, height: 44, fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2,
-                            background: currentEnd.length === round.arrowsPerEnd ? "#c8f55a" : "#1a1d25",
-                            color: currentEnd.length === round.arrowsPerEnd ? "#0f1117" : "#444" } },
-                        "SUBMIT END ",
-                        endNumber,
-                        "/",
-                        round.ends)),
+                    React.createElement("button", { className: "abtn", onClick: removeLastArrow, disabled: currentEnd.length === 0, style: { flex: 1, height: 44, background: "#1a1d25", color: "#e8e8e0", fontSize: 14 } }, "UNDO")),
                 inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
                 showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
                     React.createElement("div", { style: { background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 } },
@@ -1333,7 +1325,7 @@ function ArcheryScorer() {
                                 React.createElement("span", { style: { color: h.round === "Worcester" ? "#4ab3f4" : h.imperial ? "#c8862a" : "#4ab3f4" } }, h.round === "Worcester" ? "5-zone (5?4?3?2?1)" : h.imperial ? "5-zone" : "10-zone"),
                                 " - ",
                                 h.imperial ? "".concat((_a = h.golds) !== null && _a !== void 0 ? _a : "?", "G") : "".concat(h.xs, "X"),
-                                h.notes ? " - ?" : "")),
+                                h.notes ? " - NOTE" : "")),
                         React.createElement("div", { style: { textAlign: "right" } },
                             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, color: "#c8f55a", lineHeight: 1 } }, h.score),
                             React.createElement("div", { style: { fontSize: 12, color: "#555" } }, h.maxPossible ? "avg ".concat((h.score / (h.maxPossible / (h.round === "Worcester" ? 5 : h.imperial ? 9 : 10))).toFixed(2)) : "")),
@@ -1379,9 +1371,7 @@ function ArcheryScorer() {
                         React.createElement("button", { onClick: function () { return setShowTargetFace(function (v) { return !v; }); }, style: { width: "100%", padding: "10px", background: showTargetFace ? "#1a1d25" : "#0f1117",
                                 border: "1px solid ".concat(showTargetFace ? "#c8f55a" : "#252830"), borderRadius: 10,
                                 color: showTargetFace ? "#c8f55a" : "#555", cursor: "pointer",
-                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2 } },
-                            "\uD83C\uDFAF ",
-                            showTargetFace ? "HIDE TARGET FACE" : "VIEW TARGET FACE"),
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2 } }, showTargetFace ? "HIDE TARGET FACE" : "VIEW TARGET FACE"),
                         showTargetFace && (React.createElement("div", { style: { marginTop: 12, display: "flex", flexDirection: "column", alignItems: "center" } },
                             React.createElement(TargetFace, { isImperial: h.imperial, isWorcester: h.round === "Worcester", disabled: true, onScore: function () { }, arrows: h.hitPositions.map(function (p) { return p.score; }), readOnlyHits: h.hitPositions }))))),
                     React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginBottom: 16 } },
