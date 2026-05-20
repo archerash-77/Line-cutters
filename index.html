@@ -1149,17 +1149,18 @@ function ArcheryScorer() {
                             color: isImperial ? "#c8862a" : "#4ab3f4",
                             border: "1px solid ".concat(isImperial ? "#5a3a00" : "#0a3a5a") } }, isWorcester ? "WORCESTER 5-ZONE" : isImperial ? "5-ZONE IMPERIAL" : "10-ZONE METRIC")),
                 React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 14 } }, [
-                    { label: "TOTAL", value: totalScore, sub: "/ ".concat(maxScore), color: "#c8f55a" },
-                    { label: "HIGHEST POSSIBLE", value: livePossible, sub: "if perfect now",
-                        color: livePossible === maxScore ? "#c8f55a" : "#e8e8e0" },
+                    { label: "TOTAL", value: totalScore, sub: "/ ".concat(maxScore) },
+                    { label: "BEST POSS", value: livePossible, sub: "if perfect" },
                     { label: "END ".concat(Math.min(endNumber, round.ends)), value: currentEndScore, sub: "".concat(round.arrowsPerEnd - currentEnd.length, " left") },
-                    { label: isImperial ? "GOLDS" : "X COUNT", value: isImperial ? goldCount : xCount, color: "#ffd700" },
+                    { label: isImperial ? "GOLDS" : "X COUNT", value: isImperial ? goldCount : xCount, sub: null },
                 ].map(function (_a) {
-                    var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
-                    return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 8px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" } },
-                        React.createElement("div", { style: { fontSize: 10, color: "#555", letterSpacing: 1.2, marginBottom: 2 } }, label),
-                        React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color || "#e8e8e0", lineHeight: 1 } }, value),
-                        sub && React.createElement("div", { style: { fontSize: 12, color: "#444" } }, sub)));
+                    var label = _a.label, value = _a.value, sub = _a.sub;
+                    return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 6px",
+                            textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" } },
+                        React.createElement("div", { style: { fontSize: 9, color: "#aaa", letterSpacing: 1, marginBottom: 4,
+                                height: 14, overflow: "hidden", whiteSpace: "nowrap" } }, label),
+                        React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#c8f55a", lineHeight: 1 } }, value),
+                        sub && React.createElement("div", { style: { fontSize: 11, color: "#e8e8e0", marginTop: 3 } }, sub)));
                 })),
                 React.createElement("div", { style: { marginBottom: 10 } },
                     React.createElement("div", { style: { fontSize: 12, color: "#555", letterSpacing: 1.5, marginBottom: 7 } },
