@@ -167,11 +167,11 @@ var CLASS_TABLES = {
 };
 CLASS_TABLES["Recurve-Male-Junior (U18)"] = CLASS_TABLES["Recurve-Male-Senior (18-49)"];
 CLASS_TABLES["Recurve-Female-Junior (U18)"] = CLASS_TABLES["Recurve-Female-Senior (18-49)"];
-function getClassification(roundName, score, profile) {
-    if (!profile || !profile.bowType || !profile.gender || !profile.ageCategory)
+function getClassification(roundName, score, profile, bowType) {
+    if (!profile || !bowType || !profile.gender || !profile.ageCategory)
         return null;
     var gender = profile.gender === "Male" ? "Male" : "Female";
-    var key = profile.bowType + "-" + gender + "-" + profile.ageCategory;
+    var key = bowType + "-" + gender + "-" + profile.ageCategory;
     var data = CLASS_TABLES[key];
     if (!data)
         return null;
@@ -190,11 +190,11 @@ function getClassification(roundName, score, profile) {
     }
     return achieved;
 }
-function getNextClassification(roundName, score, profile) {
-    if (!profile || !profile.bowType || !profile.gender || !profile.ageCategory)
+function getNextClassification(roundName, score, profile, bowType) {
+    if (!profile || !bowType || !profile.gender || !profile.ageCategory)
         return null;
     var gender = profile.gender === "Male" ? "Male" : "Female";
-    var key = profile.bowType + "-" + gender + "-" + profile.ageCategory;
+    var key = bowType + "-" + gender + "-" + profile.ageCategory;
     var data = CLASS_TABLES[key];
     if (!data)
         return null;
@@ -648,11 +648,9 @@ function ProfileModal(_a) {
     var _b = useState((profile === null || profile === void 0 ? void 0 : profile.name) || ""), name = _b[0], setName = _b[1];
     var _c = useState((profile === null || profile === void 0 ? void 0 : profile.gender) || ""), gender = _c[0], setGender = _c[1];
     var _d = useState((profile === null || profile === void 0 ? void 0 : profile.ageCategory) || ""), ageCategory = _d[0], setAgeCategory = _d[1];
-    var _e = useState((profile === null || profile === void 0 ? void 0 : profile.bowType) || ""), bowType = _e[0], setBowType = _e[1];
     var ages = ["Junior (U18)", "Senior (18-49)", "50+"];
-    var bows = ["Recurve", "Compound", "Barebow", "Longbow", "Traditional"];
     var genders = ["Male", "Female"];
-    var valid = name.trim() && gender && ageCategory && bowType;
+    var valid = name.trim() && gender && ageCategory;
     return (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 300,
             display: "flex", alignItems: "center", justifyContent: "center", padding: 20 } },
         React.createElement("div", { style: { background: "#141720", borderRadius: 16, padding: 24, width: "100%", maxWidth: 380 } },
@@ -668,23 +666,17 @@ function ProfileModal(_a) {
                         fontFamily: "'DM Mono',monospace", fontSize: 12,
                         background: gender === g ? "#c8f55a" : "#1a1d25",
                         color: gender === g ? "#0f1117" : "#666" } }, g)); }))),
-            React.createElement("div", { style: { marginBottom: 14 } },
+            React.createElement("div", { style: { marginBottom: 20 } },
                 React.createElement("div", { style: { fontSize: 9, color: "#555", letterSpacing: 1.5, marginBottom: 6 } }, "AGE CATEGORY"),
                 React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, ages.map(function (a) { return (React.createElement("button", { key: a, onClick: function () { return setAgeCategory(a); }, style: { padding: "10px", border: "none", borderRadius: 8, cursor: "pointer",
                         fontFamily: "'DM Mono',monospace", fontSize: 12, textAlign: "left",
                         background: ageCategory === a ? "#c8f55a" : "#1a1d25",
                         color: ageCategory === a ? "#0f1117" : "#666" } }, a)); }))),
-            React.createElement("div", { style: { marginBottom: 20 } },
-                React.createElement("div", { style: { fontSize: 9, color: "#555", letterSpacing: 1.5, marginBottom: 6 } }, "BOW TYPE"),
-                React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, bows.map(function (b) { return (React.createElement("button", { key: b, onClick: function () { return setBowType(b); }, style: { padding: "8px 12px", border: "none", borderRadius: 8, cursor: "pointer",
-                        fontFamily: "'DM Mono',monospace", fontSize: 11,
-                        background: bowType === b ? "#c8f55a" : "#1a1d25",
-                        color: bowType === b ? "#0f1117" : "#666" } }, b)); }))),
             React.createElement("div", { style: { display: "flex", gap: 10 } },
                 React.createElement("button", { onClick: onClose, style: { flex: 1, padding: 12, background: "#1a1d25", color: "#555",
                         border: "none", borderRadius: 8, cursor: "pointer",
                         fontFamily: "'DM Mono',monospace", fontSize: 12 } }, "Cancel"),
-                React.createElement("button", { onClick: function () { return valid && onSave({ name: name.trim(), gender: gender, ageCategory: ageCategory, bowType: bowType }); }, disabled: !valid, style: { flex: 2, padding: 12, background: valid ? "#c8f55a" : "#252830",
+                React.createElement("button", { onClick: function () { return valid && onSave({ name: name.trim(), gender: gender, ageCategory: ageCategory }); }, disabled: !valid, style: { flex: 2, padding: 12, background: valid ? "#c8f55a" : "#252830",
                         color: valid ? "#0f1117" : "#444", border: "none", borderRadius: 8, cursor: valid ? "pointer" : "default",
                         fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 3 } }, "SAVE")))));
 }
@@ -917,6 +909,7 @@ function ArcheryScorer() {
             ends: ends,
             notes: finishNotes.trim(),
             hitPositions: hitPositions,
+            bowType: (scoringSetup === null || scoringSetup === void 0 ? void 0 : scoringSetup.bowType) || null,
         };
         var newHistory = __spreadArray([entry], history, true);
         setHistory(newHistory);
@@ -940,10 +933,10 @@ function ArcheryScorer() {
     // ??? Sight marks helpers ??????????????????????????????????????????????????
     function saveSetups(updated) { setSetups(updated); saveSights(updated); }
     function createSetup() {
-        var s = { id: Date.now(), name: "New Setup", poundage: "", arrowType: "", notes: "", marks: [] };
+        var s = { id: Date.now(), name: "New Setup", bowType: "", poundage: "", arrowType: "", notes: "", marks: [] };
         saveSetups(__spreadArray(__spreadArray([], setups, true), [s], false));
         setActiveSetup(s.id);
-        setDraftSetup({ name: s.name, poundage: "", arrowType: "", notes: "" });
+        setDraftSetup({ name: s.name, bowType: "", poundage: "", arrowType: "", notes: "" });
         setEditingSetup(true);
     }
     function updateSetupMeta() {
@@ -976,7 +969,7 @@ function ArcheryScorer() {
         React.createElement("style", null, ".abtn{border:none;cursor:pointer;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}.abtn:active{transform:scale(0.90);}.abtn:disabled{opacity:0.3;cursor:default;}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}"),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" } },
             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3, color: "#c8f55a" } }, "LINE CUTTERS"),
-            React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "SCORE"], ["history", "HISTORY"], ["sights", "EQUIPMENT"]].map(function (_a) {
+            React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "HOME"], ["history", "HISTORY"], ["sights", "EQUIPMENT"]].map(function (_a) {
                 var s = _a[0], label = _a[1];
                 return (React.createElement("button", { key: s, onClick: function () {
                         if (screen !== "scoring") {
@@ -1027,9 +1020,9 @@ function ArcheryScorer() {
                         React.createElement("button", { onClick: function () { setScreen("sights"); setActiveSetup(null); setEditingSetup(false); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "EQUIPMENT"),
-                        React.createElement("button", { onClick: function () { return setShowProfile(true); }, style: { width: "100%", padding: "14px", background: "#1a1d25", color: "#555",
+                        React.createElement("button", { onClick: function () { return setShowProfile(true); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#555",
                                 border: "none", borderRadius: 12, cursor: "pointer",
-                                fontFamily: "'DM Mono',monospace", fontSize: 12 } }, profile ? "".concat(profile.name, " \u00B7 ").concat(profile.bowType, " \u00B7 ").concat(profile.gender, " ").concat(profile.ageCategory) : "? Set Archer Profile")))),
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, profile ? profile.name.toUpperCase() : "PROFILE")))),
                 homeStep === "env" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 18px 0" } }, "\u2190 BACK"),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12 } }, [
@@ -1306,8 +1299,8 @@ function ArcheryScorer() {
                         var _a;
                         var isWorc = h.round === "Worcester";
                         var maxArrowVal = isWorc ? 5 : h.imperial ? 9 : 10;
-                        var classification = getClassification(h.round, h.score, profile);
-                        var nextClass = getNextClassification(h.round, h.score, profile);
+                        var classification = getClassification(h.round, h.score, profile, h.bowType);
+                        var nextClass = getNextClassification(h.round, h.score, profile, h.bowType);
                         return [
                             { label: "SCORE", value: h.score, sub: "/ ".concat(h.maxPossible), color: "#c8f55a" },
                             { label: "CLASS", value: classification || "?", sub: nextClass ? "".concat(nextClass.needed, " to ").concat(nextClass.name) : (classification ? "top class" : null), color: classification ? "#c8f55a" : "#555" },
@@ -1417,7 +1410,7 @@ function ArcheryScorer() {
                     React.createElement("div", { style: { flex: 1 } },
                         React.createElement("div", { style: { fontSize: 13, marginBottom: 4 } }, s.name),
                         React.createElement("div", { style: { fontSize: 10, color: "#555" } },
-                            [s.poundage && "".concat(s.poundage), s.arrowType].filter(Boolean).join(" ? ") || "No details added",
+                            [s.bowType, s.poundage, s.arrowType].filter(Boolean).join(" ? ") || "No details added",
                             " ? ",
                             s.marks.length,
                             " mark",
@@ -1427,6 +1420,12 @@ function ArcheryScorer() {
                 React.createElement("button", { onClick: function () { setActiveSetup(null); setEditingSetup(false); setAddingMark(false); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 12, padding: "0 0 16px 0" } }, "\u2190 BACK"),
                 React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 16 } }, editingSetup ? (React.createElement(React.Fragment, null,
                     React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5, marginBottom: 12 } }, "EDIT SETUP"),
+                    React.createElement("div", { style: { marginBottom: 12 } },
+                        React.createElement("div", { style: { fontSize: 9, color: "#555", marginBottom: 6 } }, "BOW TYPE"),
+                        React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 6 } }, ["Recurve", "Compound", "Barebow", "Longbow", "Traditional"].map(function (b) { return (React.createElement("button", { key: b, onClick: function () { return setDraftSetup(function (d) { return (__assign(__assign({}, d), { bowType: b })); }); }, style: { padding: "7px 10px", border: "none", borderRadius: 8, cursor: "pointer",
+                                fontFamily: "'DM Mono',monospace", fontSize: 10,
+                                background: draftSetup.bowType === b ? "#c8f55a" : "#0f1117",
+                                color: draftSetup.bowType === b ? "#0f1117" : "#666" } }, b)); }))),
                     [
                         { label: "Setup name", key: "name", placeholder: "e.g. Summer outdoor limbs" },
                         { label: "Poundage", key: "poundage", placeholder: "e.g. 36 lbs" },
@@ -1446,15 +1445,16 @@ function ArcheryScorer() {
                         React.createElement("button", { onClick: updateSetupMeta, style: { flex: 2, padding: "9px", background: "#c8f55a", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE")))) : (React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "flex-start" } },
                     React.createElement("div", null,
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 2, marginBottom: 4 } }, currentSetup.name),
+                        currentSetup.bowType && React.createElement("div", { style: { fontSize: 11, color: "#c8f55a", marginBottom: 2 } }, currentSetup.bowType),
                         currentSetup.poundage && React.createElement("div", { style: { fontSize: 11, color: "#888", marginBottom: 2 } },
-                            "\u2696 ",
+                            "Weight: ",
                             currentSetup.poundage),
                         currentSetup.arrowType && React.createElement("div", { style: { fontSize: 11, color: "#888", marginBottom: 2 } },
-                            "\uD83C\uDFF9 ",
+                            "Arrow: ",
                             currentSetup.arrowType),
                         currentSetup.notes && React.createElement("div", { style: { fontSize: 11, color: "#555", marginTop: 6, lineHeight: 1.5 } }, currentSetup.notes)),
                     React.createElement("div", { style: { display: "flex", gap: 8 } },
-                        React.createElement("button", { onClick: function () { setDraftSetup({ name: currentSetup.name, poundage: currentSetup.poundage, arrowType: currentSetup.arrowType, notes: currentSetup.notes }); setEditingSetup(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
+                        React.createElement("button", { onClick: function () { setDraftSetup({ name: currentSetup.name, bowType: currentSetup.bowType || "", poundage: currentSetup.poundage, arrowType: currentSetup.arrowType, notes: currentSetup.notes }); setEditingSetup(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
                         React.createElement("button", { onClick: function () { if (window.confirm("Delete \"".concat(currentSetup.name, "\"?")))
                                 deleteSetup(activeSetup); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "DELETE"))))),
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
