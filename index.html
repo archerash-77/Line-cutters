@@ -728,10 +728,10 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
     return React.createElement("div", { key: r }, React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 6 } }, React.createElement("button", {
         onClick: function () { setSelectedRound(isSelected ? null : r); },
         style: { flex: 1, background: isSelected ? "#c8f55a" : "#1a1d25",
-            color: isSelected ? "#0f1117" : "#888", border: "none",
+            color: isSelected ? "#0f1117" : "#e8e8e0", border: "none",
             borderRadius: isSelected ? "8px 8px 0 0" : 8, padding: "11px 14px",
             cursor: "pointer", fontFamily: "'Roboto Mono',monospace", fontSize: 17,
-            fontWeight: isSelected ? "700" : "600", color: "#e8e8e0", textAlign: "left" }
+            fontWeight: isSelected ? "700" : "600", textAlign: "left" }
     }, r), React.createElement("button", {
         onClick: function () { toggleFavourite(r); },
         style: { background: "none", border: "none", cursor: "pointer",
@@ -1019,7 +1019,7 @@ function ArcheryScorer() {
             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3, color: "#c8f55a" } }, "LINE CUTTERS"),
             React.createElement("div", { style: { display: "flex", gap: 4 } },
                 React.createElement("button", { onClick: function () { setScreen("home"); setHomeStep("main"); setViewingRound(null); }, style: { background: "none", border: "none", cursor: "pointer", padding: "6px 10px",
-                        color: screen === "home" ? "#c8f55a" : "#555" } },
+                        color: "#c8f55a" } },
                     React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round" },
                         React.createElement("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }),
                         React.createElement("polyline", { points: "9 22 9 12 15 12 15 22" }))))),
@@ -1042,7 +1042,7 @@ function ArcheryScorer() {
                     React.createElement("div", { style: { display: "flex", gap: 8 } },
                         React.createElement("button", { onClick: function () { return setPickingSetup(false); }, style: { flex: 1, padding: 12, background: "#0f1117", border: "1px solid #2a2d38",
                                 borderRadius: 8, color: "#555", cursor: "pointer",
-                                cursor: "pointer", padding: "4px 8px", color: "#555" } },
+                                cursor: "pointer", padding: "4px 8px", color: "#c8f55a" } },
                             React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                                 React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                         React.createElement("button", { onClick: function () { updateScoringSetup(null); startRound(); }, style: { flex: 1, padding: 12, background: "#1a1d25", border: "1px solid #2a2d38",
@@ -1117,7 +1117,7 @@ function ArcheryScorer() {
                                 ")"))));
                     })))),
                 homeStep === "favourites" && (React.createElement("div", null,
-                    React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#555" } },
+                    React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#c8f55a" } },
                         React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                     favourites.length === 0 ? (React.createElement("div", { style: { textAlign: "center", color: "#444", fontSize: 13, marginTop: 40 } },
@@ -1125,7 +1125,7 @@ function ArcheryScorer() {
                         "No favourites yet. Tap the heart button next to any round to add it.",
                         React.createElement("div", { style: { fontSize: 11, marginTop: 8, color: "#444" } }, "Hold any round to add it."))) : (React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, favourites.map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); }))))),
                 homeStep === "category" && (React.createElement("div", null,
-                    React.createElement("button", { onClick: function () { setHomeStep("env"); setSelectedRound(null); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#555" } },
+                    React.createElement("button", { onClick: function () { setHomeStep("env"); setSelectedRound(null); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#c8f55a" } },
                         React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                     homeEnv === "outdoor" ? (React.createElement("div", { style: { display: "flex", gap: 10 } }, [["WA / Metric Outdoor", "METRIC"], ["Imperial Outdoor", "IMPERIAL"]].map(function (_a) {
@@ -1135,7 +1135,7 @@ function ArcheryScorer() {
                                 background: "#1a1d25", color: "#e8e8e0" } }, label));
                     }))) : (React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS["Indoor"]).map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); }))))),
                 homeStep === "round" && (React.createElement("div", null,
-                    React.createElement("button", { onClick: function () { setHomeStep(homeEnv === "indoor" ? "env" : "category"); setSelectedRound(null); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#555" } },
+                    React.createElement("button", { onClick: function () { setHomeStep(homeEnv === "indoor" ? "env" : "category"); setSelectedRound(null); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#c8f55a" } },
                         React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); })))))),
@@ -1337,7 +1337,8 @@ function ArcheryScorer() {
                         React.createElement("div", { style: { textAlign: "right" } },
                             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, color: "#c8f55a", lineHeight: 1 } }, h.score),
                             React.createElement("div", { style: { fontSize: 9, color: "#555" } }, h.maxPossible ? "avg ".concat((h.score / (h.maxPossible / (h.round === "Worcester" ? 5 : h.imperial ? 9 : 10))).toFixed(2)) : "")),
-                        React.createElement("div", { style: { color: "#333", fontSize: 14 } }, "\u203A")));
+                        React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "#555", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
+                            React.createElement("polyline", { points: "9 18 15 12 9 6" }))));
                 }),
                 React.createElement("button", { onClick: function () { if (window.confirm("Clear all history?")) {
                         setHistory([]);
@@ -1347,7 +1348,7 @@ function ArcheryScorer() {
                 var h = viewingRound;
                 var imp = h.imperial;
                 return (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
-                    React.createElement("button", { onClick: function () { setViewingRound(null); setEditingNotes(false); setShowTargetFace(false); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#555" } },
+                    React.createElement("button", { onClick: function () { setViewingRound(null); setEditingNotes(false); setShowTargetFace(false); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#c8f55a" } },
                         React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                     React.createElement("div", { style: { marginBottom: 16 } },
@@ -1463,22 +1464,23 @@ function ArcheryScorer() {
             })(),
             screen === "sights" && !activeSetup && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 } },
-                    React.createElement("div", { style: { fontSize: 8, color: "#555", letterSpacing: 1.5 } }, "MY SETUPS"),
-                    React.createElement("button", { onClick: createSetup, style: { background: "#c8f55a", border: "none", borderRadius: 8, padding: "7px 14px", color: "#0f1117", fontFamily: "'Bebas Neue',sans-serif", fontSize: 14, letterSpacing: 2, cursor: "pointer" } }, "+ NEW SETUP")),
+                    React.createElement("div", { style: { fontSize: 11, color: "#555", letterSpacing: 1.5 } }, "MY SETUPS"),
+                    React.createElement("button", { onClick: createSetup, style: { background: "#c8f55a", border: "none", borderRadius: 10, padding: "12px 20px", color: "#0f1117", fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 2, cursor: "pointer" } }, "+ NEW SETUP")),
                 setups.length === 0 ? (React.createElement("div", { style: { textAlign: "center", color: "#555", marginTop: 60 } },
                     React.createElement("div", { style: { fontSize: 38, marginBottom: 10 } }, "\uD83C\uDFAF"),
-                    React.createElement("div", { style: { fontSize: 12 } }, "No setups yet. Create one to record your sight marks."))) : (setups.map(function (s) { return (React.createElement("div", { key: s.id, onClick: function () { setActiveSetup(s.id); setEditingSetup(false); setAddingMark(false); }, style: { background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 8, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 } },
+                    React.createElement("div", { style: { fontSize: 12 } }, "No setups yet. Create one to record your sight marks."))) : (setups.map(function (s) { return (React.createElement("div", { key: s.id, onClick: function () { setActiveSetup(s.id); setEditingSetup(false); setAddingMark(false); }, style: { background: "#1a1d25", borderRadius: 12, padding: "20px 18px", marginBottom: 10, cursor: "pointer", display: "flex", alignItems: "center", gap: 12 } },
                     React.createElement("div", { style: { flex: 1 } },
-                        React.createElement("div", { style: { fontSize: 13, marginBottom: 4 } }, s.name),
-                        React.createElement("div", { style: { fontSize: 10, color: "#555" } },
+                        React.createElement("div", { style: { fontSize: 18, fontWeight: "600", fontFamily: "'Roboto Mono',monospace", marginBottom: 6 } }, s.name),
+                        React.createElement("div", { style: { fontSize: 13, color: "#888", marginTop: 2 } },
                             [s.bowType, s.poundage, s.arrowType].filter(Boolean).join(" - ") || "No details added",
                             " - ",
                             s.marks.length,
                             " mark",
                             s.marks.length !== 1 ? "s" : "")),
-                    React.createElement("div", { style: { color: "#333", fontSize: 14 } }, "\u203A"))); })))),
+                    React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "#555", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
+                        React.createElement("polyline", { points: "9 18 15 12 9 6" })))); })))),
             screen === "sights" && activeSetup && currentSetup && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
-                React.createElement("button", { onClick: function () { setActiveSetup(null); setEditingSetup(false); setAddingMark(false); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#555" } },
+                React.createElement("button", { onClick: function () { setActiveSetup(null); setEditingSetup(false); setAddingMark(false); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0", color: "#c8f55a" } },
                     React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                         React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                 React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "14px 16px", marginBottom: 16 } }, editingSetup ? (React.createElement(React.Fragment, null,
