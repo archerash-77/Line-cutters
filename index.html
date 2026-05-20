@@ -972,14 +972,17 @@ function ArcheryScorer() {
             React.createElement("div", { style: { display: "flex", gap: 4 } }, [["home", "HOME"], ["history", "HISTORY"], ["sights", "EQUIPMENT"]].map(function (_a) {
                 var s = _a[0], label = _a[1];
                 return (React.createElement("button", { key: s, onClick: function () {
-                        if (screen !== "scoring") {
+                        if (s === "home") {
+                            setScreen("home");
+                            setHomeStep("main");
+                            setViewingRound(null);
+                        }
+                        else if (screen !== "scoring") {
                             setScreen(s);
                             setViewingRound(null);
                             setActiveSetup(null);
                             setEditingSetup(false);
                             setAddingMark(false);
-                            if (s === "home")
-                                setHomeStep("main");
                         }
                     }, style: { background: "none", border: "none", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "8px 10px",
                         color: screen === s ? "#c8f55a" : "#555",
@@ -987,17 +990,17 @@ function ArcheryScorer() {
             }))),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "18px 20px 60px", flex: 1 } },
             showProfile && (React.createElement(ProfileModal, { profile: profile, onSave: function (p) { saveProfile(p); setShowProfile(false); }, onClose: function () { return setShowProfile(false); } })),
+            screen !== "scoring" && (ends.length > 0 || currentEnd.length > 0) && (React.createElement("button", { onClick: function () { return setScreen("scoring"); }, style: { width: "100%", padding: 14, marginBottom: 20,
+                    background: "#0d2015", color: "#c8f55a",
+                    border: "2px solid #2a6a3a", borderRadius: 10,
+                    fontFamily: "'Bebas Neue',sans-serif", fontSize: 17, letterSpacing: 2, cursor: "pointer" } },
+                "RESUME ",
+                activeRound,
+                " \u2014 END ",
+                ends.length + 1,
+                "/",
+                round.ends)),
             screen === "home" && (React.createElement("div", { style: { animation: "fadeUp 0.25s ease" } },
-                (ends.length > 0 || currentEnd.length > 0) && (React.createElement("button", { onClick: function () { return setScreen("scoring"); }, style: { width: "100%", padding: 14, marginBottom: 20,
-                        background: "#0d2015", color: "#c8f55a",
-                        border: "2px solid #2a6a3a", borderRadius: 10,
-                        fontFamily: "'Bebas Neue',sans-serif", fontSize: 17, letterSpacing: 2, cursor: "pointer" } },
-                    "\u25B6 RESUME ",
-                    activeRound,
-                    " \u2014 END ",
-                    ends.length + 1,
-                    "/",
-                    round.ends)),
                 homeStep === "main" && (React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center" } },
                     React.createElement("svg", { width: "220", height: "220", viewBox: "0 0 360 360", style: { marginBottom: 28, marginTop: 8 } },
                         React.createElement("circle", { cx: "180", cy: "180", r: "130", fill: "none", stroke: "#c8f55a", "stroke-width": "7" }),
@@ -1022,7 +1025,7 @@ function ArcheryScorer() {
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "EQUIPMENT"),
                         React.createElement("button", { onClick: function () { return setShowProfile(true); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#555",
                                 border: "none", borderRadius: 12, cursor: "pointer",
-                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, profile ? profile.name.toUpperCase() : "PROFILE")))),
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "PROFILE")))),
                 homeStep === "env" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 18px 0" } }, "\u2190 BACK"),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12 } }, [
