@@ -899,6 +899,7 @@ function ArcheryScorer() {
     var _4 = useState(false), showSightModal = _4[0], setShowSightModal = _4[1];
     var _5 = useState(null), sightModalDist = _5[0], setSightModalDist = _5[1];
     var _6 = useState(null), pendingEnd = _6[0], setPendingEnd = _6[1];
+    var _7 = useState(null), editingEnd = _7[0], setEditingEnd = _7[1]; // {endIndex, arrows, source: "live"|"history", historyId}
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
@@ -931,6 +932,45 @@ function ArcheryScorer() {
     }
     function removeLastArrow() {
         setCurrentEnd(function (prev) { return prev.slice(0, -1); });
+    }
+    function undoLastEnd() {
+        if (ends.length === 0)
+            return;
+        var last = ends[ends.length - 1];
+        setEnds(function (prev) { return prev.slice(0, -1); });
+        setCurrentEnd(__spreadArray([], last, true)); // restore as unsorted for re-entry
+        setShowFinish(false);
+    }
+    function saveEditedEnd(endIndex, newArrows, historyId) {
+        if (historyId) {
+            // Edit in history
+            setHistory(function (prev) { return prev.map(function (h) {
+                if (h.id !== historyId)
+                    return h;
+                var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
+                var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
+                return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds });
+            }); });
+            // Also persist
+            try {
+                var updated = history.map(function (h) {
+                    if (h.id !== historyId)
+                        return h;
+                    var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
+                    var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
+                    return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds });
+                });
+                localStorage.setItem("archery_history", JSON.stringify(updated));
+            }
+            catch (_a) { }
+        }
+        else {
+            // Edit in live scoring
+            setEnds(function (prev) { return prev.map(function (e, i) { return i === endIndex
+                ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); })
+                : e; }); });
+        }
+        setEditingEnd(null);
     }
     function submitEnd() {
         if (currentEnd.length !== round.arrowsPerEnd)
@@ -1028,6 +1068,37 @@ function ArcheryScorer() {
                         React.createElement("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }),
                         React.createElement("polyline", { points: "9 22 9 12 15 12 15 22" }))))),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "18px 20px 60px", flex: 1 } },
+            editingEnd && (function () {
+                var isHist = !!editingEnd.historyId;
+                var isImp = isHist ? (history.find(function (h) { return h.id === editingEnd.historyId; }) || {}).imperial : isImperial;
+                var isWor = isHist ? (history.find(function (h) { return h.id === editingEnd.historyId; }) || {}).round === "Worcester" : isWorcester;
+                var vals = isWor ? ["5", "4", "3", "2", "1", "M"] : isImp ? ["9", "7", "5", "3", "1", "M"] : ["X", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "M"];
+                return (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.9)", zIndex: 400,
+                        display: "flex", alignItems: "center", justifyContent: "center", padding: 20 } },
+                    React.createElement("div", { style: { background: "#141720", borderRadius: 16, padding: 24, width: "100%", maxWidth: 380 } },
+                        React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3,
+                                color: "#c8f55a", marginBottom: 4 } },
+                            "EDIT END ",
+                            editingEnd.endIndex + 1),
+                        React.createElement("div", { style: { fontSize: 12, color: "#555", marginBottom: 18 } }, "Tap an arrow to change its value"),
+                        React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 18 } }, editingEnd.arrows.map(function (v, i) { return (React.createElement("div", { key: i, style: { flex: 1, textAlign: "center" } },
+                            React.createElement("div", { style: { fontSize: 11, color: "#555", marginBottom: 4 } },
+                                "A",
+                                i + 1),
+                            React.createElement("select", { value: v, onChange: function (e) {
+                                    var updated = __spreadArray([], editingEnd.arrows, true);
+                                    updated[i] = e.target.value;
+                                    setEditingEnd(__assign(__assign({}, editingEnd), { arrows: updated }));
+                                }, style: { width: "100%", padding: "8px 2px", background: arrowBg(v, isImp || false),
+                                    color: arrowText(v, isImp || false), border: "none", borderRadius: 8,
+                                    fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, textAlign: "center",
+                                    cursor: "pointer", appearance: "none", WebkitAppearance: "none" } }, vals.map(function (opt) { return React.createElement("option", { key: opt, value: opt }, opt); })))); })),
+                        React.createElement("div", { style: { display: "flex", gap: 8 } },
+                            React.createElement("button", { onClick: function () { return setEditingEnd(null); }, style: { flex: 1, padding: 14, background: "#1a1d25", border: "none", borderRadius: 8,
+                                    color: "#555", cursor: "pointer", fontFamily: "'Roboto Mono',monospace", fontSize: 14 } }, "CANCEL"),
+                            React.createElement("button", { onClick: function () { return saveEditedEnd(editingEnd.endIndex, editingEnd.arrows, editingEnd.historyId); }, style: { flex: 2, padding: 14, background: "#c8f55a", border: "none", borderRadius: 8,
+                                    color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3 } }, "SAVE")))));
+            })(),
             showProfile && (React.createElement(ProfileModal, { profile: profile, onSave: function (p) { saveProfile(p); setShowProfile(false); }, onClose: function () { return setShowProfile(false); } })),
             pickingSetup && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", zIndex: 300,
                     display: "flex", alignItems: "center", justifyContent: "center", padding: 20 } },
@@ -1189,7 +1260,10 @@ function ArcheryScorer() {
                 })),
                 inputMode === "buttons" && (React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 5, marginBottom: 10 } }, arrowVals.map(function (v) { return (React.createElement("button", { key: v, className: "abtn", onClick: function () { return addArrow(v); }, disabled: currentEnd.length >= round.arrowsPerEnd, style: { height: 46, background: arrowBg(v, isImperial), color: arrowText(v, isImperial) } }, v)); }))),
                 React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12 } },
-                    React.createElement("button", { className: "abtn", onClick: removeLastArrow, disabled: currentEnd.length === 0, style: { flex: 1, height: 44, background: "#1a1d25", color: "#e8e8e0", fontSize: 14 } }, "UNDO")),
+                    React.createElement("button", { className: "abtn", onClick: removeLastArrow, disabled: currentEnd.length === 0, style: { flex: 1, height: 48, background: "#1a1d25", color: "#e8e8e0", fontSize: 14 } }, "UNDO"),
+                    React.createElement("button", { className: "abtn", onClick: undoLastEnd, disabled: ends.length === 0 || currentEnd.length > 0 || !!pendingEnd, style: { flex: 2, height: 48, background: "#1a1d25", color: ends.length > 0 && !pendingEnd ? "#c8862a" : "#333", fontSize: 13, letterSpacing: 1 } },
+                        "UNDO END ",
+                        ends.length > 0 ? ends.length : "")),
                 inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
                 showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
                     React.createElement("div", { style: { background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 } },
@@ -1246,7 +1320,7 @@ function ArcheryScorer() {
                                     var globalIdx = distStartEnd[di] + ei;
                                     var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                     var runningTotal = ends.slice(0, globalIdx + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
-                                    rows.push(React.createElement("div", { key: "e-".concat(globalIdx), style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230" } },
+                                    rows.push(React.createElement("div", { key: "e-".concat(globalIdx), onClick: function () { return setEditingEnd({ endIndex: globalIdx, arrows: __spreadArray([], end, true), source: "live" }); }, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230", cursor: "pointer" } },
                                         React.createElement("div", { style: { width: 28, color: "#444", fontSize: 12 } },
                                             "E",
                                             globalIdx + 1),
@@ -1407,19 +1481,22 @@ function ArcheryScorer() {
                                     React.createElement("span", { style: { fontSize: 12, color: "#444" } },
                                         dist.ends * roundDef.arrowsPerEnd,
                                         " arrows")));
-                                for (var e = 0; e < dist.ends; e++, endIndex++) {
+                                var _loop_1 = function (e) {
                                     var end = h.ends[endIndex];
                                     if (!end)
-                                        continue;
+                                        return "continue";
                                     var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                     var runningTotal = h.ends.slice(0, endIndex + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
-                                    rows.push(React.createElement("div", { key: "e-".concat(endIndex), style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230" } },
+                                    rows.push(React.createElement("div", { key: "e-".concat(endIndex), onClick: function () { return setEditingEnd({ endIndex: endIndex, arrows: __spreadArray([], end, true), source: "history", historyId: h.id }); }, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230", cursor: "pointer" } },
                                         React.createElement("div", { style: { width: 28, color: "#444", fontSize: 12 } },
                                             "E",
                                             endIndex + 1),
                                         React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)); })),
                                         React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" } }, endTotal),
                                         React.createElement("div", { style: { width: 44, textAlign: "right", fontSize: 13, color: "#555" } }, runningTotal)));
+                                };
+                                for (var e = 0; e < dist.ends; e++, endIndex++) {
+                                    _loop_1(e);
                                 }
                                 if (distAvg) {
                                     rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
