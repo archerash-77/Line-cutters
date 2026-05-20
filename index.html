@@ -24,8 +24,12 @@
 <body>
   <div id="root"></div>
   <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading...</div>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"
+    onload="document.getElementById('msg').textContent='React loaded...'"
+    onerror="document.getElementById('msg').textContent='React CDN FAILED'"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    onload="document.getElementById('msg').textContent='Both loaded, starting...'"
+    onerror="document.getElementById('msg').textContent='ReactDOM CDN FAILED'"></script>
   <script>
   var useState = React.useState;
   var useRef = React.useRef;
