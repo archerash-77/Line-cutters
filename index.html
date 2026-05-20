@@ -7,7 +7,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
   <meta name="apple-mobile-web-app-title" content="Line Cutters"/>
   <meta name="theme-color" content="#0f1117"/>
-
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Bebas+Neue&display=swap" rel="stylesheet"/>
   <title>Line Cutters</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -17,28 +19,28 @@
     .abtn:active{transform:scale(0.90);}
     .abtn:disabled{opacity:0.3;cursor:default;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    #msg{position:fixed;top:0;left:0;right:0;bottom:0;color:#c8f55a;font-family:monospace;font-size:16px;padding:30px;background:#0f1117;z-index:9999;}
+    #msg{position:fixed;top:0;left:0;right:0;padding:20px;color:#c8f55a;font-family:monospace;font-size:14px;background:#0f1117;z-index:9999;}
   </style>
 </head>
 <body>
-  <div id="msg">Step 1: Page loaded OK</div>
+  <div id="msg">Loading...</div>
   <div id="root"></div>
   <script>
   window.onerror = function(m,s,l) {
-    document.getElementById('msg').style.display = 'block';
-    document.getElementById('msg').innerHTML = 'Step ERROR: ' + m + ' (line ' + l + ')';
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').innerHTML='<b style="color:red">ERROR:</b> '+m+' line:'+l;
     return false;
   };
-  document.getElementById('msg').textContent = 'Step 2: Scripts starting';
+  document.getElementById('msg').textContent='Step 1 OK';
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"
-    onload="document.getElementById('msg').textContent='Step 3: React loaded'"
-    onerror="document.getElementById('msg').textContent='FAIL: React CDN blocked'"></script>
+    onload="document.getElementById('msg').textContent='Step 2: React OK'"
+    onerror="document.getElementById('msg').textContent='FAIL: React blocked'"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
-    onload="document.getElementById('msg').textContent='Step 4: ReactDOM loaded'"
-    onerror="document.getElementById('msg').textContent='FAIL: ReactDOM CDN blocked'"></script>
+    onload="document.getElementById('msg').textContent='Step 3: ReactDOM OK'"
+    onerror="document.getElementById('msg').textContent='FAIL: ReactDOM blocked'"></script>
   <script>
-  document.getElementById('msg').textContent = 'Step 5: Defining app...';
+  document.getElementById('msg').textContent='Step 4: Defining app...';
   var useState = React.useState;
   var useRef = React.useRef;
   var useEffect = React.useEffect;
@@ -91,9 +93,10 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
     }
     return to.concat(ar || Array.prototype.slice.call(from));
 };
-// --- Round definitions --------------------------------------------------------
-// imperial: true  > 5-zone scoring (9,7,5,3,1), no X ring, max arrow = 9
-// imperial: false > 10-zone scoring (X,10..1),   X ring,    max arrow = 10
+var react_1 = require("react");
+// ??? Round definitions ????????????????????????????????????????????????????????
+// imperial: true  ? 5-zone scoring (9,7,5,3,1), no X ring, max arrow = 9
+// imperial: false ? 10-zone scoring (X,10..1),   X ring,    max arrow = 10
 var ROUND_GROUPS = {
     "WA / Metric Outdoor": {
         "WA 1440 (90m)": { ends: 24, arrowsPerEnd: 6, imperial: false },
@@ -173,7 +176,7 @@ var ROUND_GROUPS = {
         "Worcester": { ends: 12, arrowsPerEnd: 5, imperial: false, worcester: true },
     },
 };
-// --- Scoring helpers ----------------------------------------------------------
+// ??? Scoring helpers ??????????????????????????????????????????????????????????
 var IMPERIAL_VALUES = ["9", "7", "5", "3", "1", "M"];
 var METRIC_VALUES = ["X", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "M"];
 var WORCESTER_VALUES = ["5", "4", "3", "2", "1", "M"];
@@ -196,7 +199,7 @@ var maxRoundScore = function (roundName) {
         return r.ends * r.arrowsPerEnd * 5;
     return r.ends * r.arrowsPerEnd * (r.imperial ? 9 : 10);
 };
-// --- Colours -----------------------------------------------------------------
+// ??? Colours ?????????????????????????????????????????????????????????????????
 var arrowBg = function (v, isImperial) {
     if (v === "M")
         return "#2a2d38";
@@ -246,7 +249,7 @@ var arrowText = function (v, isImperial) {
         return "#1a1a1a";
     }
 };
-// --- Persistence -------------------------------------------------------------
+// ??? Persistence ?????????????????????????????????????????????????????????????
 var STORAGE_KEY = "archery_history_v2";
 var loadHistory = function () { try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
@@ -272,45 +275,45 @@ catch (_a) { } };
 var IMPERIAL_DISTANCES = ["10 yds", "20 yds", "30 yds", "40 yds", "50 yds", "60 yds", "80 yds", "100 yds"];
 var METRIC_DISTANCES = ["18 m", "20 m", "25 m", "30 m", "40 m", "50 m", "60 m", "70 m", "80 m", "90 m"];
 var ALL_DISTANCES = IMPERIAL_DISTANCES.concat(METRIC_DISTANCES);
-// --- Target Face Component ----------------------------------------------------
+// ??? Target Face Component ????????????????????????????????????????????????????
 function TargetFace(_a) {
     var isImperial = _a.isImperial, isWorcester = _a.isWorcester, disabled = _a.disabled, onScore = _a.onScore, onHit = _a.onHit, onUndo = _a.onUndo, _b = _a.arrows, arrows = _b === void 0 ? [] : _b, readOnlyHits = _a.readOnlyHits;
-    var _c = __read(useState([]), 2), hits = _c[0], setHits = _c[1];
-    var _d = __read(useState(null), 2), lastHit = _d[0], setLastHit = _d[1];
-    var _e = __read(useState(1.4), 2), zoom = _e[0], setZoom = _e[1];
-    var _f = __read(useState({ x: 0, y: 0 }), 2), pan = _f[0], setPan = _f[1];
-    var pinchRef = useRef(null);
-    var dragRef = useRef(null);
-    var containerRef = useRef(null);
+    var _c = __read((0, react_1.useState)([]), 2), hits = _c[0], setHits = _c[1];
+    var _d = __read((0, react_1.useState)(null), 2), lastHit = _d[0], setLastHit = _d[1];
+    var _e = __read((0, react_1.useState)(1.4), 2), zoom = _e[0], setZoom = _e[1];
+    var _f = __read((0, react_1.useState)({ x: 0, y: 0 }), 2), pan = _f[0], setPan = _f[1];
+    var pinchRef = (0, react_1.useRef)(null);
+    var dragRef = (0, react_1.useRef)(null);
+    var containerRef = (0, react_1.useRef)(null);
     // In read-only mode, display the stored hits directly
     var displayHits = readOnlyHits || hits;
     // Sync hits count with arrows (handles undo)
-    useEffect(function () {
+    (0, react_1.useEffect)(function () {
         setHits(function (prev) { return prev.slice(0, arrows.length); });
     }, [arrows.length]);
     // High-res viewBox
     // Zone fractions are relative to the COLOURED face radius (black outer = 1.0).
-    // White zones (1+2) render as the white square background - not as rings inside VR.
+    // White zones (1+2) render as the white square background ? not as rings inside VR.
     // This makes all coloured rings equal width and gold look correct relative to red.
     //
     // Real 122cm face: 10 equal rings of 6.1cm each.
     // Coloured rings start at ring 3 (black). Coloured radius = 8 rings ? 6.1 = 48.8cm.
     // As fractions of coloured radius (48.8cm):
     //   3-ring outer = 48.8/48.8 = 1.000
-    //   4-ring outer = 42.7/48.8 = 0.875  > simplified to equal bands: 1.000
+    //   4-ring outer = 42.7/48.8 = 0.875  ? simplified to equal bands: 1.000
     //   Each colour band (2 rings) = 2/8 = 0.25 of coloured radius
     //   So: black outer=1.0, blue outer=0.75, red outer=0.50, gold outer=0.25
     //   10-ring = 0.125, X = 0.0625
     var VSIZE = 1000;
     var VCX = VSIZE / 2;
     var VCY = VSIZE / 2;
-    var VR = 500; // full target fills the square - each ring = 50 units = 10% of radius
+    var VR = 500; // full target fills the square ? each ring = 50 units = 10% of radius
     var SIZE = 300;
-    // -- Zone definitions ------------------------------------------------------
+    // ?? Zone definitions ??????????????????????????????????????????????????????
     // Ring N outer boundary = (10-N+1) ? 0.1. So ring 1 outer=1.0, ring 9 outer=0.2, ring 10 outer=0.1.
-    // Drawing: one filled circle per COLOUR CHANGE, drawn largest>smallest.
+    // Drawing: one filled circle per COLOUR CHANGE, drawn largest?smallest.
     //   White circle r=0.90 (rings 1+2), Black r=0.70, Blue r=0.50, Red r=0.40 (NOT 0.30),
-    //   Gold r=0.20 overwrites red > red visible 0.20>0.40 = two rings wide ?
+    //   Gold r=0.20 overwrites red ? red visible 0.20?0.40 = two rings wide ?
     // Ring LINES drawn at every 0.10 boundary.
     var colourFills = [
         { r: 1.00, fill: "#ffffff" },
@@ -331,7 +334,7 @@ function TargetFace(_a) {
         { r: 0.30, stroke: "#b82010", sw: 1.5 },
         { r: 0.20, stroke: "#000", sw: 3 },
         { r: 0.10, stroke: "#c8b800", sw: 1.5 },
-        { r: 0.05, stroke: "#c8b800", sw: 1 }, // X outer - thin, not bold
+        { r: 0.05, stroke: "#c8b800", sw: 1 }, // X outer ? thin, not bold
     ];
     // zones10: r=outer boundary, inner=inner boundary of that ring
     var zones10 = [
@@ -348,7 +351,7 @@ function TargetFace(_a) {
         { r: 0.05, inner: 0.025, score: "X" },
     ];
     var whiteR = 0.90;
-    // Imperial colour fills - same structure
+    // Imperial colour fills ? same structure
     var zones5colours = [
         { r: 1.00, fill: "#ffffff" }, // white (outer=1.0)
         { r: 0.80, fill: "#1c1c1c" }, // black (outer=0.80)
@@ -366,7 +369,7 @@ function TargetFace(_a) {
         { r: 0.20, inner: 0.00, score: "9" },
     ];
     // Worcester: 5 equal bands each 0.20 of radius. Centre=white (5), 4 black bands (4,3,2,1).
-    // Scores 5>1 from centre outward. Black background beyond scoring area.
+    // Scores 5?1 from centre outward. Black background beyond scoring area.
     // Each band width = 4.064cm on a 20.32cm radius face = exactly 0.20 of radius.
     var zonesWorcester = [
         { r: 1.00, score: "1", fill: "#111111", stroke: "#333", sw: 1 }, // black band 1 (outermost)
@@ -376,7 +379,7 @@ function TargetFace(_a) {
         { r: 0.20, score: "5", fill: "#f0ece0", stroke: "#fff", sw: 1 }, // white centre (scores 5)
     ];
     // Scoring: each zone scores when d <= its OUTER boundary.
-    // Array ordered innermost>outermost. Loop finds smallest r that contains the tap.
+    // Array ordered innermost?outermost. Loop finds smallest r that contains the tap.
     var scoringZones = isWorcester
         ? [{ r: 0.20, score: "5" }, { r: 0.40, score: "4" }, { r: 0.60, score: "3" }, { r: 0.80, score: "2" }, { r: 1.00, score: "1" }, { r: 99, score: "M" }]
         : isImperial
@@ -401,7 +404,7 @@ function TargetFace(_a) {
         }
         return "M";
     }
-    // -- Coordinate conversion: DOM client > viewBox ---------------------------
+    // ?? Coordinate conversion: DOM client ? viewBox ???????????????????????????
     // Container is SIZE?SIZE square. SVG has viewBox 0 0 VSIZE VSIZE.
     // CSS transform: translate(pan.x, pan.y) scale(zoom), origin = centre.
     function clientToVB(clientX, clientY) {
@@ -412,12 +415,12 @@ function TargetFace(_a) {
         var vy = ((dy - pan.y) / zoom) / SIZE * VSIZE + VCY;
         return { vx: vx, vy: vy };
     }
-    // -- Pan clamp - allow target to move freely within ~1 radius of centre ----
+    // ?? Pan clamp ? allow target to move freely within ~1 radius of centre ????
     function clampPan(x, y, z) {
         var limit = SIZE * 0.5 * (z - 1.4) + SIZE * 0.45;
         return { x: Math.max(-limit, Math.min(limit, x)), y: Math.max(-limit, Math.min(limit, y)) };
     }
-    // -- Touch handlers --------------------------------------------------------
+    // ?? Touch handlers ????????????????????????????????????????????????????????
     function handleTouchStart(e) {
         e.preventDefault();
         if (e.touches.length === 2) {
@@ -485,7 +488,7 @@ function TargetFace(_a) {
             onHit({ vx: vx, vy: vy, score: score });
     }
     // Sync hits with arrows length (undo support)
-    useEffect(function () {
+    (0, react_1.useEffect)(function () {
         setHits(function (prev) {
             if (prev.length > arrows.length) {
                 if (onUndo)
@@ -495,7 +498,7 @@ function TargetFace(_a) {
             return prev;
         });
     }, [arrows.length]);
-    useEffect(function () {
+    (0, react_1.useEffect)(function () {
         var el = containerRef.current;
         if (!el)
             return;
@@ -508,7 +511,7 @@ function TargetFace(_a) {
             el.removeEventListener("touchend", handleTouchEnd);
         };
     });
-    // -- Marker sizing - fixed physical size regardless of zoom ----------------
+    // ?? Marker sizing ? fixed physical size regardless of zoom ????????????????
     // MR in viewBox units; dividing by zoom keeps it constant in screen pixels
     var MR_BASE = VR * 0.018; // base marker radius at zoom=1
     var MR = MR_BASE / zoom;
@@ -613,13 +616,13 @@ function TargetFace(_a) {
                 "\u00D7"),
             zoom > 1.5 ? React.createElement("span", null, "DRAG TO PAN") : React.createElement("span", null, "PINCH TO ZOOM"))));
 }
-// --- Archer Profile Modal ----------------------------------------------------
+// ??? Archer Profile Modal ????????????????????????????????????????????????????
 function ProfileModal(_a) {
     var profile = _a.profile, onSave = _a.onSave, onClose = _a.onClose;
-    var _b = __read(useState((profile === null || profile === void 0 ? void 0 : profile.name) || ""), 2), name = _b[0], setName = _b[1];
-    var _c = __read(useState((profile === null || profile === void 0 ? void 0 : profile.gender) || ""), 2), gender = _c[0], setGender = _c[1];
-    var _d = __read(useState((profile === null || profile === void 0 ? void 0 : profile.ageCategory) || ""), 2), ageCategory = _d[0], setAgeCategory = _d[1];
-    var _e = __read(useState((profile === null || profile === void 0 ? void 0 : profile.bowType) || ""), 2), bowType = _e[0], setBowType = _e[1];
+    var _b = __read((0, react_1.useState)((profile === null || profile === void 0 ? void 0 : profile.name) || ""), 2), name = _b[0], setName = _b[1];
+    var _c = __read((0, react_1.useState)((profile === null || profile === void 0 ? void 0 : profile.gender) || ""), 2), gender = _c[0], setGender = _c[1];
+    var _d = __read((0, react_1.useState)((profile === null || profile === void 0 ? void 0 : profile.ageCategory) || ""), 2), ageCategory = _d[0], setAgeCategory = _d[1];
+    var _e = __read((0, react_1.useState)((profile === null || profile === void 0 ? void 0 : profile.bowType) || ""), 2), bowType = _e[0], setBowType = _e[1];
     var ages = ["Junior (U18)", "Senior (18-49)", "50+"];
     var bows = ["Recurve", "Compound", "Barebow", "Longbow", "Traditional"];
     var genders = ["Male", "Female"];
@@ -659,7 +662,7 @@ function ProfileModal(_a) {
                         color: valid ? "#0f1117" : "#444", border: "none", borderRadius: 8, cursor: valid ? "pointer" : "default",
                         fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 3 } }, "SAVE")))));
 }
-// --- Round row renderer - defined outside component to avoid compilation issues
+// ??? Round row renderer ? defined outside component to avoid compilation issues
 function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, startRound, maxRoundScore) {
     var isSelected = selectedRound === r;
     var isFav = favourites.includes(r);
@@ -680,7 +683,7 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
         onClick: function () { toggleFavourite(r); },
         style: { background: "none", border: "none", cursor: "pointer",
             fontSize: 18, padding: "8px 6px", color: isFav ? "#e87070" : "#333", flexShrink: 0 }
-    }, isFav ? "v" : "o")), isSelected && React.createElement("div", {
+    }, isFav ? "?" : "?")), isSelected && React.createElement("div", {
         style: { background: "#141720", borderRadius: "0 0 8px 8px", padding: "12px 14px", marginBottom: 2 }
     }, selIsImperial && React.createElement("div", { style: { fontSize: 10, color: "#c8862a", marginBottom: 8 } }, "5-zone: Gold=9 ? Red=7 ? Blue=5 ? Black=3 ? White=1"), React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" } }, [
         { label: selRound.ends + " ends", color: null },
@@ -697,23 +700,23 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
             fontFamily: "'Bebas Neue',sans-serif", fontSize: 19, letterSpacing: 3 }
     }, "START ROUND")));
 }
-// --- Main Component -----------------------------------------------------------
+// ??? Main Component ???????????????????????????????????????????????????????????
 function ArcheryScorer() {
     var _a;
-    var _b = __read(useState("home"), 2), screen = _b[0], setScreen = _b[1];
-    var _c = __read(useState("Indoor"), 2), selectedGroup = _c[0], setSelectedGroup = _c[1];
-    var _d = __read(useState("WA 18m"), 2), selectedRound = _d[0], setSelectedRound = _d[1];
-    var _e = __read(useState([]), 2), ends = _e[0], setEnds = _e[1];
-    var _f = __read(useState([]), 2), currentEnd = _f[0], setCurrentEnd = _f[1];
-    var _g = __read(useState(loadHistory), 2), history = _g[0], setHistory = _g[1];
-    var _h = __read(useState(false), 2), showFinish = _h[0], setShowFinish = _h[1];
-    var _j = __read(useState(""), 2), finishNotes = _j[0], setFinishNotes = _j[1];
-    var _k = __read(useState(null), 2), viewingRound = _k[0], setViewingRound = _k[1];
-    var _l = __read(useState(false), 2), editingNotes = _l[0], setEditingNotes = _l[1];
-    var _m = __read(useState(""), 2), draftNotes = _m[0], setDraftNotes = _m[1];
-    var _o = __read(useState(false), 2), showTargetFace = _o[0], setShowTargetFace = _o[1];
-    // -- Archer profile --------------------------------------------------------
-    var _p = __read(useState(function () {
+    var _b = __read((0, react_1.useState)("home"), 2), screen = _b[0], setScreen = _b[1];
+    var _c = __read((0, react_1.useState)("Indoor"), 2), selectedGroup = _c[0], setSelectedGroup = _c[1];
+    var _d = __read((0, react_1.useState)("WA 18m"), 2), selectedRound = _d[0], setSelectedRound = _d[1];
+    var _e = __read((0, react_1.useState)([]), 2), ends = _e[0], setEnds = _e[1];
+    var _f = __read((0, react_1.useState)([]), 2), currentEnd = _f[0], setCurrentEnd = _f[1];
+    var _g = __read((0, react_1.useState)(loadHistory), 2), history = _g[0], setHistory = _g[1];
+    var _h = __read((0, react_1.useState)(false), 2), showFinish = _h[0], setShowFinish = _h[1];
+    var _j = __read((0, react_1.useState)(""), 2), finishNotes = _j[0], setFinishNotes = _j[1];
+    var _k = __read((0, react_1.useState)(null), 2), viewingRound = _k[0], setViewingRound = _k[1];
+    var _l = __read((0, react_1.useState)(false), 2), editingNotes = _l[0], setEditingNotes = _l[1];
+    var _m = __read((0, react_1.useState)(""), 2), draftNotes = _m[0], setDraftNotes = _m[1];
+    var _o = __read((0, react_1.useState)(false), 2), showTargetFace = _o[0], setShowTargetFace = _o[1];
+    // ?? Archer profile ????????????????????????????????????????????????????????
+    var _p = __read((0, react_1.useState)(function () {
         try {
             return JSON.parse(localStorage.getItem("archery_profile")) || null;
         }
@@ -721,7 +724,7 @@ function ArcheryScorer() {
             return null;
         }
     }), 2), profile = _p[0], setProfile = _p[1];
-    var _q = __read(useState(false), 2), showProfile = _q[0], setShowProfile = _q[1];
+    var _q = __read((0, react_1.useState)(false), 2), showProfile = _q[0], setShowProfile = _q[1];
     function saveProfile(p) {
         setProfile(p);
         try {
@@ -729,9 +732,9 @@ function ArcheryScorer() {
         }
         catch (_a) { }
     }
-    // -- Running handicap - placeholder for future implementation
+    // ?? Running handicap ? placeholder for future implementation
     var currentHandicap = null;
-    var _r = __read(useState(function () {
+    var _r = __read((0, react_1.useState)(function () {
         try {
             return localStorage.getItem("archery_default_setup") || null;
         }
@@ -749,11 +752,11 @@ function ArcheryScorer() {
         }
         catch (_a) { }
     }
-    var _s = __read(useState("buttons"), 2), inputMode = _s[0], setInputMode = _s[1];
-    var _t = __read(useState([]), 2), hitPositions = _t[0], setHitPositions = _t[1];
-    var _u = __read(useState("main"), 2), homeStep = _u[0], setHomeStep = _u[1]; // "main" | "env" | "category" | "round"
-    var _v = __read(useState(null), 2), homeEnv = _v[0], setHomeEnv = _v[1];
-    var _w = __read(useState(function () {
+    var _s = __read((0, react_1.useState)("buttons"), 2), inputMode = _s[0], setInputMode = _s[1];
+    var _t = __read((0, react_1.useState)([]), 2), hitPositions = _t[0], setHitPositions = _t[1];
+    var _u = __read((0, react_1.useState)("main"), 2), homeStep = _u[0], setHomeStep = _u[1]; // "main" | "env" | "category" | "round"
+    var _v = __read((0, react_1.useState)(null), 2), homeEnv = _v[0], setHomeEnv = _v[1];
+    var _w = __read((0, react_1.useState)(function () {
         try {
             return JSON.parse(localStorage.getItem("archery_favourites")) || [];
         }
@@ -772,13 +775,13 @@ function ArcheryScorer() {
         catch (_a) { }
     } // [{vx,vy,score}] all hits this round
     // Sight marks
-    var _x = __read(useState(loadSights), 2), setups = _x[0], setSetups = _x[1];
-    var _y = __read(useState(null), 2), activeSetup = _y[0], setActiveSetup = _y[1];
-    var _z = __read(useState(false), 2), editingSetup = _z[0], setEditingSetup = _z[1];
-    var _0 = __read(useState({}), 2), draftSetup = _0[0], setDraftSetup = _0[1];
-    var _1 = __read(useState(false), 2), addingMark = _1[0], setAddingMark = _1[1];
-    var _2 = __read(useState({ distance: ALL_DISTANCES[0], setting: "" }), 2), draftMark = _2[0], setDraftMark = _2[1];
-    var _3 = __read(useState(null), 2), editingMarkId = _3[0], setEditingMarkId = _3[1];
+    var _x = __read((0, react_1.useState)(loadSights), 2), setups = _x[0], setSetups = _x[1];
+    var _y = __read((0, react_1.useState)(null), 2), activeSetup = _y[0], setActiveSetup = _y[1];
+    var _z = __read((0, react_1.useState)(false), 2), editingSetup = _z[0], setEditingSetup = _z[1];
+    var _0 = __read((0, react_1.useState)({}), 2), draftSetup = _0[0], setDraftSetup = _0[1];
+    var _1 = __read((0, react_1.useState)(false), 2), addingMark = _1[0], setAddingMark = _1[1];
+    var _2 = __read((0, react_1.useState)({ distance: ALL_DISTANCES[0], setting: "" }), 2), draftMark = _2[0], setDraftMark = _2[1];
+    var _3 = __read((0, react_1.useState)(null), 2), editingMarkId = _3[0], setEditingMarkId = _3[1];
     var activeRound = selectedRound || "WA 18m";
     var round = ROUNDS[activeRound];
     var isImperial = round.imperial;
@@ -814,7 +817,7 @@ function ArcheryScorer() {
     var scoringSetup = setups.find(function (s) { return s.id === scoringSetupId; }) || null;
     var getSightMark = function (distLabel) { return scoringSetup ? (scoringSetup.marks.find(function (m) { return m.distance === distLabel; }) || null) : null; };
     // Auto-select first setup if we have setups but none selected
-    useEffect(function () {
+    (0, react_1.useEffect)(function () {
         if (setups.length > 0 && !scoringSetupId) {
             updateScoringSetup(setups[0].id);
         }
@@ -832,8 +835,8 @@ function ArcheryScorer() {
         setSelectedGroup(g);
         setSelectedRound(null);
     }
-    var _4 = __read(useState(false), 2), showSightModal = _4[0], setShowSightModal = _4[1];
-    var _5 = __read(useState(null), 2), sightModalDist = _5[0], setSightModalDist = _5[1];
+    var _4 = __read((0, react_1.useState)(false), 2), showSightModal = _4[0], setShowSightModal = _4[1];
+    var _5 = __read((0, react_1.useState)(null), 2), sightModalDist = _5[0], setSightModalDist = _5[1];
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
@@ -849,7 +852,7 @@ function ArcheryScorer() {
                 setShowFinish(true);
             }
             else if (distances) {
-                // Check if this end completes a distance - if so, show sight modal
+                // Check if this end completes a distance ? if so, show sight modal
                 for (var di = 0; di < distances.length - 1; di++) {
                     var distEnd = distStartEnd[di] + distances[di].ends;
                     if (newEnds.length === distEnd) {
@@ -908,7 +911,7 @@ function ArcheryScorer() {
         setSightModalDist(null);
         setScreen("scoring");
     }
-    // --- Sight marks helpers --------------------------------------------------
+    // ??? Sight marks helpers ??????????????????????????????????????????????????
     function saveSetups(updated) { setSetups(updated); saveSights(updated); }
     function createSetup() {
         var s = { id: Date.now(), name: "New Setup", poundage: "", arrowType: "", notes: "", marks: [] };
@@ -942,7 +945,7 @@ function ArcheryScorer() {
             ? __assign(__assign({}, s), { marks: s.marks.filter(function (m) { return m.id !== markId; }) }) : s; }));
     }
     var currentSetup = setups.find(function (s) { return s.id === activeSetup; });
-    // --- Render ---------------------------------------------------------------
+    // ??? Render ???????????????????????????????????????????????????????????????
     return (React.createElement("div", { style: { minHeight: "100vh", background: "#0f1117", fontFamily: "'DM Mono','Courier New',monospace", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "center" } },
         React.createElement("style", null, ".abtn{border:none;cursor:pointer;border-radius:6px;font-family:'DM Mono',monospace;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}.abtn:active{transform:scale(0.90);}.abtn:disabled{opacity:0.3;cursor:default;}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}"),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" } },
@@ -1000,13 +1003,13 @@ function ArcheryScorer() {
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "EQUIPMENT"),
                         React.createElement("button", { onClick: function () { return setShowProfile(true); }, style: { width: "100%", padding: "14px", background: "#1a1d25", color: "#555",
                                 border: "none", borderRadius: 12, cursor: "pointer",
-                                fontFamily: "'DM Mono',monospace", fontSize: 12 } }, profile ? "".concat(profile.name, " \u00B7 ").concat(profile.bowType, " \u00B7 ").concat(profile.gender, " ").concat(profile.ageCategory) : "* Set Archer Profile")))),
+                                fontFamily: "'DM Mono',monospace", fontSize: 12 } }, profile ? "".concat(profile.name, " \u00B7 ").concat(profile.bowType, " \u00B7 ").concat(profile.gender, " ").concat(profile.ageCategory) : "? Set Archer Profile")))),
                 homeStep === "env" && (React.createElement("div", null,
                     React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 11, padding: "0 0 18px 0" } }, "\u2190 BACK"),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12 } }, [
                         ["outdoor", "?  OUTDOOR"],
                         ["indoor", "?  INDOOR"],
-                        ["favourites", "v  FAVOURITES"],
+                        ["favourites", "?  FAVOURITES"],
                     ].map(function (_a) {
                         var _b = __read(_a, 2), env = _b[0], label = _b[1];
                         return (React.createElement("button", { key: env, onClick: function () {
@@ -1281,7 +1284,7 @@ function ArcheryScorer() {
                         var avg = (h.score / totalArrows).toFixed(2);
                         return [
                             { label: "SCORE", value: h.score, sub: "/ ".concat(h.maxPossible), color: "#c8f55a" },
-                            { label: "HANDICAP", value: h.handicap !== null && h.handicap !== undefined ? h.handicap : "-", color: "#e8e8e0" },
+                            { label: "HANDICAP", value: h.handicap !== null && h.handicap !== undefined ? h.handicap : "?", color: "#e8e8e0" },
                             { label: h.imperial ? "GOLDS" : "X COUNT", value: h.imperial ? ((_a = h.golds) !== null && _a !== void 0 ? _a : "?") : h.xs, color: "#ffd700" },
                         ].map(function (_a) {
                             var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
@@ -1468,10 +1471,14 @@ function ArcheryScorer() {
 }
   </script>
   <script>
-  document.getElementById('msg').textContent = 'Step 6: Rendering...';
-  var root = ReactDOM.createRoot(document.getElementById('root'));
-  root.render(React.createElement(ArcheryScorer));
-  document.getElementById('msg').style.display = 'none';
+  document.getElementById('msg').textContent='Step 5: Starting...';
+  if (typeof ArcheryScorer !== 'undefined') {
+    var root = ReactDOM.createRoot(document.getElementById('root'));
+    document.getElementById('msg').style.display='none';
+    root.render(React.createElement(ArcheryScorer));
+  } else {
+    document.getElementById('msg').textContent='ERROR: ArcheryScorer not found';
+  }
   </script>
 </body>
 </html>
