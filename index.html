@@ -32,8 +32,8 @@ window.onerror=function(m,s,l){
   return false;
 };
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js" onload="document.getElementById('msg').textContent='React OK'" onerror="document.getElementById('msg').textContent='React FAILED'"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js" onload="document.getElementById('msg').textContent='ReactDOM OK'" onerror="document.getElementById('msg').textContent='ReactDOM FAILED'"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script>
 var useState=React.useState;
 var useRef=React.useRef;
@@ -143,7 +143,77 @@ var ROUND_GROUPS = {
     },
 };
 var ROUNDS = Object.values(ROUND_GROUPS).reduce(function (acc, g) { return Object.assign({}, acc, g); }, {});
-var IMPERIAL_VALUES = ["9", "7", "5", "3", "1", "M"];
+// ??? AGB 2023 Classification Tables ??????????????????????????????????????????
+var OUTDOOR_CLASSES = ["A3", "A2", "A1", "B3", "B2", "B1", "MB", "GMB", "EMB"];
+var INDOOR_CLASSES = ["IA3", "IA2", "IA1", "IB3", "IB2", "IB1", "IMB", "IGMB"];
+var INDOOR_ROUND_NAMES = ["Portsmouth", "WA 18m", "WA 25m", "Stafford", "Bray I", "Bray II", "Worcester", "Vegas 300", "WA 18/25 Combined"];
+var CLASS_TABLES = {
+    "Recurve-Male-50+": {
+        outdoor: { "York": [194, 285, 404, 544, 694, 839, 965, 1067, 1148], "Hereford": [311, 436, 581, 732, 873, 993, 1089, 1165, 1222], "Bristol I": [311, 436, 581, 732, 873, 993, 1089, 1165, 1222], "Bristol II": [462, 613, 766, 905, 1019, null, null, null, null], "Bristol III": [616, 767, 905, 1019, null, null, null, null, null], "Bristol IV": [802, 933, 1041, null, null, null, null, null, null], "Bristol V": [1001, 1094, null, null, null, null, null, null, null], "St. George": [176, 254, 351, 460, 570, 671, null, null, null], "Albion": [269, 371, 482, 592, 691, 774, null, null, null], "Windsor": [384, 498, 610, 707, 788, null, null, null, null], "Windsor 50": [508, 617, 713, 792, null, null, null, null, null], "Windsor 40": [652, 741, 814, null, null, null, null, null, null], "Windsor 30": [800, 857, null, null, null, null, null, null, null], "New Western": [111, 168, 244, 337, 441, 541, null, null, null], "Long Western": [193, 275, 372, 475, 571, 654, null, null, null], "Western": [289, 391, 495, 591, 670, null, null, null, null], "Western 50": [389, 493, 588, 668, null, null, null, null, null], "Western 40": [512, 604, 680, null, null, null, null, null, null], "Western 30": [647, 714, null, null, null, null, null, null, null], "American": [320, 415, 508, 590, 656, null, null, null, null], "St. Nicholas": [440, 521, 590, null, null, null, null, null, null], "New National": [77, 116, 170, 238, 315, 392, null, null, null], "Long National": [132, 190, 260, 337, 412, 477, null, null, null], "National": [207, 281, 360, 433, 495, null, null, null, null], "National 50": [278, 356, 430, 491, null, null, null, null, null], "National 40": [367, 439, 499, null, null, null, null, null, null], "National 30": [468, 522, null, null, null, null, null, null, null], "New Warwick": [56, 84, 122, 169, 221, 271, null, null, null], "Long Warwick": [97, 138, 186, 238, 286, 327, null, null, null], "Warwick": [145, 196, 248, 296, 335, null, null, null, null], "Warwick 50": [195, 247, 294, 334, null, null, null, null, null], "Warwick 40": [256, 302, 340, null, null, null, null, null, null], "Warwick 30": [324, 357, null, null, null, null, null, null, null], "WA 1440 (90m)": [313, 435, 577, 728, 877, 1008, 1117, 1203, 1270], "WA 1440 (70m)": [364, 503, 659, 817, 960, 1079, 1173, 1247, 1305], "WA 900": [311, 411, 510, 600, 674, null, null, null, null], "WA 70m": [129, 190, 265, 349, 431, 500, 556, 599, 634], "WA 60m": [176, 248, 332, 415, 487, 545, 591, 627, 655], "Long Metric (Men)": [101, 151, 216, 293, 375, 452, null, null, null], "Long Metric I": [152, 219, 298, 382, 459, 523, null, null, null], "Long Metric II": [208, 286, 370, 448, 514, null, null, null, null], "Long Metric III": [286, 369, 447, 513, null, null, null, null, null], "Long Metric IV": [385, 461, 524, null, null, null, null, null, null], "Long Metric V": [497, 553, null, null, null, null, null, null, null], "Short Metric": [212, 285, 361, 435, null, null, null, null, null], "Short Metric II": [245, 326, 407, null, null, null, null, null, null], "Short Metric III": [373, 448, null, null, null, null, null, null, null], "Short Metric IV": [529, null, null, null, null, null, null, null, null], "WA Standard Bow": [341, 416, 485, 543, null, null, null, null, null] },
+        indoor: { "Portsmouth": [316, 387, 444, 488, 522, 549, 569, 583], "WA 18m": [206, 282, 357, 421, 472, 511, 540, 563], "WA 25m": [217, 293, 366, 428, 476, 513, 541, 563], "Stafford": [288, 380, 463, 532, 584, 625, 657, 681], "Bray I": [101, 139, 176, 209, 235, 254, 270, 281], "Bray II": [123, 161, 196, 224, 246, 262, 276, 285], "Worcester": [114, 154, 193, 225, 250, 270, 284, 294], "Vegas 300": [101, 139, 176, 209, 235, 254, 270, 281] }
+    },
+    "Recurve-Female-50+": {
+        outdoor: { "York": [144, 217, 317, 442, 587, 737, 877, 997, 1092], "Hereford": [237, 344, 476, 625, 774, 909, 1023, 1113, 1183], "Bristol I": [237, 344, 476, 625, 774, 909, 1023, 1113, 1183], "Bristol II": [365, 504, 657, 808, 940, 1048, 1132, 1198, 1247], "Bristol III": [509, 660, 808, 940, null, null, null, null, null], "Bristol IV": [698, 841, 966, null, null, null, null, null, null], "Bristol V": [921, 1030, null, null, null, null, null, null, null], "St. George": [132, 196, 280, 381, 492, 600, null, null, null], "Albion": [208, 297, 402, 514, 622, 717, null, null, null], "Windsor": [308, 416, 531, 639, 732, 807, null, null, null], "Windsor 50": [428, 540, 646, 737, null, null, null, null, null], "Windsor 40": [580, 679, 763, null, null, null, null, null, null], "Windsor 30": [749, 818, null, null, null, null, null, null, null], "New Western": [82, 126, 187, 269, 366, 470, null, null, null], "Long Western": [146, 215, 302, 402, 504, 597, null, null, null], "Western": [226, 317, 421, 524, 615, 689, null, null, null], "Western 50": [316, 419, 521, 613, null, null, null, null, null], "Western 40": [439, 540, 627, null, null, null, null, null, null], "Western 30": [589, 668, null, null, null, null, null, null, null], "American": [257, 347, 442, 533, 610, 673, null, null, null], "St. Nicholas": [376, 464, 542, null, null, null, null, null, null], "New National": [56, 87, 130, 188, 259, 337, null, null, null], "Long National": [99, 147, 209, 282, 359, 432, null, null, null], "National": [160, 227, 304, 382, 452, 510, null, null, null], "National 50": [224, 300, 378, 449, null, null, null, null, null], "National 40": [312, 389, 457, null, null, null, null, null, null], "National 30": [422, 485, null, null, null, null, null, null, null], "New Warwick": [41, 63, 94, 135, 183, 235, null, null, null], "Long Warwick": [73, 108, 151, 201, 252, 299, null, null, null], "Warwick": [113, 159, 211, 262, 308, 345, null, null, null], "Warwick 50": [158, 210, 261, 307, null, null, null, null, null], "Warwick 40": [220, 270, 314, null, null, null, null, null, null], "Warwick 30": [295, 334, null, null, null, null, null, null, null], "WA 1440 (90m)": [241, 346, 474, 619, 772, 916, 1042, 1143, 1224], "WA 1440 (70m)": [281, 402, 547, 705, 860, 997, 1108, 1196, 1265], "WA 1440 (60m)": [354, 496, 658, 821, 965, 1084, 1177, 1250, 1308], "WA 900": [248, 343, 444, 539, 622, null, null, null, null], "WA 70m": [99, 152, 220, 300, 381, 453, 511, 558, 597], "WA 60m": [137, 201, 279, 362, 441, 509, 564, 608, 644], "Long Metric (Women)": [101, 151, 216, 293, 375, 452, null, null, null], "Long Metric I": [122, 181, 255, 337, 415, 484, null, null, null], "Long Metric II": [172, 245, 328, 411, 486, null, null, null, null], "Long Metric III": [240, 322, 404, 480, null, null, null, null, null], "Long Metric IV": [335, 415, 484, null, null, null, null, null, null], "Long Metric V": [451, 512, null, null, null, null, null, null, null], "WA Standard Bow": [270, 348, 424, 491, null, null, null, null, null] },
+        indoor: { "Portsmouth": [265, 341, 407, 460, 501, 532, 556, 574], "WA 18m": [162, 231, 308, 380, 439, 486, 521, 549], "WA 25m": [171, 242, 318, 388, 445, 489, 523, 549], "Stafford": [231, 319, 409, 488, 551, 599, 637, 665], "Bray I": [79, 113, 152, 188, 218, 242, 260, 274], "Bray II": [99, 136, 173, 206, 232, 252, 267, 279], "Worcester": [90, 128, 168, 205, 234, 257, 275, 288], "Vegas 300": [79, 113, 152, 188, 218, 242, 260, 274] }
+    },
+    "Recurve-Male-Senior (18-49)": {
+        outdoor: { "York": [278, 394, 534, 684, 829, 957, 1061, 1142, 1205], "Hereford": [427, 571, 721, 863, 985, null, null, null, null], "Bristol I": [427, 571, 721, 863, 985, null, null, null, null], "Bristol II": [602, 755, 895, 1012, null, null, null, null, null], "Bristol III": [757, 895, 1012, null, null, null, null, null, null], "Bristol IV": [924, 1034, null, null, null, null, null, null, null], "Bristol V": [1088, null, null, null, null, null, null, null, null], "St. George": [248, 344, 452, 562, 665, 752, null, null, null], "Albion": [363, 474, 585, 685, 769, null, null, null, null], "Windsor": [490, 602, 701, 782, null, null, null, null, null], "Windsor 50": [610, 707, 787, null, null, null, null, null, null], "Windsor 40": [735, 809, null, null, null, null, null, null, null], "Windsor 30": [854, null, null, null, null, null, null, null, null], "New Western": [163, 238, 330, 433, 535, 623, null, null, null], "Long Western": [269, 365, 468, 565, 648, null, null, null, null], "Western": [383, 488, 584, 665, null, null, null, null, null], "Western 50": [499, 593, 669, null, null, null, null, null, null], "Western 40": [630, 704, null, null, null, null, null, null, null], "Western 30": [762, null, null, null, null, null, null, null, null], "American": [393, 490, 577, 651, null, null, null, null, null], "St. Nicholas": [514, 589, null, null, null, null, null, null, null], "New National": [111, 165, 236, 318, 402, 480, null, null, null], "Long National": [187, 264, 352, 438, 513, null, null, null, null], "National": [277, 368, 455, 527, null, null, null, null, null], "National 50": [365, 452, 524, null, null, null, null, null, null], "National 40": [471, 539, null, null, null, null, null, null, null], "National 30": [581, null, null, null, null, null, null, null, null], "New Warwick": [79, 118, 166, 219, 269, 316, null, null, null], "Long Warwick": [134, 189, 249, 306, 354, null, null, null, null], "Warwick": [193, 256, 316, 364, null, null, null, null, null], "Warwick 50": [253, 314, 362, null, null, null, null, null, null], "Warwick 40": [323, 370, null, null, null, null, null, null, null], "Warwick 30": [396, null, null, null, null, null, null, null, null], "WA 1440 (90m)": [422, 566, 718, 868, 999, 1108, 1193, 1259, 1311], "WA 1440 (70m)": [486, 644, 805, 953, 1069, 1161, 1232, 1286, 1328], "WA 900": [413, 528, 640, 736, 812, null, null, null, null], "WA 70m": [172, 247, 334, 421, 499, 563, 614, 653, 683], "WA 60m": [230, 319, 413, 499, 570, 626, 670, 703, 729], "Long Metric (Men)": [137, 201, 279, 365, 448, 524, null, null, null], "Long Metric I": [200, 279, 364, 448, 523, null, null, null, null], "Long Metric II": [269, 357, 441, 515, null, null, null, null, null], "Long Metric III": [357, 440, 514, null, null, null, null, null, null], "Long Metric IV": [459, 521, null, null, null, null, null, null, null], "Long Metric V": [570, null, null, null, null, null, null, null, null], "Short Metric": [277, 357, 433, null, null, null, null, null, null], "Short Metric II": [316, 399, null, null, null, null, null, null, null], "Short Metric III": [455, null, null, null, null, null, null, null, null], "WA Standard Bow": [417, 490, 553, null, null, null, null, null, null] },
+        indoor: { "Portsmouth": [378, 437, 483, 518, 546, 566, 582, 593], "WA 18m": [272, 347, 413, 466, 506, 537, 560, 578], "WA 25m": [283, 357, 420, 470, 508, 538, 561, 578], "Stafford": [368, 453, 523, 578, 620, 653, 678, 697], "Bray I": [134, 172, 205, 232, 252, 268, 280, 289], "Bray II": [156, 191, 221, 243, 260, 274, 284, 292], "Worcester": [149, 188, 221, 247, 267, 282, 293, 299], "Vegas 300": [134, 172, 205, 232, 252, 268, 280, 289] }
+    },
+    "Recurve-Female-Senior (18-49)": {
+        outdoor: { "York": [194, 285, 404, 544, 694, 839, 965, 1067, 1148], "Hereford": [311, 436, 581, 732, 873, 993, 1089, 1165, 1222], "Bristol I": [311, 436, 581, 732, 873, 993, 1089, 1165, 1222], "Bristol II": [462, 613, 766, 905, 1019, null, null, null, null], "Bristol III": [616, 767, 905, 1019, null, null, null, null, null], "Bristol IV": [802, 933, 1041, null, null, null, null, null, null], "Bristol V": [1001, 1094, null, null, null, null, null, null, null], "St. George": [176, 254, 351, 460, 570, 671, null, null, null], "Albion": [269, 371, 482, 592, 691, 774, null, null, null], "Windsor": [384, 498, 610, 707, 788, null, null, null, null], "Windsor 50": [508, 617, 713, 792, null, null, null, null, null], "Windsor 40": [652, 741, 814, null, null, null, null, null, null], "Windsor 30": [800, 857, null, null, null, null, null, null, null], "New Western": [111, 168, 244, 337, 441, 541, null, null, null], "Long Western": [193, 275, 372, 475, 571, 654, null, null, null], "Western": [289, 391, 495, 591, 670, null, null, null, null], "Western 50": [389, 493, 588, 668, null, null, null, null, null], "Western 40": [512, 604, 680, null, null, null, null, null, null], "Western 30": [647, 714, null, null, null, null, null, null, null], "American": [320, 415, 508, 590, 656, null, null, null, null], "St. Nicholas": [440, 521, 590, null, null, null, null, null, null], "New National": [77, 116, 170, 238, 315, 392, null, null, null], "Long National": [132, 190, 260, 337, 412, 477, null, null, null], "National": [207, 281, 360, 433, 495, null, null, null, null], "National 50": [278, 356, 430, 491, null, null, null, null, null], "National 40": [367, 439, 499, null, null, null, null, null, null], "National 30": [468, 522, null, null, null, null, null, null, null], "New Warwick": [56, 84, 122, 169, 221, 271, null, null, null], "Long Warwick": [97, 138, 186, 238, 286, 327, null, null, null], "Warwick": [145, 196, 248, 296, 335, null, null, null, null], "Warwick 50": [195, 247, 294, 334, null, null, null, null, null], "Warwick 40": [256, 302, 340, null, null, null, null, null, null], "Warwick 30": [324, 357, null, null, null, null, null, null, null], "WA 1440 (90m)": [313, 435, 577, 728, 877, 1008, 1117, 1203, 1270], "WA 1440 (70m)": [364, 503, 659, 817, 960, 1079, 1173, 1247, 1305], "WA 900": [311, 411, 510, 600, 674, null, null, null, null], "WA 70m": [129, 190, 265, 349, 431, 500, 556, 599, 634], "WA 60m": [176, 248, 332, 415, 487, 545, 591, 627, 655], "Long Metric (Women)": [101, 151, 216, 293, 375, 452, null, null, null], "Long Metric I": [152, 219, 298, 382, 459, 523, null, null, null], "Long Metric II": [208, 286, 370, 448, 514, null, null, null, null], "Long Metric III": [286, 369, 447, 513, null, null, null, null, null], "Long Metric IV": [385, 461, 524, null, null, null, null, null, null], "Long Metric V": [497, 553, null, null, null, null, null, null, null], "Short Metric": [212, 285, 361, 435, null, null, null, null, null], "Short Metric II": [245, 326, 407, null, null, null, null, null, null], "Short Metric III": [373, 448, null, null, null, null, null, null, null], "Short Metric IV": [529, null, null, null, null, null, null, null, null], "WA Standard Bow": [341, 416, 485, 543, null, null, null, null, null] },
+        indoor: { "Portsmouth": [331, 399, 454, 496, 528, 553, 572, 586], "WA 18m": [221, 297, 371, 432, 480, 517, 545, 567], "WA 25m": [232, 308, 380, 438, 484, 519, 546, 567], "Stafford": [307, 397, 478, 543, 594, 632, 662, 685], "Bray I": [108, 146, 183, 215, 239, 258, 272, 283], "Bray II": [131, 168, 202, 229, 249, 265, 278, 287], "Worcester": [122, 162, 200, 231, 255, 273, 286, 296], "Vegas 300": [108, 146, 183, 215, 239, 258, 272, 283] }
+    },
+};
+CLASS_TABLES["Recurve-Male-Junior (U18)"] = CLASS_TABLES["Recurve-Male-Senior (18-49)"];
+CLASS_TABLES["Recurve-Female-Junior (U18)"] = CLASS_TABLES["Recurve-Female-Senior (18-49)"];
+function getClassification(roundName, score, profile) {
+    if (!profile || !profile.bowType || !profile.gender || !profile.ageCategory)
+        return null;
+    var gender = profile.gender === "Male" ? "Male" : "Female";
+    var key = profile.bowType + "-" + gender + "-" + profile.ageCategory;
+    var data = CLASS_TABLES[key];
+    if (!data)
+        return null;
+    var isIndoor = INDOOR_ROUND_NAMES.indexOf(roundName) !== -1;
+    var table = isIndoor ? data.indoor : data.outdoor;
+    if (!table)
+        return null;
+    var thresholds = table[roundName];
+    if (!thresholds)
+        return null;
+    var classes = isIndoor ? INDOOR_CLASSES : OUTDOOR_CLASSES;
+    var achieved = null;
+    for (var i = 0; i < thresholds.length; i++) {
+        if (thresholds[i] !== null && score >= thresholds[i])
+            achieved = classes[i];
+    }
+    return achieved;
+}
+function getNextClassification(roundName, score, profile) {
+    if (!profile || !profile.bowType || !profile.gender || !profile.ageCategory)
+        return null;
+    var gender = profile.gender === "Male" ? "Male" : "Female";
+    var key = profile.bowType + "-" + gender + "-" + profile.ageCategory;
+    var data = CLASS_TABLES[key];
+    if (!data)
+        return null;
+    var isIndoor = INDOOR_ROUND_NAMES.indexOf(roundName) !== -1;
+    var table = isIndoor ? data.indoor : data.outdoor;
+    if (!table)
+        return null;
+    var thresholds = table[roundName];
+    if (!thresholds)
+        return null;
+    var classes = isIndoor ? INDOOR_CLASSES : OUTDOOR_CLASSES;
+    for (var i = 0; i < thresholds.length; i++) {
+        if (thresholds[i] !== null && score < thresholds[i]) {
+            return { name: classes[i], score: thresholds[i], needed: thresholds[i] - score };
+        }
+    }
+    return null;
+}
+["9", "7", "5", "3", "1", "M"];
 var METRIC_VALUES = ["X", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "M"];
 var WORCESTER_VALUES = ["5", "4", "3", "2", "1", "M"];
 var getArrowValues = function (roundName) {
@@ -1236,11 +1306,11 @@ function ArcheryScorer() {
                         var _a;
                         var isWorc = h.round === "Worcester";
                         var maxArrowVal = isWorc ? 5 : h.imperial ? 9 : 10;
-                        var totalArrows = h.maxPossible / maxArrowVal;
-                        var avg = (h.score / totalArrows).toFixed(2);
+                        var classification = getClassification(h.round, h.score, profile);
+                        var nextClass = getNextClassification(h.round, h.score, profile);
                         return [
                             { label: "SCORE", value: h.score, sub: "/ ".concat(h.maxPossible), color: "#c8f55a" },
-                            { label: "HANDICAP", value: h.handicap !== null && h.handicap !== undefined ? h.handicap : "?", color: "#e8e8e0" },
+                            { label: "CLASS", value: classification || "?", sub: nextClass ? "".concat(nextClass.needed, " to ").concat(nextClass.name) : (classification ? "top class" : null), color: classification ? "#c8f55a" : "#555" },
                             { label: h.imperial ? "GOLDS" : "X COUNT", value: h.imperial ? ((_a = h.golds) !== null && _a !== void 0 ? _a : "?") : h.xs, color: "#ffd700" },
                         ].map(function (_a) {
                             var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
