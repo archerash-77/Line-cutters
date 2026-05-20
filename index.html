@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#0f1117"/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600;700&family=Bebas+Neue&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet"/>
 <title>Line Cutters</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -1619,16 +1619,22 @@ function ArcheryScorer() {
                         React.createElement("div", { style: { fontSize: 13, color: "#555", marginBottom: 6 } }, "DISTANCE"),
                         React.createElement("div", { style: { display: "flex", flexWrap: "wrap", gap: 5 } },
                             React.createElement("div", { style: { width: "100%", fontSize: 12, color: "#c8862a", marginBottom: 4, letterSpacing: 1 } }, "IMPERIAL"),
-                            IMPERIAL_DISTANCES.map(function (d) { return (React.createElement("button", { key: d, onClick: function () { return setDraftMark(function (m) { return (__assign(__assign({}, m), { distance: d })); }); }, style: { padding: "11px 14px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'Roboto Mono',monospace", fontSize: 14,
-                                    background: draftMark.distance === d ? "#c8862a" : "#0f1117",
-                                    color: draftMark.distance === d ? "#0f1117" : "#888" } }, d)); }),
+                            IMPERIAL_DISTANCES.map(function (d) { return (React.createElement("button", { key: d, onClick: function () { setDraftMark(function (m) { return (__assign(__assign({}, m), { distance: d })); }); setTimeout(function () { var inp = document.getElementById("sight-setting-input"); if (inp) {
+                                    inp.focus();
+                                    inp.select();
+                                } }, 50); }, style: { padding: "11px 14px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'Courier Prime',monospace", fontSize: 15,
+                                    background: draftMark.distance === d ? "#c8f55a" : "#141720",
+                                    color: draftMark.distance === d ? "#0f1117" : "#e8e8e0" } }, d)); }),
                             React.createElement("div", { style: { width: "100%", fontSize: 12, color: "#4ab3f4", marginBottom: 4, marginTop: 8, letterSpacing: 1 } }, "METRIC"),
-                            METRIC_DISTANCES.map(function (d) { return (React.createElement("button", { key: d, onClick: function () { return setDraftMark(function (m) { return (__assign(__assign({}, m), { distance: d })); }); }, style: { padding: "11px 14px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'Roboto Mono',monospace", fontSize: 14,
-                                    background: draftMark.distance === d ? "#4ab3f4" : "#0f1117",
-                                    color: draftMark.distance === d ? "#0f1117" : "#888" } }, d)); }))),
+                            METRIC_DISTANCES.map(function (d) { return (React.createElement("button", { key: d, onClick: function () { setDraftMark(function (m) { return (__assign(__assign({}, m), { distance: d })); }); setTimeout(function () { var inp = document.getElementById("sight-setting-input"); if (inp) {
+                                    inp.focus();
+                                    inp.select();
+                                } }, 50); }, style: { padding: "11px 14px", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "'Courier Prime',monospace", fontSize: 15,
+                                    background: draftMark.distance === d ? "#c8f55a" : "#141720",
+                                    color: draftMark.distance === d ? "#0f1117" : "#e8e8e0" } }, d)); }))),
                     React.createElement("div", { style: { marginBottom: 12 } },
                         React.createElement("div", { style: { fontSize: 13, color: "#555", marginBottom: 6 } }, "SETTING"),
-                        React.createElement("input", { value: draftMark.setting, onChange: function (e) { return setDraftMark(function (m) { return (__assign(__assign({}, m), { setting: e.target.value })); }); }, placeholder: "e.g. 100  or  920 block 4", onFocus: function (e) { return e.target.select(); }, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "9px 12px", color: "#e8e8e0", fontFamily: "'Roboto Mono',monospace", fontSize: 12, outline: "none" } })),
+                        React.createElement("input", { id: "sight-setting-input", value: draftMark.setting, onChange: function (e) { return setDraftMark(function (m) { return (__assign(__assign({}, m), { setting: e.target.value })); }); }, placeholder: "e.g. 100  or  920 block 4", onFocus: function (e) { return e.target.select(); }, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "12px 14px", color: "#e8e8e0", fontFamily: "'Courier Prime',monospace", fontSize: 16, outline: "none" } })),
                     React.createElement("div", { style: { display: "flex", gap: 8 } },
                         React.createElement("button", { onClick: function () { return setAddingMark(false); }, style: { flex: 1, padding: "9px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'Roboto Mono',monospace", fontSize: 14 } }, "CANCEL"),
                         React.createElement("button", { onClick: addMark, disabled: !draftMark.setting.trim(), style: { flex: 2, padding: "9px", background: draftMark.setting.trim() ? "#c8f55a" : "#1a1d25", border: "none", borderRadius: 8, color: draftMark.setting.trim() ? "#0f1117" : "#444", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE MARK")))),
@@ -1640,10 +1646,10 @@ function ArcheryScorer() {
                     return parseInt(a.distance) - parseInt(b.distance);
                 })
                     .map(function (mark, i, arr) { return (React.createElement("div", { key: mark.id, style: { padding: "10px 14px", borderBottom: i < arr.length - 1 ? "1px solid #1f2230" : "none" } }, editingMarkId === mark.id ? (React.createElement("div", { style: { display: "flex", gap: 8, alignItems: "center" } },
-                    React.createElement("div", { style: { fontSize: 15, fontWeight: '600', color: mark.distance.includes("yds") ? "#c8862a" : "#4ab3f4", width: 64, flexShrink: 0 } }, mark.distance),
-                    React.createElement("input", { defaultValue: mark.setting, onBlur: function (e) { updateMark(mark.id, e.target.value); setEditingMarkId(null); }, autoFocus: true, onFocus: function (e) { return e.target.select(); }, style: { flex: 1, background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'Roboto Mono',monospace", fontSize: 15, outline: "none" } }),
+                    React.createElement("div", { style: { fontSize: 15, fontWeight: '600', fontFamily: "'Courier Prime',monospace", color: mark.distance.includes("yds") ? "#c8862a" : "#4ab3f4", width: 64, flexShrink: 0 } }, mark.distance),
+                    React.createElement("input", { defaultValue: mark.setting, onBlur: function (e) { updateMark(mark.id, e.target.value); setEditingMarkId(null); }, autoFocus: true, onFocus: function (e) { return e.target.select(); }, style: { flex: 1, background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'Courier Prime',monospace", fontSize: 16, outline: "none" } }),
                     React.createElement("button", { onClick: function () { return setEditingMarkId(null); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontSize: 16, padding: '4px 10px', fontFamily: "'Roboto Mono',monospace" } }, "\u2715"))) : (React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
-                    React.createElement("div", { style: { fontSize: 15, fontWeight: '600', color: mark.distance.includes("yds") ? "#c8862a" : "#4ab3f4", width: 64, flexShrink: 0 } }, mark.distance),
+                    React.createElement("div", { style: { fontSize: 15, fontWeight: '600', fontFamily: "'Courier Prime',monospace", color: mark.distance.includes("yds") ? "#c8862a" : "#4ab3f4", width: 64, flexShrink: 0 } }, mark.distance),
                     React.createElement("div", { style: { flex: 1, fontSize: 13 } }, mark.setting),
                     React.createElement("button", { onClick: function () { return setEditingMarkId(mark.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'Roboto Mono',monospace", fontSize: 14, padding: '6px 10px' } }, "EDIT"),
                     React.createElement("button", { onClick: function () { return deleteMark(mark.id); }, style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'Roboto Mono',monospace", fontSize: 16, padding: '4px 10px' } }, "\u2715"))))); }))))))));
