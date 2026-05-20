@@ -19,22 +19,33 @@
     .abtn:active{transform:scale(0.90);}
     .abtn:disabled{opacity:0.3;cursor:default;}
     @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    #msg{position:fixed;top:0;left:0;right:0;bottom:0;color:#c8f55a;font-family:monospace;font-size:16px;padding:30px;background:#0f1117;z-index:9999;}
   </style>
 </head>
 <body>
+  <div id="msg">Step 1: Page loaded OK</div>
   <div id="root"></div>
-  <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading...</div>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"
-    onload="document.getElementById('msg').textContent='React loaded...'"
-    onerror="document.getElementById('msg').textContent='React CDN FAILED'"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
-    onload="document.getElementById('msg').textContent='Both loaded, starting...'"
-    onerror="document.getElementById('msg').textContent='ReactDOM CDN FAILED'"></script>
   <script>
+  window.onerror = function(m,s,l) {
+    document.getElementById('msg').style.display = 'block';
+    document.getElementById('msg').innerHTML = 'Step ERROR: ' + m + ' (line ' + l + ')';
+    return false;
+  };
+  document.getElementById('msg').textContent = 'Step 2: Scripts starting';
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"
+    onload="document.getElementById('msg').textContent='Step 3: React loaded'"
+    onerror="document.getElementById('msg').textContent='FAIL: React CDN blocked'"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"
+    onload="document.getElementById('msg').textContent='Step 4: ReactDOM loaded'"
+    onerror="document.getElementById('msg').textContent='FAIL: ReactDOM CDN blocked'"></script>
+  <script>
+  document.getElementById('msg').textContent = 'Step 5: Defining app...';
   var useState = React.useState;
   var useRef = React.useRef;
   var useEffect = React.useEffect;
-  try {
+  </script>
+  <script>
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -1457,17 +1468,12 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: function () { return setEditingMarkId(mark.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
                     React.createElement("button", { onClick: function () { return deleteMark(mark.id); }, style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715"))))); }))))))));
 }
-    if (typeof ArcheryScorer !== 'undefined') {
-      var root = ReactDOM.createRoot(document.getElementById('root'));
-      document.getElementById('msg').style.display = 'none';
-      root.render(React.createElement(ArcheryScorer));
-    } else {
-      document.getElementById('msg').textContent = 'ERROR: ArcheryScorer not found';
-    }
-  } catch(e) {
-    document.getElementById('msg').style.display = 'block';
-    document.getElementById('msg').innerHTML = '<b style="color:red">CAUGHT ERROR:</b><br>' + e.message + '<br><pre style="font-size:10px;white-space:pre-wrap">' + (e.stack||'no stack') + '</pre>';
-  }
+  </script>
+  <script>
+  document.getElementById('msg').textContent = 'Step 6: Rendering...';
+  var root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(React.createElement(ArcheryScorer));
+  document.getElementById('msg').style.display = 'none';
   </script>
 </body>
 </html>
