@@ -23,16 +23,38 @@
 </head>
 <body>
   <div id="root"></div>
-  <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading React...</div>
-  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"
-    onload="document.getElementById('msg').textContent='React loaded, loading ReactDOM...'"
-    onerror="document.getElementById('msg').textContent='FAILED: React CDN blocked'"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"
-    onload="document.getElementById('msg').textContent='Both loaded, starting app...'"
-    onerror="document.getElementById('msg').textContent='FAILED: ReactDOM CDN blocked'"></script>
+  <div id="msg" style="color:#c8f55a;font-family:monospace;font-size:14px;padding:20px;background:#0f1117;min-height:100vh;">Loading...</div>
+
+  <!-- Error handler first, before everything else -->
   <script>
-  window.onerror = function(m,s,l){ document.getElementById('msg').style.display='block'; document.getElementById('msg').innerHTML='<b style=color:red>ERROR:</b> '+m+' line '+l; };
-  const { useState, useRef, useEffect } = React;
+  window.onerror = function(m,s,l,c,e) {
+    var msg = document.getElementById('msg');
+    msg.style.display = 'block';
+    msg.innerHTML = '<b style="color:red">ERROR:</b> ' + m + '<br>Line: ' + l;
+    return false;
+  };
+  </script>
+
+  <!-- React CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <!-- Check CDN loaded -->
+  <script>
+  if (typeof React === 'undefined') {
+    document.getElementById('msg').textContent = 'ERROR: React failed to load from CDN';
+  } else if (typeof ReactDOM === 'undefined') {
+    document.getElementById('msg').textContent = 'ERROR: ReactDOM failed to load from CDN';
+  } else {
+    document.getElementById('msg').textContent = 'Starting app...';
+  }
+  var useState = React.useState;
+  var useRef = React.useRef;
+  var useEffect = React.useEffect;
+  </script>
+
+  <!-- App code -->
+  <script>
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -1694,17 +1716,20 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: function () { return setEditingMarkId(mark.id); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "EDIT"),
                     React.createElement("button", { onClick: function () { return deleteMark(mark.id); }, style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'DM Mono',monospace", fontSize: 10 } }, "\u2715"))))); }))))))));
 }
-  if(typeof ArcheryScorer==='undefined'){ 
-    document.getElementById('msg').textContent='ERROR: App failed to parse'; 
+  </script>
+
+  <!-- Launch -->
+  <script>
+  if (typeof ArcheryScorer === 'undefined') {
+    document.getElementById('msg').textContent = 'ERROR: App code failed to parse';
   } else {
-    document.getElementById('msg').textContent='Rendering...';
     try {
-      const root = ReactDOM.createRoot(document.getElementById('root'));
-      document.getElementById('msg').style.display='none';
+      var root = ReactDOM.createRoot(document.getElementById('root'));
+      document.getElementById('msg').style.display = 'none';
       root.render(React.createElement(ArcheryScorer));
     } catch(e) {
-      document.getElementById('msg').style.display='block';
-      document.getElementById('msg').innerHTML='<b style=color:red>RENDER ERROR:</b><br>' + e.message + '<br><small>' + (e.stack||'').replace(/</g,'&lt;').substring(0,500) + '</small>';
+      document.getElementById('msg').style.display = 'block';
+      document.getElementById('msg').innerHTML = '<b style="color:red">LAUNCH ERROR:</b><br>' + e.message;
     }
   }
   </script>
