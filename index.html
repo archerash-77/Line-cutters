@@ -134,8 +134,8 @@ var ROUND_GROUPS = {
 };
 var ROUNDS = Object.values(ROUND_GROUPS).reduce(function (acc, g) { return Object.assign({}, acc, g); }, {});
 // ??? AGB 2023 Classification Tables ??????????????????????????????????????????
-var OUTDOOR_CLASSES = ["3rd Class", "2nd Class", "1st Class", "3rd Bowman", "2nd Bowman", "1st Bowman", "Master Bowman", "Grand Master Bowman", "Elite Master Bowman"];
-var INDOOR_CLASSES = ["3rd Class", "2nd Class", "1st Class", "3rd Bowman", "2nd Bowman", "1st Bowman", "Master Bowman", "Grand Master Bowman"];
+var OUTDOOR_CLASSES = ["3rd Class Archer", "2nd Class Archer", "1st Class Archer", "3rd Class Bowman", "2nd Class Bowman", "1st Class Bowman", "Master Bowman", "Grand Master Bowman", "Elite Master Bowman"];
+var INDOOR_CLASSES = ["3rd Class Archer", "2nd Class Archer", "1st Class Archer", "3rd Class Bowman", "2nd Class Bowman", "1st Class Bowman", "Master Bowman", "Grand Master Bowman"];
 var INDOOR_ROUND_NAMES = ["Portsmouth", "WA 18m", "WA 25m", "Stafford", "Bray I", "Bray II", "Worcester", "Vegas 300", "WA 18/25 Combined"];
 var CLASS_TABLES = {
     "Recurve-Male-50+": {
@@ -455,7 +455,7 @@ function TargetFace(_a) {
         ? [{ r: 0.20, score: "5" }, { r: 0.40, score: "4" }, { r: 0.60, score: "3" }, { r: 0.80, score: "2" }, { r: 1.00, score: "1" }, { r: 99, score: "M" }]
         : isImperial
             ? [{ r: 0.20, score: "9" }, { r: 0.40, score: "7" }, { r: 0.60, score: "5" }, { r: 0.80, score: "3" }, { r: 1.00, score: "1" }, { r: 99, score: "M" }]
-            : [{ r: 0.025, score: "X" }, { r: 0.05, score: "10" }, { r: 0.10, score: "9" }, { r: 0.20, score: "8" }, { r: 0.30, score: "7" }, { r: 0.40, score: "6" }, { r: 0.50, score: "5" }, { r: 0.60, score: "4" }, { r: 0.70, score: "3" }, { r: 0.80, score: "2" }, { r: 0.90, score: "1" }, { r: 99, score: "M" }];
+            : [{ r: 0.05, score: "X" }, { r: 0.10, score: "10" }, { r: 0.20, score: "9" }, { r: 0.30, score: "8" }, { r: 0.40, score: "7" }, { r: 0.50, score: "6" }, { r: 0.60, score: "5" }, { r: 0.70, score: "4" }, { r: 0.80, score: "3" }, { r: 0.90, score: "2" }, { r: 1.00, score: "1" }, { r: 99, score: "M" }];
     function scoreAt(vx, vy) {
         var d = Math.sqrt(Math.pow((vx - VCX), 2) + Math.pow((vy - VCY), 2)) / VR;
         for (var _i = 0, scoringZones_1 = scoringZones; _i < scoringZones_1.length; _i++) {
@@ -959,7 +959,7 @@ function ArcheryScorer() {
                         return h;
                     var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
                     var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
-                    return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds });
+                    return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds, hits: newEnds ? newEnds.flat().filter(function (v) { return v !== "M"; }).length : h.hits });
                 });
                 localStorage.setItem("archery_history", JSON.stringify(updated));
             }
@@ -993,6 +993,7 @@ function ArcheryScorer() {
             maxPossible: maxScore,
             xs: ends.flat().filter(function (v) { return v === "X"; }).length,
             golds: ends.flat().filter(function (v) { return v === "9"; }).length,
+            hits: ends.flat().filter(function (v) { return v !== "M"; }).length,
             date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
             ends: ends,
             notes: finishNotes.trim(),
@@ -1226,6 +1227,7 @@ function ArcheryScorer() {
                     { label: "BEST POSS", value: livePossible, sub: "if perfect" },
                     { label: "END ".concat(Math.min(endNumber, round.ends)), value: currentEndScore, sub: "".concat(round.arrowsPerEnd - currentEnd.length, " left") },
                     { label: isImperial ? "GOLDS" : "X COUNT", value: isImperial ? goldCount : xCount, sub: null },
+                    { label: "HITS", value: ends.flat().filter(function (v) { return v !== "M"; }).length, sub: null },
                 ].map(function (_a) {
                     var label = _a.label, value = _a.value, sub = _a.sub;
                     return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 6px",
@@ -1354,12 +1356,12 @@ function ArcheryScorer() {
                                 var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                 var runningTotal = ends.slice(0, i + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                 rows.push(React.createElement("div", { key: i, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: i < ends.length - 1 ? "1px solid #1f2230" : "none" } },
-                                    React.createElement("div", { style: { width: 28, color: "#444", fontSize: 12 } },
+                                    React.createElement("div", { style: { width: 30, color: "#555", fontSize: 13 } },
                                         "E",
                                         i + 1),
                                     React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)); })),
-                                    React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" } }, endTotal),
-                                    React.createElement("div", { style: { width: 44, textAlign: "right", fontSize: 13, color: "#555" } }, runningTotal)));
+                                    React.createElement("div", { style: { width: 30, textAlign: "right", fontSize: 14, color: "#c8f55a", fontWeight: "600" } }, endTotal),
+                                    React.createElement("div", { style: { width: 48, textAlign: "right", fontSize: 13, color: "#555" } }, runningTotal)));
                             });
                         }
                         if (allEndsComplete) {
@@ -1454,7 +1456,7 @@ function ArcheryScorer() {
                             " - ",
                             React.createElement("span", { style: { color: h.round === "Worcester" ? "#4ab3f4" : imp ? "#c8862a" : "#4ab3f4" } }, h.round === "Worcester" ? "5-zone (5?4?3?2?1)" : imp ? "5-zone (9?7?5?3?1)" : "10-zone"))),
                     React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16 } }, (function () {
-                        var _a;
+                        var _a, _b, _c, _d;
                         var isWorc = h.round === "Worcester";
                         var maxArrowVal = isWorc ? 5 : h.imperial ? 9 : 10;
                         var classification = getClassification(h.round, h.score, profile, h.bowType);
@@ -1463,6 +1465,7 @@ function ArcheryScorer() {
                             { label: "SCORE", value: h.score, sub: "/ ".concat(h.maxPossible), color: "#c8f55a" },
                             { label: "CLASS", value: classification || "?", sub: nextClass ? "".concat(nextClass.needed, " to ").concat(nextClass.name) : (classification ? "top class" : null), color: classification ? "#c8f55a" : "#555" },
                             { label: h.imperial ? "GOLDS" : "X COUNT", value: h.imperial ? ((_a = h.golds) !== null && _a !== void 0 ? _a : "?") : h.xs, color: "#ffd700" },
+                            { label: "HITS", value: (_d = (_b = h.hits) !== null && _b !== void 0 ? _b : (_c = h.ends) === null || _c === void 0 ? void 0 : _c.flat().filter(function (v) { return v !== "M"; }).length) !== null && _d !== void 0 ? _d : "?", color: null },
                         ].map(function (_a) {
                             var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
                             return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 10px" } },
@@ -1478,21 +1481,6 @@ function ArcheryScorer() {
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2 } }, showTargetFace ? "HIDE TARGET FACE" : "VIEW TARGET FACE"),
                         showTargetFace && (React.createElement("div", { style: { marginTop: 12, display: "flex", flexDirection: "column", alignItems: "center" } },
                             React.createElement(TargetFace, { isImperial: h.imperial, isWorcester: h.round === "Worcester", disabled: true, onScore: function () { }, arrows: h.hitPositions.map(function (p) { return p.score; }), readOnlyHits: h.hitPositions }))))),
-                    React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginBottom: 16 } },
-                        React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
-                            React.createElement("div", { style: { fontSize: 12, color: "#555", letterSpacing: 1.5 } }, "NOTES"),
-                            !editingNotes && (React.createElement("button", { onClick: function () { setDraftNotes(h.notes || ""); setEditingNotes(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 14, padding: '4px 8px' } }, h.notes ? "EDIT" : "+ ADD"))),
-                        editingNotes ? (React.createElement(React.Fragment, null,
-                            React.createElement("textarea", { value: draftNotes, onChange: function (e) { return setDraftNotes(e.target.value); }, placeholder: "Weather, equipment, how it felt\u2026", rows: 4, autoFocus: true, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'Roboto',sans-serif", fontSize: 11, resize: "none", outline: "none", marginBottom: 10 } }),
-                            React.createElement("div", { style: { display: "flex", gap: 8 } },
-                                React.createElement("button", { onClick: function () { return setEditingNotes(false); }, style: { flex: 1, padding: "8px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 11 } }, "CANCEL"),
-                                React.createElement("button", { onClick: function () {
-                                        var updated = history.map(function (entry) { return entry.id === h.id ? __assign(__assign({}, entry), { notes: draftNotes.trim() }) : entry; });
-                                        setHistory(updated);
-                                        saveHistory(updated);
-                                        setViewingRound(__assign(__assign({}, h), { notes: draftNotes.trim() }));
-                                        setEditingNotes(false);
-                                    }, style: { flex: 2, padding: "8px", background: "#c8f55a", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE NOTES")))) : (React.createElement("div", { style: { fontSize: 12, color: h.notes ? "#e8e8e0" : "#333", fontStyle: h.notes ? "normal" : "italic", lineHeight: 1.6 } }, h.notes || "No notes recorded."))),
                     React.createElement("div", { style: { fontSize: 12, color: "#555", letterSpacing: 1.5, marginBottom: 6 } }, "SCORECARD"),
                     React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, (function () {
                         var roundDef = ROUNDS[h.round];
@@ -1517,12 +1505,12 @@ function ArcheryScorer() {
                                     var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                     var runningTotal = h.ends.slice(0, endIndex + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                     rows.push(React.createElement("div", { key: "e-".concat(endIndex), onClick: function () { return setEditingEnd({ endIndex: endIndex, arrows: __spreadArray([], end, true), source: "history", historyId: h.id }); }, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230", cursor: "pointer" } },
-                                        React.createElement("div", { style: { width: 28, color: "#444", fontSize: 12 } },
+                                        React.createElement("div", { style: { width: 30, color: "#555", fontSize: 13 } },
                                             "E",
                                             endIndex + 1),
-                                        React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)); })),
-                                        React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" } }, endTotal),
-                                        React.createElement("div", { style: { width: 44, textAlign: "right", fontSize: 13, color: "#555" } }, runningTotal)));
+                                        React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 26, height: 26, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600 } }, v)); })),
+                                        React.createElement("div", { style: { width: 30, textAlign: "right", fontSize: 14, color: "#c8f55a", fontWeight: "600" } }, endTotal),
+                                        React.createElement("div", { style: { width: 48, textAlign: "right", fontSize: 13, color: "#555" } }, runningTotal)));
                                 };
                                 for (var e = 0; e < dist.ends; e++, endIndex++) {
                                     _loop_1(e);
@@ -1542,12 +1530,12 @@ function ArcheryScorer() {
                                 var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                 var runningTotal = h.ends.slice(0, i + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                 rows.push(React.createElement("div", { key: i, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: i < h.ends.length - 1 ? "1px solid #1f2230" : "none" } },
-                                    React.createElement("div", { style: { width: 28, color: "#444", fontSize: 12 } },
+                                    React.createElement("div", { style: { width: 30, color: "#555", fontSize: 13 } },
                                         "E",
                                         i + 1),
-                                    React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 500 } }, v)); })),
-                                    React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 13, color: "#c8f55a" } }, endTotal),
-                                    React.createElement("div", { style: { width: 44, textAlign: "right", fontSize: 13, color: "#555" } }, runningTotal)));
+                                    React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 26, height: 26, borderRadius: 3, background: arrowBg(v, imp), color: arrowText(v, imp), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 600 } }, v)); })),
+                                    React.createElement("div", { style: { width: 30, textAlign: "right", fontSize: 14, color: "#c8f55a", fontWeight: "600" } }, endTotal),
+                                    React.createElement("div", { style: { width: 48, textAlign: "right", fontSize: 13, color: "#555" } }, runningTotal)));
                             });
                         }
                         if (h.ends && h.ends.length > 0) {
@@ -1557,7 +1545,22 @@ function ArcheryScorer() {
                                 React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#c8f55a" } }, roundAvg)));
                         }
                         return rows;
-                    })())));
+                    })()),
+                    React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginTop: 16, marginBottom: 16 } },
+                        React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
+                            React.createElement("div", { style: { fontSize: 12, color: "#555", letterSpacing: 1.5 } }, "NOTES"),
+                            !editingNotes && (React.createElement("button", { onClick: function () { setDraftNotes(h.notes || ""); setEditingNotes(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 14, padding: "4px 8px" } }, h.notes ? "EDIT" : "+ ADD"))),
+                        editingNotes ? (React.createElement(React.Fragment, null,
+                            React.createElement("textarea", { value: draftNotes, onChange: function (e) { return setDraftNotes(e.target.value); }, placeholder: "Weather, equipment, how it felt\u2026", rows: 4, autoFocus: true, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'Roboto',sans-serif", fontSize: 14, resize: "none", outline: "none", marginBottom: 10 } }),
+                            React.createElement("div", { style: { display: "flex", gap: 8 } },
+                                React.createElement("button", { onClick: function () { return setEditingNotes(false); }, style: { flex: 1, padding: "8px", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 13 } }, "CANCEL"),
+                                React.createElement("button", { onClick: function () {
+                                        var updated = history.map(function (entry) { return entry.id === h.id ? __assign(__assign({}, entry), { notes: draftNotes.trim() }) : entry; });
+                                        setHistory(updated);
+                                        saveHistory(updated);
+                                        setViewingRound(__assign(__assign({}, h), { notes: draftNotes.trim() }));
+                                        setEditingNotes(false);
+                                    }, style: { flex: 2, padding: "8px", background: "#c8f55a", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE NOTES")))) : (React.createElement("div", { style: { fontSize: 14, color: h.notes ? "#e8e8e0" : "#333", fontStyle: h.notes ? "normal" : "italic", lineHeight: 1.6 } }, h.notes || "No notes recorded.")))));
             })(),
             screen === "sights" && !activeSetup && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease", display: "flex", flexDirection: "column", height: "100%" } },
                 React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, letterSpacing: 3, color: "#e8e8e0", marginBottom: 20 } }, "MY SETUPS"),
