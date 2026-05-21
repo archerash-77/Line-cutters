@@ -1239,11 +1239,16 @@ function ArcheryScorer() {
                     { label: "TOTAL", value: totalScore, sub: "/ ".concat(maxScore) },
                     { label: "BEST POSS", value: livePossible, sub: "if perfect" },
                     { label: "END ".concat(Math.min(endNumber, round.ends)), value: currentEndScore, sub: "".concat(round.arrowsPerEnd - currentEnd.length, " left") },
-                    { label: isImperial ? "GOLDS" : "X / 10", value: isImperial ? goldCount : "".concat(xCount, "/").concat(tenCount), sub: isImperial ? null : "x count / tens" },
+                    { label: isImperial ? "GOLDS" : null, value: isImperial ? goldCount : null, sub: null },
                     { label: "HITS", value: ends.flat().filter(function (v) { return v !== "M"; }).length, sub: null },
                 ].map(function (_a) {
                     var label = _a.label, value = _a.value, sub = _a.sub;
-                    return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 6px",
+                    return label === null ? (React.createElement("div", { key: "xcountbox", style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 6px",
+                            textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" } },
+                        React.createElement("div", { style: { fontSize: 9, color: "#aaa", letterSpacing: 1, marginBottom: 2, whiteSpace: "nowrap" } }, "X"),
+                        React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: "#c8f55a", lineHeight: 1 } }, xCount),
+                        React.createElement("div", { style: { fontSize: 9, color: "#555", letterSpacing: 1, marginTop: 4, marginBottom: 2, whiteSpace: "nowrap" } }, "TENS"),
+                        React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#888", lineHeight: 1 } }, tenCount))) : (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 6px",
                             textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" } },
                         React.createElement("div", { style: { fontSize: 9, color: "#aaa", letterSpacing: 1, marginBottom: 4,
                                 height: 14, overflow: "hidden", whiteSpace: "nowrap" } }, label),
@@ -1474,14 +1479,19 @@ function ArcheryScorer() {
                         return [
                             { label: "SCORE", value: h.score, sub: "/ ".concat(h.maxPossible), color: "#c8f55a" },
                             { label: "CLASS", value: classification || "?", sub: nextClass ? "".concat(nextClass.needed, " to ").concat(nextClass.name) : (classification ? "top class" : null), color: classification ? "#c8f55a" : "#555" },
-                            { label: h.imperial ? "GOLDS" : "X / 10", value: h.imperial ? ((_a = h.golds) !== null && _a !== void 0 ? _a : "?") : "".concat((_b = h.xs) !== null && _b !== void 0 ? _b : "?", "/").concat((_e = (_c = h.tens) !== null && _c !== void 0 ? _c : (_d = h.ends) === null || _d === void 0 ? void 0 : _d.flat().filter(function (v) { return v === "10"; }).length) !== null && _e !== void 0 ? _e : "?"), color: "#ffd700" },
+                            h.imperial
+                                ? { label: "GOLDS", value: (_a = h.golds) !== null && _a !== void 0 ? _a : "?", color: "#ffd700" }
+                                : { label: "X", value: (_b = h.xs) !== null && _b !== void 0 ? _b : "?", color: "#ffd700", sub2label: "TENS", sub2value: (_e = (_c = h.tens) !== null && _c !== void 0 ? _c : (_d = h.ends) === null || _d === void 0 ? void 0 : _d.flat().filter(function (v) { return v === "10"; }).length) !== null && _e !== void 0 ? _e : "?" },
                             { label: "HITS", value: (_h = (_f = h.hits) !== null && _f !== void 0 ? _f : (_g = h.ends) === null || _g === void 0 ? void 0 : _g.flat().filter(function (v) { return v !== "M"; }).length) !== null && _h !== void 0 ? _h : "?", color: null },
                         ].map(function (_a) {
-                            var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
-                            return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 10px" } },
-                                React.createElement("div", { style: { fontSize: 12, color: "#555", letterSpacing: 1.5 } }, label),
-                                React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, color: color, lineHeight: 1 } }, value),
-                                sub && React.createElement("div", { style: { fontSize: 12, color: "#444" } }, sub)));
+                            var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color, sub2label = _a.sub2label, sub2value = _a.sub2value;
+                            return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 8px", textAlign: "center" } },
+                                React.createElement("div", { style: { fontSize: 10, color: "#555", letterSpacing: 1.5, marginBottom: 2 } }, label),
+                                React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: sub2label ? 26 : 28, color: color || "#e8e8e0", lineHeight: 1 } }, value),
+                                sub && React.createElement("div", { style: { fontSize: 11, color: "#444", marginTop: 2 } }, sub),
+                                sub2label && React.createElement(React.Fragment, null,
+                                    React.createElement("div", { style: { fontSize: 10, color: "#555", letterSpacing: 1.5, marginTop: 5, marginBottom: 2 } }, sub2label),
+                                    React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#666", lineHeight: 1 } }, sub2value))));
                         });
                     })()),
                     h.hitPositions && h.hitPositions.length > 0 && (React.createElement("div", { style: { marginBottom: 16 } },
