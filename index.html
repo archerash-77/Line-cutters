@@ -762,7 +762,7 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
     }, "START ROUND")));
 }
 // ??? Handicap calculation (Lane 2023 AGB algorithm) ??????????????????????????
-var HC_Kp = 1.036, HC_Ks = 12.9, HC_Ktheta = 0.0005;
+var HC_Kp = 1.029, HC_Ks = 12.9, HC_Ktheta = 0.0005;
 var HC_Kd0 = 1.429e-6, HC_Kd1 = 1.07, HC_Kd2 = 4.3;
 function hcSigmaR(H, R) {
     var sig_theta = Math.pow(HC_Kp, H + HC_Ks) * HC_Ktheta;
@@ -804,7 +804,11 @@ function calcHandicap(roundName, score) {
         else
             hi = mid;
     }
-    return Math.round((lo + hi) / 2);
+    var raw = (lo + hi) / 2;
+    // Imperial outdoor rounds: apply linear correction calibrated from official AGB May 2025 tables
+    // Derived from National round: official_hc = 0.9759 * model_hc + 6.9608
+    var corrected = rd.imperial ? (raw * 0.9759 + 6.9608) : raw;
+    return Math.round(corrected);
 }
 // ??? Main Component ???????????????????????????????????????????????????????????
 function ArcheryScorer() {
@@ -950,10 +954,11 @@ function ArcheryScorer() {
     var _9 = useState(null), confirmModal = _9[0], setConfirmModal = _9[1]; // {message, onConfirm}
     var _10 = useState(""), hcRound = _10[0], setHcRound = _10[1];
     var _11 = useState(""), hcScore = _11[0], setHcScore = _11[1];
-    var _12 = useState({
+    var _12 = useState("Recurve"), hcBow = _12[0], setHcBow = _12[1];
+    var _13 = useState({
         m1: "", d1: "", u1: "m",
         m2: "", d2: "", u2: "m",
-    }), sightEst = _12[0], setSightEst = _12[1]; // {endIndex, arrows, source: "live"|"history", historyId}
+    }), sightEst = _13[0], setSightEst = _13[1]; // {endIndex, arrows, source: "live"|"history", historyId}
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
@@ -1727,6 +1732,12 @@ function ArcheryScorer() {
                                 var roundNames = Object.keys(ROUNDS).sort();
                                 return (React.createElement("div", null,
                                     React.createElement("div", { style: { marginBottom: 12 } },
+                                        React.createElement("div", { style: { fontSize: 11, color: "#444", marginBottom: 6 } }, "BOW STYLE"),
+                                        React.createElement("div", { style: { display: "flex", gap: 6 } }, ["Recurve", "Compound", "Barebow", "Longbow"].map(function (b) { return (React.createElement("button", { key: b, onClick: function () { return setHcBow(b); }, style: { flex: 1, padding: "10px 4px", border: "none", borderRadius: 8, cursor: "pointer",
+                                                fontFamily: "'Roboto',sans-serif", fontSize: 12, fontWeight: "600",
+                                                background: hcBow === b ? "#c8f55a" : "#141720",
+                                                color: hcBow === b ? "#0f1117" : "#888" } }, b)); }))),
+                                    React.createElement("div", { style: { marginBottom: 12 } },
                                         React.createElement("div", { style: { fontSize: 11, color: "#444", marginBottom: 6 } }, "ROUND"),
                                         React.createElement("select", { value: hcRound, onChange: function (e) { return setHcRound(e.target.value); }, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8,
                                                 padding: "12px 10px", color: hcRound ? "#e8e8e0" : "#444", fontFamily: "'Roboto',sans-serif",
@@ -1740,7 +1751,10 @@ function ArcheryScorer() {
                                     hc !== null && (React.createElement("div", { style: { background: "#0f1117", borderRadius: 10, padding: "16px", textAlign: "center" } },
                                         React.createElement("div", { style: { fontSize: 12, color: "#555", letterSpacing: 1.5, marginBottom: 6 } }, "YOUR HANDICAP"),
                                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 52, color: "#c8f55a", lineHeight: 1 } }, hc),
-                                        React.createElement("div", { style: { fontSize: 13, color: "#555", marginTop: 6 } }, hc <= 20 ? "Elite level" : hc <= 40 ? "Advanced" : hc <= 60 ? "Intermediate" : hc <= 80 ? "Developing" : "Beginner"))),
+                                        React.createElement("div", { style: { fontSize: 13, color: "#555", marginTop: 6 } },
+                                            hcBow,
+                                            " \u2022 ",
+                                            hc <= 20 ? "Elite" : hc <= 40 ? "Advanced" : hc <= 60 ? "Intermediate" : hc <= 80 ? "Developing" : "Beginner"))),
                                     hcRound && hcScore && hc === null && (React.createElement("div", { style: { textAlign: "center", color: "#555", fontSize: 13, fontStyle: "italic" } }, "Score out of range for this round"))));
                             })()))));
             })(),
