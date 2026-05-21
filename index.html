@@ -769,11 +769,17 @@ function hcSigmaR(H, R) {
     var F = 1.0 + (HC_Kd0 * Math.pow(HC_Kd1, H + HC_Kd2)) * R * R;
     return R * sig_theta * F;
 }
-function hcExpectedArrow(H, dist_m, face_cm) {
+function hcExpectedArrow(H, dist_m, face_cm, imperial) {
     var sr = hcSigmaR(H, dist_m) * 100;
     var ad = 0.714;
-    var bandW = (face_cm / 2) / 10;
     function pHit(r) { return 1.0 - Math.exp(-(r * r) / (2 * sr * sr)); }
+    if (imperial) {
+        // 5-zone imperial scoring: 9,7,5,3,1
+        var bw_1 = (face_cm / 2) / 5;
+        var scores = [9, 7, 5, 3, 1];
+        return scores.reduce(function (e, sc, i) { return e + sc * (pHit(bw_1 * (i + 1) + ad / 2) - pHit(bw_1 * i + ad / 2)); }, 0);
+    }
+    var bandW = (face_cm / 2) / 10;
     var exp = 10 * pHit(bandW * 0.5 + ad / 2);
     for (var z = 10; z >= 1; z--)
         exp += z * (pHit(bandW * (11 - z) + ad / 2) - pHit(bandW * (11 - z - 1) + ad / 2));
@@ -786,7 +792,7 @@ function hcRoundExpected(H, roundName) {
     return rd.distances.reduce(function (t, d) {
         var distM = rd.imperial ? (parseFloat(d.label) * 0.9144) : parseFloat(d.label);
         var face = rd.imperial ? 122 : (distM >= 50 ? 122 : 80);
-        return t + d.ends * rd.arrowsPerEnd * hcExpectedArrow(H, distM, face);
+        return t + d.ends * rd.arrowsPerEnd * hcExpectedArrow(H, distM, face, rd.imperial);
     }, 0);
 }
 function calcHandicap(roundName, score) {
