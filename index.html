@@ -851,6 +851,7 @@ function ArcheryScorer() {
     var maxScore = maxRoundScore(activeRound);
     var totalScore = ends.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
     var xCount = ends.flat().filter(function (v) { return v === "X"; }).length;
+    var tenCount = ends.flat().filter(function (v) { return v === "10"; }).length;
     var goldCount = ends.flat().filter(function (v) { return v === "9"; }).length;
     var currentEndScore = currentEnd.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
     var endNumber = ends.length + 1;
@@ -900,7 +901,8 @@ function ArcheryScorer() {
     var _5 = useState(null), sightModalDist = _5[0], setSightModalDist = _5[1];
     var _6 = useState(null), pendingEnd = _6[0], setPendingEnd = _6[1];
     var _7 = useState(null), editingEnd = _7[0], setEditingEnd = _7[1];
-    var _8 = useState("date"), historySort = _8[0], setHistorySort = _8[1]; // "date" | "alpha" // {endIndex, arrows, source: "live"|"history", historyId}
+    var _8 = useState("date"), historySort = _8[0], setHistorySort = _8[1]; // "date" | "alpha"
+    var _9 = useState(null), confirmModal = _9[0], setConfirmModal = _9[1]; // {message, onConfirm} // {endIndex, arrows, source: "live"|"history", historyId}
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
@@ -950,7 +952,7 @@ function ArcheryScorer() {
                     return h;
                 var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
                 var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
-                return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds });
+                return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds });
             }); });
             // Also persist
             try {
@@ -959,7 +961,7 @@ function ArcheryScorer() {
                         return h;
                     var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
                     var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
-                    return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds, hits: newEnds ? newEnds.flat().filter(function (v) { return v !== "M"; }).length : h.hits });
+                    return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds, hits: newEnds ? newEnds.flat().filter(function (v) { return v !== "M"; }).length : h.hits });
                 });
                 localStorage.setItem("archery_history", JSON.stringify(updated));
             }
@@ -992,6 +994,7 @@ function ArcheryScorer() {
             score: score,
             maxPossible: maxScore,
             xs: ends.flat().filter(function (v) { return v === "X"; }).length,
+            tens: ends.flat().filter(function (v) { return v === "10"; }).length,
             golds: ends.flat().filter(function (v) { return v === "9"; }).length,
             hits: ends.flat().filter(function (v) { return v !== "M"; }).length,
             date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
@@ -1071,6 +1074,16 @@ function ArcheryScorer() {
                         React.createElement("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" }),
                         React.createElement("polyline", { points: "9 22 9 12 15 12 15 22" }))))),
         React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "18px 20px 60px", flex: 1 } },
+            confirmModal && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 500,
+                    display: "flex", alignItems: "center", justifyContent: "center", padding: 24 } },
+                React.createElement("div", { style: { background: "#141720", borderRadius: 16, padding: 28, width: "100%", maxWidth: 340 } },
+                    React.createElement("div", { style: { fontFamily: "'Roboto',sans-serif", fontSize: 16, color: "#e8e8e0",
+                            lineHeight: 1.5, marginBottom: 24, textAlign: "center" } }, confirmModal.message),
+                    React.createElement("div", { style: { display: "flex", gap: 10 } },
+                        React.createElement("button", { onClick: function () { return setConfirmModal(null); }, style: { flex: 1, padding: 16, background: "#1a1d25", border: "none", borderRadius: 10,
+                                color: "#888", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 2 } }, "CANCEL"),
+                        React.createElement("button", { onClick: function () { confirmModal.onConfirm(); setConfirmModal(null); }, style: { flex: 1, padding: 16, background: "#e05555", border: "none", borderRadius: 10,
+                                color: "#fff", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 2 } }, "CONFIRM"))))),
             editingEnd && (function () {
                 var isHist = !!editingEnd.historyId;
                 var isImp = isHist ? (history.find(function (h) { return h.id === editingEnd.historyId; }) || {}).imperial : isImperial;
@@ -1226,7 +1239,7 @@ function ArcheryScorer() {
                     { label: "TOTAL", value: totalScore, sub: "/ ".concat(maxScore) },
                     { label: "BEST POSS", value: livePossible, sub: "if perfect" },
                     { label: "END ".concat(Math.min(endNumber, round.ends)), value: currentEndScore, sub: "".concat(round.arrowsPerEnd - currentEnd.length, " left") },
-                    { label: isImperial ? "GOLDS" : "X COUNT", value: isImperial ? goldCount : xCount, sub: null },
+                    { label: isImperial ? "GOLDS" : "X / 10", value: isImperial ? goldCount : "".concat(xCount, "/").concat(tenCount), sub: isImperial ? null : "x count / tens" },
                     { label: "HITS", value: ends.flat().filter(function (v) { return v !== "M"; }).length, sub: null },
                 ].map(function (_a) {
                     var label = _a.label, value = _a.value, sub = _a.sub;
@@ -1266,14 +1279,14 @@ function ArcheryScorer() {
                 React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12 } },
                     React.createElement("button", { className: "abtn", onClick: removeLastArrow, disabled: currentEnd.length === 0, style: { flex: 1, height: 48, background: "#1a1d25", color: "#e8e8e0", fontSize: 14 } }, "UNDO"),
                     React.createElement("button", { className: "abtn", onClick: function () {
-                            if (window.confirm("Abandon this round? All progress will be lost.")) {
-                                setScreen("home");
-                                setHomeStep("main");
-                                setEnds([]);
-                                setCurrentEnd([]);
-                                setPendingEnd(null);
-                                setShowFinish(false);
-                            }
+                            setConfirmModal({ message: "Abandon this round? All progress will be lost.", onConfirm: function () {
+                                    setScreen("home");
+                                    setHomeStep("main");
+                                    setEnds([]);
+                                    setCurrentEnd([]);
+                                    setPendingEnd(null);
+                                    setShowFinish(false);
+                                } });
                         }, style: { flex: 2, height: 48, background: "#1a1d25", color: "#e05555", fontSize: 13, letterSpacing: 1 } }, "ABANDON ROUND")),
                 inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
                 showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
@@ -1383,7 +1396,7 @@ function ArcheryScorer() {
                             "avg ",
                             React.createElement("span", { style: { color: "#e8e8e0" } }, (totalScore / (ends.flat().length || 1)).toFixed(2)),
                             " per arrow"),
-                        React.createElement("div", { style: { color: "#ffd700", fontSize: 13, marginBottom: 16 } }, isImperial ? "".concat(goldCount, " Gold").concat(goldCount !== 1 ? "s" : "") : "".concat(xCount, " X").concat(xCount !== 1 ? "s" : "")),
+                        React.createElement("div", { style: { color: "#ffd700", fontSize: 13, marginBottom: 16 } }, isImperial ? "".concat(goldCount, " Gold").concat(goldCount !== 1 ? "s" : "") : "".concat(xCount, " X  |  ").concat(tenCount, " Tens")),
                         personalBest > 0 && totalScore > personalBest && (React.createElement("div", { style: { background: "#c8f55a", color: "#0f1117", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 12, fontWeight: 500 } }, "\uD83C\uDFF9 NEW PERSONAL BEST!")),
                         React.createElement("textarea", { value: finishNotes, onChange: function (e) { return setFinishNotes(e.target.value); }, placeholder: "Add notes\u2026 weather, equipment, how it felt", rows: 3, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'Roboto',sans-serif", fontSize: 11, resize: "none", marginBottom: 14, outline: "none" } }),
                         React.createElement("button", { onClick: finishRound, style: { width: "100%", padding: 14, background: "#c8f55a", color: "#0f1117", border: "none", borderRadius: 8, fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 2, cursor: "pointer" } }, "SAVE & FINISH")))))),
@@ -1428,10 +1441,7 @@ function ArcheryScorer() {
                         React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "#555", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "9 18 15 12 9 6" }))));
                 }),
-                React.createElement("button", { onClick: function () { if (window.confirm("Clear all history?")) {
-                        setHistory([]);
-                        saveHistory([]);
-                    } }, style: { width: "100%", marginTop: 10, padding: 10, background: "none", border: "1px solid #252830", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 11 } }, "CLEAR HISTORY"))))),
+                React.createElement("button", { onClick: function () { setConfirmModal({ message: "Clear all history? This cannot be undone.", onConfirm: function () { setHistory([]); saveHistory([]); } }); }, style: { width: "100%", marginTop: 10, padding: 10, background: "none", border: "1px solid #252830", borderRadius: 8, color: "#555", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 11 } }, "CLEAR HISTORY"))))),
             screen === "history" && viewingRound && (function () {
                 var h = viewingRound;
                 var imp = h.imperial;
@@ -1441,12 +1451,12 @@ function ArcheryScorer() {
                             React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                                 React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                         React.createElement("button", { onClick: function () {
-                                if (window.confirm("Delete this round from history?")) {
-                                    var updated = history.filter(function (r) { return r.id !== h.id; });
-                                    setHistory(updated);
-                                    saveHistory(updated);
-                                    setViewingRound(null);
-                                }
+                                setConfirmModal({ message: "Delete \"".concat(h.round, "\" from history?"), onConfirm: function () {
+                                        var updated = history.filter(function (r) { return r.id !== h.id; });
+                                        setHistory(updated);
+                                        saveHistory(updated);
+                                        setViewingRound(null);
+                                    } });
                             }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 12px 0",
                                 fontFamily: "'Roboto',sans-serif", fontSize: 15, color: "#c8f55a" } }, "DELETE THIS ROUND")),
                     React.createElement("div", { style: { marginBottom: 16 } },
@@ -1456,7 +1466,7 @@ function ArcheryScorer() {
                             " - ",
                             React.createElement("span", { style: { color: h.round === "Worcester" ? "#4ab3f4" : imp ? "#c8862a" : "#4ab3f4" } }, h.round === "Worcester" ? "5-zone (5?4?3?2?1)" : imp ? "5-zone (9?7?5?3?1)" : "10-zone"))),
                     React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 16 } }, (function () {
-                        var _a, _b, _c, _d;
+                        var _a, _b, _c, _d, _e, _f, _g, _h;
                         var isWorc = h.round === "Worcester";
                         var maxArrowVal = isWorc ? 5 : h.imperial ? 9 : 10;
                         var classification = getClassification(h.round, h.score, profile, h.bowType);
@@ -1464,8 +1474,8 @@ function ArcheryScorer() {
                         return [
                             { label: "SCORE", value: h.score, sub: "/ ".concat(h.maxPossible), color: "#c8f55a" },
                             { label: "CLASS", value: classification || "?", sub: nextClass ? "".concat(nextClass.needed, " to ").concat(nextClass.name) : (classification ? "top class" : null), color: classification ? "#c8f55a" : "#555" },
-                            { label: h.imperial ? "GOLDS" : "X COUNT", value: h.imperial ? ((_a = h.golds) !== null && _a !== void 0 ? _a : "?") : h.xs, color: "#ffd700" },
-                            { label: "HITS", value: (_d = (_b = h.hits) !== null && _b !== void 0 ? _b : (_c = h.ends) === null || _c === void 0 ? void 0 : _c.flat().filter(function (v) { return v !== "M"; }).length) !== null && _d !== void 0 ? _d : "?", color: null },
+                            { label: h.imperial ? "GOLDS" : "X / 10", value: h.imperial ? ((_a = h.golds) !== null && _a !== void 0 ? _a : "?") : "".concat((_b = h.xs) !== null && _b !== void 0 ? _b : "?", "/").concat((_e = (_c = h.tens) !== null && _c !== void 0 ? _c : (_d = h.ends) === null || _d === void 0 ? void 0 : _d.flat().filter(function (v) { return v === "10"; }).length) !== null && _e !== void 0 ? _e : "?"), color: "#ffd700" },
+                            { label: "HITS", value: (_h = (_f = h.hits) !== null && _f !== void 0 ? _f : (_g = h.ends) === null || _g === void 0 ? void 0 : _g.flat().filter(function (v) { return v !== "M"; }).length) !== null && _h !== void 0 ? _h : "?", color: null },
                         ].map(function (_a) {
                             var label = _a.label, value = _a.value, sub = _a.sub, color = _a.color;
                             return (React.createElement("div", { key: label, style: { flex: 1, background: "#1a1d25", borderRadius: 10, padding: "10px 10px" } },
@@ -1621,8 +1631,7 @@ function ArcheryScorer() {
                         currentSetup.notes && React.createElement("div", { style: { fontSize: 14, color: "#555", marginTop: 6, lineHeight: 1.5 } }, currentSetup.notes)),
                     React.createElement("div", { style: { display: "flex", gap: 8 } },
                         React.createElement("button", { onClick: function () { setDraftSetup({ name: currentSetup.name, bowType: currentSetup.bowType || "", poundage: currentSetup.poundage, arrowType: currentSetup.arrowType, notes: currentSetup.notes }); setEditingSetup(true); }, style: { background: "none", border: "none", color: "#c8f55a", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 14, padding: '6px 10px' } }, "EDIT"),
-                        React.createElement("button", { onClick: function () { if (window.confirm("Delete \"".concat(currentSetup.name, "\"?")))
-                                deleteSetup(activeSetup); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 14, padding: '6px 10px' } }, "DELETE"))))),
+                        React.createElement("button", { onClick: function () { setConfirmModal({ message: "Delete setup \"".concat(currentSetup.name, "\"?"), onConfirm: function () { return deleteSetup(activeSetup); } }); }, style: { background: "none", border: "none", color: "#555", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 14, padding: '6px 10px' } }, "DELETE"))))),
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
                     React.createElement("div", { style: { fontSize: 12, color: "#555", letterSpacing: 1.5 } }, "SIGHT MARKS"),
                     !addingMark && (React.createElement("button", { onClick: function () { setAddingMark(true); setDraftMark({ distance: ALL_DISTANCES[0], setting: "" }); }, style: { background: "#c8f55a", border: "none", borderRadius: 8, padding: "6px 12px", color: "#0f1117", fontFamily: "'Bebas Neue',sans-serif", fontSize: 13, letterSpacing: 2, cursor: "pointer" } }, "+ ADD MARK"))),
