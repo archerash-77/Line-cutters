@@ -1508,8 +1508,8 @@ function ArcheryScorer() {
             screen === "history" && viewingRound && (function () {
                 var h = viewingRound;
                 var imp = h.imperial;
-                return (React.createElement("div", { style: { animation: "fadeUp 0.2s ease", marginTop: -80 } },
-                    React.createElement("div", { style: { position: "sticky", top: 0, zIndex: 50, background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 8, marginLeft: -20, marginRight: -20, paddingLeft: 20, paddingRight: 20 } },
+                return (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
+                    React.createElement("div", { style: { position: "fixed", top: 70, left: 0, right: 0, zIndex: 89, background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 20px", borderBottom: "1px solid #1e2230" } },
                         React.createElement("button", { onClick: function () { setViewingRound(null); setEditingNotes(false); setShowTargetFace(false); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 4px 0", color: "#f5d800" } },
                             React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                                 React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
