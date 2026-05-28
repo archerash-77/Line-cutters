@@ -1090,7 +1090,7 @@ function ArcheryScorer() {
     }
     var currentSetup = setups.find(function (s) { return s.id === activeSetup; });
     // ??? Render ???????????????????????????????????????????????????????????????
-    return (React.createElement("div", { style: { height: "100vh", background: "#0f1117", fontFamily: "'Roboto',sans-serif", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "center", overflow: "hidden" } },
+    return (React.createElement("div", { style: { height: "100vh", background: "#0f1117", fontFamily: "'Roboto',sans-serif", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "stretch", overflow: "hidden" } },
         React.createElement("style", null, ".abtn{border:none;cursor:pointer;border-radius:6px;font-family:'Roboto',sans-serif;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}.abtn:active{transform:scale(0.90);}.abtn:disabled{opacity:0.3;cursor:default;}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}"),
         React.createElement("div", { style: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 90, background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 20px" } },
             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3 } },
@@ -1103,7 +1103,7 @@ function ArcheryScorer() {
                         React.createElement("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", fill: "#c43030", stroke: "#2156b5", strokeWidth: "2" }),
                         React.createElement("path", { d: "M3 9l9-7 9 7", fill: "none", stroke: "#2156b5", strokeWidth: "2" }),
                         React.createElement("rect", { x: "9", y: "12", width: "6", height: "10", fill: "#f5d800" }))))),
-        React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "80px 20px 60px", flex: 1, overflowY: "auto", height: "100vh" } },
+        React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "80px 20px 60px", flex: 1, overflowY: "auto", height: "100vh", margin: "0 auto" } },
             confirmModal && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 500,
                     display: "flex", alignItems: "center", justifyContent: "center", padding: 24 } },
                 React.createElement("div", { style: { background: "#141720", borderRadius: 16, padding: 28, width: "100%", maxWidth: 340 } },
