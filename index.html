@@ -13,11 +13,11 @@
 <title>Line Cutters</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body,#root{height:100%;}
+html,body,#root{height:100%;overflow:hidden;}
 body{background:#0f1117;overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;font-family:'Roboto',sans-serif;}
 .abtn{border:none;cursor:pointer;border-radius:6px;font-family:'Roboto',sans-serif;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}
 .abtn:active{transform:scale(0.90);}
-.abtn:disabled{opacity:0.3;pointer-events:none;}
+.abtn:disabled{opacity:0.3;cursor:default;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 #msg{position:fixed;top:0;left:0;right:0;padding:20px;color:#f5d800;font-family:'Roboto',sans-serif;font-size:14px;background:#0f1117;z-index:9999;}
 </style>
@@ -1090,21 +1090,20 @@ function ArcheryScorer() {
     }
     var currentSetup = setups.find(function (s) { return s.id === activeSetup; });
     // ??? Render ???????????????????????????????????????????????????????????????
-    return (React.createElement("div", { style: { minHeight: "100vh", background: "#0f1117", fontFamily: "'Roboto',sans-serif", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "center" } },
+    return (React.createElement("div", { style: { height: "100vh", background: "#0f1117", fontFamily: "'Roboto',sans-serif", color: "#e8e8e0", display: "flex", flexDirection: "column", alignItems: "center", overflow: "hidden" } },
         React.createElement("style", null, ".abtn{border:none;cursor:pointer;border-radius:6px;font-family:'Roboto',sans-serif;font-weight:500;font-size:14px;transition:transform 0.08s,opacity 0.15s;display:flex;align-items:center;justify-content:center;padding:0;}.abtn:active{transform:scale(0.90);}.abtn:disabled{opacity:0.3;cursor:default;}@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}"),
-        React.createElement("div", { style: { width: "100%", maxWidth: 480, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 20px 0" } },
+        React.createElement("div", { style: { position: "fixed", top: 0, left: 0, right: 0, zIndex: 90, background: "#0f1117", borderBottom: "1px solid #1e2230", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 20px" } },
             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, letterSpacing: 3 } },
                 React.createElement("span", { style: { color: "#f5d800" } }, "LINE "),
                 React.createElement("span", { style: { color: "#c43030" } }, "CUT"),
                 React.createElement("span", { style: { color: "#2156b5" } }, "TERS")),
             React.createElement("div", { style: { display: "flex", gap: 4 } },
-                React.createElement("button", { onClick: function () { setScreen("home"); setHomeStep("main"); setViewingRound(null); }, style: { background: "#1a1d25", border: "2.5px solid #2156b5", borderRadius: "10px", cursor: "pointer", padding: "5px 9px",
-                        color: "#f5d800" } },
-                    React.createElement("svg", { width: "46", height: "46", viewBox: "0 0 24 24", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" },
-                        React.createElement("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", fill: "#c43030", stroke: "#2156b5", strokeWidth: "2.5" }),
-                        React.createElement("path", { d: "M3 9l9-7 9 7", fill: "none", stroke: "#2156b5", strokeWidth: "2.5" }),
+                React.createElement("button", { onClick: function () { setScreen("home"); setHomeStep("main"); setViewingRound(null); }, style: { background: "#1a1d25", border: "2px solid #2156b5", borderRadius: 10, cursor: "pointer", padding: "4px 8px" } },
+                    React.createElement("svg", { width: "40", height: "40", viewBox: "0 0 24 24", fill: "none", strokeLinecap: "round", strokeLinejoin: "round" },
+                        React.createElement("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z", fill: "#c43030", stroke: "#2156b5", strokeWidth: "2" }),
+                        React.createElement("path", { d: "M3 9l9-7 9 7", fill: "none", stroke: "#2156b5", strokeWidth: "2" }),
                         React.createElement("rect", { x: "9", y: "12", width: "6", height: "10", fill: "#f5d800" }))))),
-        React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "18px 20px 60px", flex: 1 } },
+        React.createElement("div", { style: { width: "100%", maxWidth: 480, padding: "80px 20px 60px", flex: 1, overflowY: "auto", height: "100vh" } },
             confirmModal && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 500,
                     display: "flex", alignItems: "center", justifyContent: "center", padding: 24 } },
                 React.createElement("div", { style: { background: "#141720", borderRadius: 16, padding: 28, width: "100%", maxWidth: 340 } },
@@ -1185,7 +1184,7 @@ function ArcheryScorer() {
                 round.ends)),
             screen === "home" && (React.createElement("div", { style: { animation: "fadeUp 0.25s ease" } },
                 homeStep === "main" && (React.createElement("div", { style: { display: "flex", flexDirection: "column", alignItems: "center" } },
-                    React.createElement("svg", { width: "360", height: "310", viewBox: "-62 0 404 270", style: { marginBottom: 20, marginTop: 8 } },
+                    React.createElement("svg", { width: "468", height: "403", viewBox: "-62 0 404 270", style: { marginBottom: 20, marginTop: 8 } },
                         React.createElement("circle", { cx: "140", cy: "135", r: "96", fill: "#e8e8e0" }),
                         React.createElement("circle", { cx: "140", cy: "135", r: "78", fill: "#1c1c1c" }),
                         React.createElement("circle", { cx: "140", cy: "135", r: "60", fill: "#2156b5" }),
