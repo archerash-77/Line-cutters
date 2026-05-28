@@ -1456,20 +1456,20 @@ function ArcheryScorer() {
                     var best = history.filter(function (h) { return h.round === r; }).reduce(function (b, h) { return Math.max(b, h.score); }, 0);
                     if (!best)
                         return null;
-                    return (React.createElement("div", { key: r, style: { background: "#1a1d25", borderRadius: 8, padding: "7px 11px" } },
+                    return (React.createElement("div", { key: r, onClick: function () { return setHistoryFilter(historyFilter === r ? null : r); }, style: { background: historyFilter === r ? "#2a2040" : "#1a1d25", borderRadius: 8, padding: "7px 11px", cursor: "pointer", border: historyFilter === r ? "1px solid #f5d800" : "1px solid transparent" } },
                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } }, r),
                         React.createElement("div", { style: { fontSize: 16, fontFamily: "'Bebas Neue',sans-serif", color: "#f5d800" } }, best)));
                 })),
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
-                    React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5 } }, "RECENT ROUNDS"),
+                    React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5 } }, historyFilter ? historyFilter.toUpperCase() : "RECENT ROUNDS"),
                     React.createElement("div", { style: { display: "flex", gap: 4 } }, ["date", "alpha"].map(function (mode) { return (React.createElement("button", { key: mode, onClick: function () { return setHistorySort(mode); }, style: { padding: "5px 12px", border: "none", borderRadius: 6, cursor: "pointer",
                             fontFamily: "'Roboto',sans-serif", fontSize: 15, letterSpacing: 1,
                             background: historySort === mode ? "#f5d800" : "#1a1d25",
                             color: historySort === mode ? "#0f1117" : "#555" } }, mode === "date" ? "DATE" : "A-Z")); }))),
-                __spreadArray([], history, true).sort(function (a, b) {
+                __spreadArray([], history, true).filter(function (h) { return historyFilter ? h.round === historyFilter : true; })
+                .sort(function (a, b) {
                     if (historySort === "alpha")
                         return a.round.localeCompare(b.round);
-                    // date sort: history is already newest-first, so preserve order
                     return 0;
                 }).map(function (h) {
                     var _a;
@@ -1850,5 +1850,5 @@ function ArcheryScorer() {
                     React.createElement("button", { onClick: function () { return deleteMark(mark.id); }, style: { background: "none", border: "none", color: "#3a2020", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 16, padding: '4px 10px' } }, "\u2715"))))); }))))))));
 }
 </script>
-<script>if(typeof ArcheryScorer!=='undefined'){var root=ReactDOM.createRoot(document.getElementById('root'));document.getElementById('msg').style.display='none';root.render(React.createElement(ArcheryScorer));}else{document.getElementById('msg').textContent='ERROR: ArcheryScorer not found';}</script>
+<script>if(typeof ArcheryScorer!=='undefined'){var root=ReactDOM.createRoot(document.getElementById('root'));document.getElementById('root').style.display='none';root.render(React.createElement(ArcheryScorer));document.getElementById('msg').style.display='none';document.getElementById('root').style.display='';}else{document.getElementById('msg').textContent='ERROR: ArcheryScorer not found';}</script>
 </body></html>
