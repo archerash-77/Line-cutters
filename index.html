@@ -1457,19 +1457,20 @@ function ArcheryScorer() {
                     var best = history.filter(function (h) { return h.round === r; }).reduce(function (b, h) { return Math.max(b, h.score); }, 0);
                     if (!best)
                         return null;
-                    return (React.createElement("div", { key: r, onClick: function () { var entries = history.filter(function (h) { return h.round === r; }); if (entries.length) { setViewingRound(entries.reduce(function (a, b) { return a.score >= b.score ? a : b; })); } }, style: { background: "#1a1d25", borderRadius: 8, padding: "7px 11px", cursor: "pointer" } },
+                    return (React.createElement("div", { key: r, onClick: function () { return setHistoryFilter(historyFilter === r ? null : r); }, style: { background: historyFilter === r ? "#252030" : "#1a1d25", borderRadius: 8, padding: "7px 11px", cursor: "pointer", border: historyFilter === r ? "1px solid #f5d800" : "1px solid transparent" } },
                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } }, r),
                         React.createElement("div", { style: { fontSize: 16, fontFamily: "'Bebas Neue',sans-serif", color: "#f5d800" } }, best)));
                 })),
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
-                    React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5 } }, "RECENT ROUNDS"),
+                    React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5 } }, historyFilter ? historyFilter.toUpperCase() : "RECENT ROUNDS"),
                     React.createElement("div", { style: { display: "flex", gap: 4 } }, ["date", "alpha"].map(function (mode) { return (React.createElement("button", { key: mode, onClick: function () { return setHistorySort(mode); }, style: { padding: "5px 12px", border: "none", borderRadius: 6, cursor: "pointer",
                             fontFamily: "'Roboto',sans-serif", fontSize: 15, letterSpacing: 1,
                             background: historySort === mode ? "#f5d800" : "#1a1d25",
                             color: historySort === mode ? "#0f1117" : "#555" } }, mode === "date" ? "DATE" : "A-Z")); }))),
-                __spreadArray([], history, true).sort(function (a, b) {
-                    if (historySort === "alpha")
-                        return a.round.localeCompare(b.round);
+                __spreadArray([], history, true).filter(function (h) { return historyFilter ? h.round === historyFilter : true; })
+                .sort(function (a, b) {
+                    if (historyFilter) return b.score - a.score;
+                    if (historySort === "alpha") return a.round.localeCompare(b.round);
                     return 0;
                 }).map(function (h) {
                     var _a;
@@ -1485,6 +1486,7 @@ function ArcheryScorer() {
                                 h.notes ? " - NOTE" : "")),
                         React.createElement("div", { style: { textAlign: "right" } },
                             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, color: "#f5d800", lineHeight: 1 } }, h.score),
+                            historyFilter && h.score === history.filter(function(x){return x.round===historyFilter;}).reduce(function(m,x){return Math.max(m,x.score);},0) && React.createElement("div", { style: { fontSize: 11, color: "#f5d800", fontWeight: 700, letterSpacing: 1 } }, "PB"),
                             React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } }, h.maxPossible ? "avg ".concat((h.score / (h.maxPossible / (h.round === "Worcester" ? 5 : h.imperial ? 9 : 10))).toFixed(2)) : "")),
                         React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "#555", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "9 18 15 12 9 6" }))));
