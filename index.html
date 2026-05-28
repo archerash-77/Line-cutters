@@ -1457,18 +1457,20 @@ function ArcheryScorer() {
                     var best = history.filter(function (h) { return h.round === r; }).reduce(function (b, h) { return Math.max(b, h.score); }, 0);
                     if (!best)
                         return null;
-                    return (React.createElement("div", { key: r, onClick: function () { return setHistoryFilter(historyFilter === r ? null : r); }, style: { background: historyFilter === r ? "#2a2040" : "#1a1d25", borderRadius: 8, padding: "7px 11px", cursor: "pointer", border: historyFilter === r ? "1px solid #f5d800" : "1px solid transparent" } },
+                    return (React.createElement("div", { key: r, onClick: function () {
+                            var bestEntry = history.filter(function (h) { return h.round === r; }).reduce(function (a, b) { return a.score >= b.score ? a : b; }, null);
+                            if (bestEntry) setViewingRound(bestEntry);
+                        }, style: { background: "#1a1d25", borderRadius: 8, padding: "7px 11px", cursor: "pointer" } },
                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } }, r),
                         React.createElement("div", { style: { fontSize: 16, fontFamily: "'Bebas Neue',sans-serif", color: "#f5d800" } }, best)));
                 })),
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
-                    React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5 } }, historyFilter ? historyFilter.toUpperCase() : "RECENT ROUNDS"),
+                    React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5 } }, "RECENT ROUNDS"),
                     React.createElement("div", { style: { display: "flex", gap: 4 } }, ["date", "alpha"].map(function (mode) { return (React.createElement("button", { key: mode, onClick: function () { return setHistorySort(mode); }, style: { padding: "5px 12px", border: "none", borderRadius: 6, cursor: "pointer",
                             fontFamily: "'Roboto',sans-serif", fontSize: 15, letterSpacing: 1,
                             background: historySort === mode ? "#f5d800" : "#1a1d25",
                             color: historySort === mode ? "#0f1117" : "#555" } }, mode === "date" ? "DATE" : "A-Z")); }))),
-                __spreadArray([], history, true).filter(function (h) { return historyFilter ? h.round === historyFilter : true; })
-                .sort(function (a, b) {
+                __spreadArray([], history, true).sort(function (a, b) {
                     if (historySort === "alpha")
                         return a.round.localeCompare(b.round);
                     return 0;
