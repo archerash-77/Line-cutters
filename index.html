@@ -1509,7 +1509,7 @@ function ArcheryScorer() {
                 var h = viewingRound;
                 var imp = h.imperial;
                 return (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
-                    React.createElement("div", { style: { position: "fixed", top: 70, left: 0, right: 0, zIndex: 89, background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 20px" } },
+                    React.createElement("div", { style: { position: "fixed", top: 68, left: 0, right: 0, zIndex: 89, background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 20px" } },
                         React.createElement("button", { onClick: function () { setViewingRound(null); setEditingNotes(false); setShowTargetFace(false); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 4px 0", color: "#f5d800" } },
                             React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                                 React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
@@ -1522,6 +1522,7 @@ function ArcheryScorer() {
                                     } });
                             }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 0 4px 8px",
                                 fontFamily: "'Roboto',sans-serif", fontSize: 15, color: "#c43030" } }, "DELETE")),
+                    React.createElement("div", { style: { height: 56 } }),
                     React.createElement("div", { style: { marginBottom: 16 } },
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 2 } }, h.round),
                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } },
