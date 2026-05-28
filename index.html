@@ -1474,7 +1474,10 @@ function ArcheryScorer() {
                     return 0;
                 }).map(function (h) {
                     var _a;
-                    return (React.createElement("div", { key: h.id, onClick: function () { return setViewingRound(h); }, style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginBottom: 7, display: "flex", alignItems: "center", gap: 10, cursor: "pointer" } },
+                    var isPB = historyFilter && h.score === history.filter(function(x){return x.round===historyFilter;}).reduce(function(m,x){return Math.max(m,x.score);},0);
+                    return (React.createElement("div", { key: h.id, onClick: function () { return setViewingRound(h); }, style: { background: "#1a1d25", borderRadius: 10, padding: isPB ? "0" : "12px 14px", marginBottom: 7, display: "flex", flexDirection: isPB ? "column" : undefined, alignItems: isPB ? "stretch" : "center", gap: 10, cursor: "pointer", border: isPB ? "2px solid #f5d800" : "none", overflow: "hidden" } },
+                        isPB && React.createElement("div", { style: { background: "#f5d800", color: "#0f1117", textAlign: "center", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 3, padding: "4px 0" } }, "PERSONAL BEST"),
+                        React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, padding: isPB ? "12px 14px" : "0" } },
                         React.createElement("div", { style: { flex: 1 } },
                             React.createElement("div", { style: { fontSize: 16, fontWeight: "600", fontFamily: "'Roboto',sans-serif", marginBottom: 4, color: "#e8e8e0" } }, h.round),
                             React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } },
@@ -1486,10 +1489,10 @@ function ArcheryScorer() {
                                 h.notes ? " - NOTE" : "")),
                         React.createElement("div", { style: { textAlign: "right" } },
                             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 26, color: "#f5d800", lineHeight: 1 } }, h.score),
-                            historyFilter && h.score === history.filter(function(x){return x.round===historyFilter;}).reduce(function(m,x){return Math.max(m,x.score);},0) && React.createElement("div", { style: { fontSize: 11, color: "#f5d800", fontWeight: 700, letterSpacing: 1 } }, "PB"),
+                            
                             React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } }, h.maxPossible ? "avg ".concat((h.score / (h.maxPossible / (h.round === "Worcester" ? 5 : h.imperial ? 9 : 10))).toFixed(2)) : "")),
                         React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "#555", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
-                            React.createElement("polyline", { points: "9 18 15 12 9 6" }))));
+                            React.createElement("polyline", { points: "9 18 15 12 9 6" })))));
                 }),
                 React.createElement("button", { onClick: function () { setConfirmModal({ message: "Clear all history? This cannot be undone.", onConfirm: function () { setHistory([]); saveHistory([]); } }); }, style: { width: "100%", marginTop: 10, padding: 10, background: "none", border: "1px solid #252830", borderRadius: 8, color: "#e8e8e0", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 15 } }, "CLEAR HISTORY"))))),
             screen === "history" && viewingRound && (function () {
