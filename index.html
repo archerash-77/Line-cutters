@@ -756,7 +756,7 @@ function renderRoundRow(r, favourites, history, selectedRound, setSelectedRound,
         }, React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, d.label), React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, (d.ends * selRound.arrowsPerEnd) + " arrows - " + d.ends + " ends"));
     })), React.createElement("button", {
         onClick: function () { pickSetup(r); },
-        style: { width: "100%", padding: "13px", background: "#f5d800", color: "#0f1117",
+        style: { width: "100%", padding: "13px", background: "#f5d800", color: "#f5d800",
             border: "none", borderRadius: 8, cursor: "pointer",
             fontFamily: "'Bebas Neue',sans-serif", fontSize: 19, letterSpacing: 3 }
     }, "START ROUND")));
@@ -1206,24 +1206,21 @@ function ArcheryScorer() {
                         React.createElement("path", { d: "M 244,143 Q 281,144 320,155 L 320,143 Z", fill: "#c43030" }),
                         React.createElement("line", { x1: "153", y1: "143", x2: "322", y2: "143", stroke: "#1a1a1a", strokeWidth: "4", strokeLinecap: "round" })),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 12, width: "100%" } },
-                        React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
+                        React.createElement("button", { onClick: function () { return setHomeStep("env"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#f5d800",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "SCORE ROUND"),
-                        React.createElement("button", { onClick: function () { setScreen("history"); setViewingRound(null); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
+                        React.createElement("button", { onClick: function () { setScreen("history"); setViewingRound(null); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#c43030",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "HISTORY"),
-                        React.createElement("button", { onClick: function () { setScreen("sights"); setActiveSetup(null); setEditingSetup(false); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
+                        React.createElement("button", { onClick: function () { setScreen("sights"); setActiveSetup(null); setEditingSetup(false); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#2156b5",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "EQUIPMENT"),
                         React.createElement("button", { onClick: function () { return setShowProfile(true); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "PROFILE"),
-                        React.createElement("button", { onClick: function () { return setScreen("sightcalc"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
+                        React.createElement("button", { onClick: function () { return setScreen("tools"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
                                 border: "none", borderRadius: 12, cursor: "pointer",
-                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "SIGHT MARK CALCULATOR"),
-                                React.createElement("button", { onClick: function () { return setScreen("handicap"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
-                                border: "none", borderRadius: 12, cursor: "pointer",
-                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "HANDICAP CALCULATOR")))),
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "TOOLS")))),
                 homeStep === "env" && (React.createElement("div", null,
                     React.createElement("div", { style: { display: "flex", alignItems: "center", marginBottom: 24, marginTop: 8 } },
                         React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 4px 0", color: "#e8e8e0" } },
@@ -1628,6 +1625,11 @@ function ArcheryScorer() {
                                         setEditingNotes(false);
                                     }, style: { flex: 2, padding: "8px", background: "#f5d800", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE NOTES")))) : (React.createElement("div", { style: { fontSize: 15, color: h.notes ? "#e8e8e0" : "#333", fontStyle: h.notes ? "normal" : "italic", lineHeight: 1.6 } }, h.notes || "No notes recorded.")))));
             })(),
+            screen === "tools" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
+                    React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, letterSpacing: 3, color: "#e8e8e0", marginBottom: 24 } }, "TOOLS"),
+                    React.createElement("button", { onClick: function () { return setScreen("sightcalc"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#f5d800", border: "none", borderRadius: 12, cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3, marginBottom: 12 } }, "SIGHT MARK CALCULATOR"),
+                    React.createElement("button", { onClick: function () { return setScreen("handicap"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#f5d800", border: "none", borderRadius: 12, cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 3 } }, "HANDICAP CALCULATOR")
+                )),
             screen === "sightcalc" && (function () {
                 var IMPERIAL_DISTS = [15, 20, 25, 30, 40, 50, 60, 80, 100];
                 var METRIC_DISTS = [10, 15, 18, 20, 25, 30, 40, 50, 60, 70, 90];
