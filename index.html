@@ -1457,10 +1457,7 @@ function ArcheryScorer() {
                     var best = history.filter(function (h) { return h.round === r; }).reduce(function (b, h) { return Math.max(b, h.score); }, 0);
                     if (!best)
                         return null;
-                    return (React.createElement("div", { key: r, onClick: function () {
-                            var bestEntry = history.filter(function (h) { return h.round === r; }).reduce(function (a, b) { return a.score >= b.score ? a : b; }, null);
-                            if (bestEntry) setViewingRound(bestEntry);
-                        }, style: { background: "#1a1d25", borderRadius: 8, padding: "7px 11px", cursor: "pointer" } },
+                    return (React.createElement("div", { key: r, onClick: function () { var entries = history.filter(function (h) { return h.round === r; }); if (entries.length) { setViewingRound(entries.reduce(function (a, b) { return a.score >= b.score ? a : b; })); } }, style: { background: "#1a1d25", borderRadius: 8, padding: "7px 11px", cursor: "pointer" } },
                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } }, r),
                         React.createElement("div", { style: { fontSize: 16, fontFamily: "'Bebas Neue',sans-serif", color: "#f5d800" } }, best)));
                 })),
