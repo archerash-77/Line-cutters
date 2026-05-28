@@ -1218,9 +1218,12 @@ function ArcheryScorer() {
                         React.createElement("button", { onClick: function () { return setShowProfile(true); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
                                 border: "none", borderRadius: 12, cursor: "pointer",
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "PROFILE"),
-                        React.createElement("button", { onClick: function () { return setScreen("tools"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
+                        React.createElement("button", { onClick: function () { return setScreen("sightcalc"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
                                 border: "none", borderRadius: 12, cursor: "pointer",
-                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "TOOLS")))),
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "SIGHT MARK CALCULATOR"),
+                                React.createElement("button", { onClick: function () { return setScreen("handicap"); }, style: { width: "100%", padding: "18px", background: "#1a1d25", color: "#e8e8e0",
+                                border: "none", borderRadius: 12, cursor: "pointer",
+                                fontFamily: "'Bebas Neue',sans-serif", fontSize: 24, letterSpacing: 4 } }, "HANDICAP CALCULATOR")))),
                 homeStep === "env" && (React.createElement("div", null,
                     React.createElement("div", { style: { display: "flex", alignItems: "center", marginBottom: 24, marginTop: 8 } },
                         React.createElement("button", { onClick: function () { return setHomeStep("main"); }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 8px 4px 0", color: "#e8e8e0" } },
@@ -1625,7 +1628,7 @@ function ArcheryScorer() {
                                         setEditingNotes(false);
                                     }, style: { flex: 2, padding: "8px", background: "#f5d800", border: "none", borderRadius: 8, color: "#0f1117", cursor: "pointer", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 2 } }, "SAVE NOTES")))) : (React.createElement("div", { style: { fontSize: 15, color: h.notes ? "#e8e8e0" : "#333", fontStyle: h.notes ? "normal" : "italic", lineHeight: 1.6 } }, h.notes || "No notes recorded.")))));
             })(),
-            screen === "tools" && (function () {
+            screen === "sightcalc" && (function () {
                 var IMPERIAL_DISTS = [15, 20, 25, 30, 40, 50, 60, 80, 100];
                 var METRIC_DISTS = [10, 15, 18, 20, 25, 30, 40, 50, 60, 70, 90];
                 function toMetres(val, unit) { return unit === "yds" ? val * 0.9144 : val; }
@@ -1707,7 +1710,17 @@ function ArcheryScorer() {
                                             " m"),
                                         React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, color: "#f5d800" } }, mark.toFixed(1))));
                                 })))),
-                        !hasTwo && (sightEst.m1 || sightEst.m2) && (React.createElement("div", { style: { textAlign: "center", color: "#e8e8e0", fontSize: 15, marginTop: 12, fontStyle: "italic" } }, "Enter both marks to see estimates")),
+                        !hasTwo && (sightEst.m1 || sightEst.m2) && (React.createElement("div", { style: { textAlign: "center", color: "#e8e8e0", fontSize: 15, marginTop: 12, fontStyle: "italic" } }, "Enter both marks to see estimates"))
+                    )))
+                })(),
+            screen === "handicap" && (function () {
+                return (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
+                    React.createElement("button", { onClick: function () { return setScreen("home"); }, style: { background: "none", border: "none", color: "#f5d800", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 15, padding: '6px 0', marginBottom: 12, display: "flex", alignItems: "center", gap: 6 } },
+                        React.createElement("svg", { width: "20", height: "20", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round" },
+                            React.createElement("polyline", { points: "15 18 9 12 15 6" })),
+                        "HOME"),
+                    React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, letterSpacing: 3, color: "#e8e8e0", marginBottom: 20 } }, "HANDICAP CALCULATOR"),
+                    React.createElement("div", { style: { height: 1, background: "#2a2d38", margin: "24px 0" } }),
                         React.createElement("div", { style: { background: "#1a1d25", borderRadius: 12, padding: "18px 16px", marginBottom: 16 } },
                             React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 2, color: "#f5d800", marginBottom: 4 } }, "HANDICAP CALCULATOR"),
                             React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginBottom: 16 } }, "Enter a round and score to find your handicap (2023 AGB system, 0\u2013150, lower is better)"),
@@ -1715,12 +1728,6 @@ function ArcheryScorer() {
                                 var hc = hcRound && hcScore ? calcHandicap(hcRound, parseFloat(hcScore)) : null;
                                 var roundNames = Object.keys(ROUNDS).sort();
                                 return (React.createElement("div", null,
-                                    React.createElement("div", { style: { marginBottom: 12 } },
-                                        React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginBottom: 6 } }, "BOW STYLE"),
-                                        React.createElement("div", { style: { display: "flex", gap: 6 } }, ["Recurve", "Compound", "Barebow", "Longbow"].map(function (b) { return (React.createElement("button", { key: b, onClick: function () { return setHcBow(b); }, style: { flex: 1, padding: "10px 4px", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 15,
-                                                fontFamily: "'Roboto',sans-serif", fontSize: 15, fontWeight: "600",
-                                                background: hcBow === b ? "#f5d800" : "#141720",
-                                                color: hcBow === b ? "#0f1117" : "#888" } }, b)); }))),
                                     React.createElement("div", { style: { marginBottom: 12 } },
                                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginBottom: 6 } }, "ROUND"),
                                         React.createElement("select", { value: hcRound, onChange: function (e) { return setHcRound(e.target.value); }, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8,
@@ -1736,11 +1743,9 @@ function ArcheryScorer() {
                                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 6 } }, "YOUR HANDICAP"),
                                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 52, color: "#f5d800", lineHeight: 1 } }, hc),
                                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginTop: 6 } },
-                                            hcBow,
-                                            " \u2022 ",
                                             hc <= 20 ? "Elite" : hc <= 40 ? "Advanced" : hc <= 60 ? "Intermediate" : hc <= 80 ? "Developing" : "Beginner"))),
                                     hcRound && hcScore && hc === null && (React.createElement("div", { style: { textAlign: "center", color: "#e8e8e0", fontSize: 15, fontStyle: "italic" } }, "Score out of range for this round"))));
-                            })()))));
+                            })())));
             })(),
             screen === "sights" && !activeSetup && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease", display: "flex", flexDirection: "column", height: "100%" } },
                 React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 28, letterSpacing: 3, color: "#e8e8e0", marginBottom: 20 } }, "MY SETUPS"),
