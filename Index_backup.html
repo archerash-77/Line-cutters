@@ -931,7 +931,11 @@ function ArcheryScorer() {
         m1: "", d1: "", u1: "m",
         m2: "", d2: "", u2: "m",
     }), sightEst = _13[0], setSightEst = _13[1]; // {endIndex, arrows, source: "live"|"history", historyId}
-    function addArrow(val) {
+   var scorecardRef = useRef(null);
+useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTop = scorecardRef.current.scrollHeight; } }, [ends]);
+ function addArrow(val) {
+        
+
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
         var newEnd = __spreadArray(__spreadArray([], currentEnd, true), [val], false);
@@ -1379,7 +1383,8 @@ function ArcheryScorer() {
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3, cursor: "pointer" } }, "CONTINUE SHOOTING")))),
                 ends.length > 0 && (React.createElement("div", null,
                     React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 6 } }, "SCORECARD"),
-                    React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, (function () {
+                    React.createElement("div", { ref: scorecardRef, style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden", maxHeight: "228px", overflowY: "auto" } }, (function () {
+
                         var rows = [];
                         if (distances) {
                             distances.forEach(function (dist, di) {
