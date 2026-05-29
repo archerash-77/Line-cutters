@@ -931,6 +931,8 @@ function ArcheryScorer() {
         m1: "", d1: "", u1: "m",
         m2: "", d2: "", u2: "m",
     }), sightEst = _13[0], setSightEst = _13[1]; // {endIndex, arrows, source: "live"|"history", historyId}
+    var scorecardRef = useRef(null);
+
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
             return;
