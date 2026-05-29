@@ -1273,7 +1273,7 @@ function ArcheryScorer() {
                         React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); })))))),
-            screen === "scoring" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
+            { animation: "fadeUp 0.2s ease", display: "flex", flexDirection: "column", height: "calc(100vh - 140px)" }
                 React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
                         React.createElement("button", { onClick: function () { return setScreen("home"); }, style: { background: "none", border: "none", color: "#e8e8e0", cursor: "pointer",
@@ -1303,7 +1303,8 @@ function ArcheryScorer() {
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#f5d800", lineHeight: 1 } }, value),
                         sub && React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginTop: 3 } }, sub)));
                 })),
-                React.createElement("div", { style: { marginBottom: 10 } },
+                React.createElement("div", { style: { flexShrink: 0, borderTop: "1px solid #1a1d25", paddingTop: 10, background: "#0f1117" } },
+React.createElement("div", { style: { marginBottom: 10 } },
                     React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 7 } },
                         "CURRENT END \u2014 ",
                         currentEnd.length,
@@ -1341,7 +1342,9 @@ function ArcheryScorer() {
                                     setShowFinish(false);
                                 } });
                         }, style: { flex: 2, height: 48, background: "#1a1d25", color: "#e05555", fontSize: 15, letterSpacing: 1 } }, "ABANDON ROUND")),
-                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
+                                   ),
+
+            inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
                 showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
                     React.createElement("div", { style: { background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 } },
                         React.createElement("div", { style: { fontSize: 15, color: "#4caf70", letterSpacing: 2, marginBottom: 6 } }, "DISTANCE CHANGE"),
@@ -1377,7 +1380,7 @@ function ArcheryScorer() {
                                     React.createElement("div", { style: { fontSize: 15, fontWeight: 500, fontFamily: "'Roboto',sans-serif", color: m.distance === sightModalDist.label ? "#f5d800" : "#e8e8e0" } }, m.setting))); })))))) : (React.createElement("div", { style: { marginBottom: 20, fontSize: 15, color: "#2a5a30", fontStyle: "italic" } }, "Select a setup on the home screen to see sight marks here.")),
                         React.createElement("button", { onClick: function () { return setShowSightModal(false); }, style: { width: "100%", padding: 14, background: "#f5d800", color: "#0f1117", border: "none", borderRadius: 10,
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3, cursor: "pointer" } }, "CONTINUE SHOOTING")))),
-                ends.length > 0 && (React.createElement("div", null,
+                React.createElement("div", { style: { flex: 1, overflowY: "auto", minHeight: 0, marginBottom: 10 } },ends.length > 0 && (React.createElement("div", null,
                     React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 6 } }, "SCORECARD"),
                     React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, (function () {
                         var rows = [];
@@ -1437,7 +1440,7 @@ function ArcheryScorer() {
                                 React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, color: "#f5d800" } }, roundAvg)));
                         }
                         return rows;
-                    })()))),
+                    })())))),
                 showFinish && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.88)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 100 } },
                     React.createElement("div", { style: { background: "#1a1d25", borderRadius: 16, padding: 28, maxWidth: 320, width: "90%", textAlign: "center" } },
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 3, color: "#e8e8e0", marginBottom: 4 } }, "ROUND COMPLETE"),
