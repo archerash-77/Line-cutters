@@ -932,6 +932,7 @@ function ArcheryScorer() {
         m2: "", d2: "", u2: "m",
     }), sightEst = _13[0], setSightEst = _13[1]; // {endIndex, arrows, source: "live"|"history", historyId}
     var scorecardRef = useRef(null);
+useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTop = scorecardRef.current.scrollHeight; } }, [ends]);
 
     function addArrow(val) {
         if (currentEnd.length >= round.arrowsPerEnd)
@@ -1379,7 +1380,8 @@ function ArcheryScorer() {
                                     React.createElement("div", { style: { fontSize: 15, fontWeight: 500, fontFamily: "'Roboto',sans-serif", color: m.distance === sightModalDist.label ? "#f5d800" : "#e8e8e0" } }, m.setting))); })))))) : (React.createElement("div", { style: { marginBottom: 20, fontSize: 15, color: "#2a5a30", fontStyle: "italic" } }, "Select a setup on the home screen to see sight marks here.")),
                         React.createElement("button", { onClick: function () { return setShowSightModal(false); }, style: { width: "100%", padding: 14, background: "#f5d800", color: "#0f1117", border: "none", borderRadius: 10,
                                 fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3, cursor: "pointer" } }, "CONTINUE SHOOTING")))),
-                ends.length > 0 && (React.createElement("div", { style: { maxHeight: "228px", overflowY: "auto" } },
+                ends.length > 0 && (React.createElement("div", { ref: scorecardRef, style: { maxHeight: "228px", overflowY: "auto" } },
+
 
                     React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 6 } }, "SCORECARD"),
                     React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden" } }, (function () {
