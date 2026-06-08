@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
+<meta charset="UTF-8"/> 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
@@ -19,7 +19,8 @@ body{background:#0f1117;overscroll-behavior:none;-webkit-tap-highlight-color:tra
 .abtn:active{transform:scale(0.90);}
 .abtn:disabled{opacity:0.3;cursor:default;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-#msg{position:fixed;top:0;left:0;right:0;padding:20px;color:#f5d800;font-family:'Roboto',sans-serif;font-size:15px;background:#0f1117;z-index:9999;}
+#msg{position:fixed;top:0;left:0;right:0;padding:20px;color:#f5d800;font-family:'Roboto',sans-serif;font-size:15px;background:#0f1117;z-index:9999;} 
+   :root{color-scheme:only light;} 
 </style>
 </head>
 <body>
@@ -1054,7 +1055,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
         setShowSightModal(false);
         setSightModalDist(null);
         setPickingSetup(false);
-        setScreen("scoring");
+        setScreen("scoring");setInputMode("buttons");
+
     }
     function pickSetup(roundName) {
         setSelectedRound(roundName);
@@ -1277,8 +1279,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                         React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); })))))),
-            screen === "scoring" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } },
-                React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } },
+            screen === "scoring" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease", overflowY: "auto", height: "100vh" } },
+                React.createElement("div", { style: { display:  "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
                         React.createElement("button", { onClick: function () { return setScreen("home"); }, style: { background: "none", border: "none", color: "#e8e8e0", cursor: "pointer",
                                 fontFamily: "'Roboto',sans-serif", fontSize: 15, padding: 0 } }, "\u2190 MENU"),
@@ -1287,7 +1289,7 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                             background: isImperial ? "#2a1800" : "#001828",
                             color: isImperial ? "#c8862a" : "#4ab3f4",
                             border: "1px solid ".concat(isImperial ? "#5a3a00" : "#0a3a5a") } }, isWorcester ? "WORCESTER 5-ZONE" : isImperial ? "5-ZONE IMPERIAL" : "10-ZONE METRIC")),
-                React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 14 } }, [
+                React.createElement("div", { style: { display:  "flex", gap: 6, marginBottom: 14 } }, [
                     { label: "TOTAL", value: totalScore, sub: "/ ".concat(maxScore) },
                     { label: "BEST POSS", value: livePossible, sub: "if perfect" },
                     { label: "END ".concat(Math.min(endNumber, round.ends)), value: currentEndScore, sub: "".concat(round.arrowsPerEnd - currentEnd.length, " left") },
@@ -1307,7 +1309,7 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#f5d800", lineHeight: 1 } }, value),
                         sub && React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginTop: 3 } }, sub)));
                 })),
-                React.createElement("div", { style: { marginBottom: 10 } },
+                React.createElement("div", { style: { marginBottom: 10, display: inputMode === "target" ? "none" : "block" } },
                     React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 7 } },
                         "CURRENT END \u2014 ",
                         currentEnd.length,
@@ -1325,12 +1327,12 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                                 transition: "background 0.12s",
                             } }, v || ""));
                     }))),
-                React.createElement("div", { style: { display: "flex", gap: 6, marginBottom: 10 } }, [["buttons", "NUMBERS"], ["target", "TARGET"]].map(function (_a) {
+                React.createElement("div", { style: { display: inputMode === "target" ? "none" : "flex", gap: 6, marginBottom: 10 } }, [["buttons", "NUMBERS"], ["target", "TARGET FACE"]].map(function (_a) {
                     var mode = _a[0], label = _a[1];
                     return (React.createElement("button", { key: mode, onClick: function () { return setInputMode(mode); }, style: { flex: 1, padding: "8px", border: "none", borderRadius: 8, cursor: "pointer",
                             fontFamily: "'Roboto',sans-serif", fontSize: 15,
                             background: inputMode === mode ? "#f5d800" : "#1a1d25",
-                            color: inputMode === mode ? "#0f1117" : "#555" } }, label));
+                            color: inputMode === mode ? "#0f1117" : "#f5d800" } }, label));
                 })),
                 inputMode === "buttons" && (React.createElement("div", { style: { display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 5, marginBottom: 10 } }, arrowVals.map(function (v) { return (React.createElement("button", { key: v, className: "abtn", onClick: function () { return addArrow(v); }, disabled: currentEnd.length >= round.arrowsPerEnd, style: { height: 46, background: arrowBg(v, isImperial), color: arrowText(v, isImperial) } }, v)); }))),
                 React.createElement("div", { style: { display: "flex", gap: 8, marginBottom: 12 } },
@@ -1345,7 +1347,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                                     setShowFinish(false);
                                 } });
                         }, style: { flex: 2, height: 48, background: "#1a1d25", color: "#e05555", fontSize: 15, letterSpacing: 1 } }, "ABANDON ROUND")),
-                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
+                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),React.createElement("button", { onClick: function() { setInputMode("buttons"); }, style: { width: "100%", padding: "10px", marginTop: 8, background: "#1a1d25", border: "1px solid #2a2d38", borderRadius: 8, color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2, cursor: "pointer" } }, "USE NUMBER INPUT"),
+
                 showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
                     React.createElement("div", { style: { background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 } },
                         React.createElement("div", { style: { fontSize: 15, color: "#4caf70", letterSpacing: 2, marginBottom: 6 } }, "DISTANCE CHANGE"),
@@ -1457,8 +1460,9 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                         React.createElement("div", { style: { color: "#ffd700", fontSize: 15, marginBottom: 16 } }, isImperial ? "".concat(goldCount, " Gold").concat(goldCount !== 1 ? "s" : "") : "".concat(xCount, " X  |  ").concat(tenCount, " Tens")),
                         personalBest > 0 && totalScore > personalBest && (React.createElement("div", { style: { background: "#f5d800", color: "#0f1117", borderRadius: 8, padding: "8px 12px", marginBottom: 14, fontSize: 15, fontWeight: 500 } }, "\uD83C\uDFF9 NEW PERSONAL BEST!")),
                         React.createElement("textarea", { value: finishNotes, onChange: function (e) { return setFinishNotes(e.target.value); }, placeholder: "Add notes\u2026 weather, equipment, how it felt", rows: 3, style: { width: "100%", background: "#0f1117", border: "1px solid #2a2d38", borderRadius: 8, padding: "10px 12px", color: "#e8e8e0", fontFamily: "'Roboto',sans-serif", fontSize: 15, resize: "none", marginBottom: 14, outline: "none" } }),
+                                        React.createElement("button", { onClick: function() { var subject = encodeURIComponent("Line Cutters - " + activeRound + " - " + totalScore + "/" + maxScore); var body = encodeURIComponent("Round: " + activeRound + "\nDate: " + new Date().toLocaleDateString("en-GB") + "\nScore: " + totalScore + "/" + maxScore + "\nAverage: " + (totalScore/(ends.flat().length||1)).toFixed(2) + " per arrow\n" + (isImperial ? "Golds: " + goldCount : "Xs: " + xCount + " | Tens: " + tenCount) + "\n\n" + ends.map(function(end,i){return "E"+(i+1)+": "+end.join(" ")+" - "+end.reduce(function(s,v){return s+arrowToScore(v);},0);}).join("\n")); window.location.href = "mailto:?subject=" + subject + "&body=" + body; }, style: { width: "100%", padding: 14, marginBottom: 8, background: "#1a1d25", border: "1px solid #2a2d38", borderRadius: 8, color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 2, cursor: "pointer" } }, "EMAIL SCORECARD"),
                         React.createElement("button", { onClick: finishRound, style: { width: "100%", padding: 14, background: "#f5d800", color: "#0f1117", border: "none", borderRadius: 8, fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 2, cursor: "pointer" } }, "SAVE & FINISH")))))),
-            screen === "history" && !viewingRound && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } }, history.length === 0 ? (React.createElement("div", { style: { textAlign: "center", color: "#e8e8e0", marginTop: 60 } },
+                             screen === "history" && !viewingRound && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease" } }, history.length === 0 ? (React.createElement("div", { style: { textAlign: "center", color: "#e8e8e0", marginTop: 60 } },
                 React.createElement("div", { style: { fontSize: 38, marginBottom: 10 } }, "\uD83C\uDFF9"),
                 React.createElement("div", { style: { fontSize: 15 } }, "No rounds scored yet."))) : (React.createElement(React.Fragment, null,
                 React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 8 } }, "PERSONAL BESTS"),
@@ -1630,7 +1634,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                         }
                         return rows;
                     })()),
-                    React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginTop: 16, marginBottom: 16 } },
+                   React.createElement("button", { onClick: function() { var subject = encodeURIComponent("Line Cutters - " + h.round + " - " + h.score + "/" + h.maxPossible); var body = encodeURIComponent("Round: " + h.round + "\nDate: " + h.date + "\nScore: " + h.score + "/" + h.maxPossible + "\nAverage: " + (h.score/(h.ends.flat().length||1)).toFixed(2) + " per arrow\n" + (h.imperial ? "Golds: " + (h.golds||0) : "Xs: " + (h.xs||0) + " | Tens: " + (h.tens||0)) + "\n\n" + (h.ends||[]).map(function(end,i){return "E"+(i+1)+": "+end.join(" ")+" - "+end.reduce(function(s,v){return s+arrowToScore(v);},0);}).join("\n")); window.location.href = "mailto:?subject=" + subject + "&body=" + body; }, style: { width: "100%", padding: 14, marginBottom: 12, background: "#1a1d25", border: "1px solid #2a2d38", borderRadius: 8, color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 18, letterSpacing: 2, cursor: "pointer" } }, "EMAIL SCORECARD"),
+          React.createElement("div", { style: { background: "#1a1d25", borderRadius: 10, padding: "12px 14px", marginTop: 16, marginBottom: 16 } },
                         React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 } },
                             React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5 } }, "NOTES"),
                             !editingNotes && (React.createElement("button", { onClick: function () { setDraftNotes(h.notes || ""); setEditingNotes(true); }, style: { background: "none", border: "none", color: "#f5d800", cursor: "pointer", fontFamily: "'Roboto',sans-serif", fontSize: 15, padding: "4px 8px" } }, h.notes ? "EDIT" : "+ ADD"))),
