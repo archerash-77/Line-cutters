@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -934,6 +935,9 @@ function ArcheryScorer() {
     }), sightEst = _13[0], setSightEst = _13[1]; // {endIndex, arrows, source: "live"|"history", historyId}
    var scorecardRef = useRef(null);
 useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTop = scorecardRef.current.scrollHeight; } }, [ends]);
+   useEffect(function() { try { var ip = JSON.parse(localStorage.getItem("archery_in_progress")); if (ip && ip.inProgress) { var ipInHistory = history.find(function(h) { return h.id === ip.id; }); if (!ipInHistory) { setHistory(function(prev) { return [ip].concat(prev); }); } } } catch(e) {} }, []); useEffect(function() { if (ends.length > 0 && screen === "scoring") saveInProgress(); }, [ends]);
+
+
  function addArrow(val) {
         
 
@@ -949,6 +953,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                 var sorted = __spreadArray([], newEnd, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); });
                 var newEnds = __spreadArray(__spreadArray([], ends, true), [sorted], false);
                 setEnds(newEnds);
+         
+
                 setCurrentEnd([]);
                 if (newEnds.length === round.ends) {
                     setShowFinish(true);
@@ -1019,6 +1025,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
             setShowFinish(true);
     }
     function finishRound() {
+    try { localStorage.removeItem("archery_in_progress"); } catch(e) {}
+
         var score = ends.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
         var entry = {
             id: Date.now(),
@@ -1036,9 +1044,10 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
             hitPositions: hitPositions,
             bowType: (scoringSetup === null || scoringSetup === void 0 ? void 0 : scoringSetup.bowType) || null,
         };
-        var newHistory = __spreadArray([entry], history, true);
-        setHistory(newHistory);
-        saveHistory(newHistory);
+        var newHistory = __spreadArray([entry], history.filter(function(h) { return h.id !== "in_progress_" + activeRound; }), true);
+setHistory(newHistory);
+saveHistory(newHistory);
+
         setEnds([]);
         setCurrentEnd([]);
         setHitPositions([]);
@@ -1058,6 +1067,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
         setScreen("scoring");setInputMode("buttons");
 
     }
+   function saveInProgress() { var inProgress = { id: "in_progress_" + activeRound, round: activeRound, imperial: isImperial, score: ends.flat().reduce(function(s,v){return s+arrowToScore(v);},0), maxPossible: maxRoundScore(activeRound), xs: ends.flat().filter(function(v){return v==="X";}).length, tens: ends.flat().filter(function(v){return v==="10";}).length, golds: ends.flat().filter(function(v){return v==="9";}).length, hits: ends.flat().filter(function(v){return v!=="M";}).length, date: new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}), ends: ends, hitPositions: hitPositions, scoringSetupId: scoringSetupId, inProgress: true, endsComplete: ends.length, totalEnds: round.ends }; try { localStorage.setItem("archery_in_progress", JSON.stringify(inProgress)); } catch(e) {} }
+
     function pickSetup(roundName) {
         setSelectedRound(roundName);
         setPickingSetup(true);
@@ -1495,7 +1506,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                     var _a;
                     var isPB = historyFilter && h.score === history.filter(function(x){return x.round===historyFilter;}).reduce(function(m,x){return Math.max(m,x.score);},0);
                     return (React.createElement("div", { key: h.id, onClick: function () { return setViewingRound(h); }, style: { background: "#1a1d25", borderRadius: 10, padding: 0, marginBottom: 7, display: "flex", flexDirection: "column", alignItems: "stretch", cursor: "pointer", border: isPB ? "2px solid #f5d800" : "2px solid transparent", overflow: "hidden" } },
-                        isPB && React.createElement("div", { style: { background: "#f5d800", color: "#0f1117", textAlign: "center", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 3, padding: "4px 0" } }, "PERSONAL BEST"),
+                      h.inProgress && React.createElement("div", { style: { background: "#c43030", color: "#fff", textAlign: "center", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 3, padding: "4px 0" } }, "IN PROGRESS — " + (h.endsComplete || 0) + "/" + (h.totalEnds || 0) + " ENDS"),
+  isPB && React.createElement("div", { style: { background: "#f5d800", color: "#0f1117", textAlign: "center", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 3, padding: "4px 0" } }, "PERSONAL BEST"),
                         React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10, padding: "12px 14px" } },
                         React.createElement("div", { style: { flex: 1 } },
                             React.createElement("div", { style: { fontSize: 16, fontWeight: "600", fontFamily: "'Roboto',sans-serif", marginBottom: 4, color: "#e8e8e0" } }, h.round),
@@ -1531,7 +1543,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                                     } });
                             }, style: { background: "none", border: "none", cursor: "pointer", padding: "4px 0 4px 8px",
                                 fontFamily: "'Roboto',sans-serif", fontSize: 15, color: "#c43030" } }, "DELETE")),
-                    React.createElement("div", { style: { height: 56 } }),
+                    React.createElement("div", { style: { height: 56 } }), h.inProgress && React.createElement("button", { onClick: function() { setSelectedRound(h.round); setEnds(h.ends || []); setHitPositions(h.hitPositions || []); setScoringSetupId(h.scoringSetupId || null); setScreen("scoring"); setInputMode("buttons"); setViewingRound(null); try { localStorage.removeItem("archery_in_progress"); } catch(e) {} }, style: { width: "100%", padding: 14, marginBottom: 12, background: "#c43030", border: "none", borderRadius: 8, color: "#fff", fontFamily: "'Bebas Neue',sans-serif", fontSize: 20, letterSpacing: 3, cursor: "pointer" } }, "RESUME ROUND — " + (h.endsComplete || 0) + "/" + (h.totalEnds || 0) + " ENDS COMPLETE"),
+
                     React.createElement("div", { style: { marginBottom: 16 } },
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 22, letterSpacing: 2 } }, h.round),
                         React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0" } },
