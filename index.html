@@ -1044,9 +1044,10 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
             hitPositions: hitPositions,
             bowType: (scoringSetup === null || scoringSetup === void 0 ? void 0 : scoringSetup.bowType) || null,
         };
-        var newHistory = __spreadArray([entry], history, true);
-        setHistory(newHistory);
-        saveHistory(newHistory);
+        var newHistory = __spreadArray([entry], history.filter(function(h) { return h.id !== "in_progress_" + activeRound; }), true);
+setHistory(newHistory);
+saveHistory(newHistory);
+
         setEnds([]);
         setCurrentEnd([]);
         setHitPositions([]);
