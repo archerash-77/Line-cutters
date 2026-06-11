@@ -1025,6 +1025,8 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
             setShowFinish(true);
     }
     function finishRound() {
+    try { localStorage.removeItem("archery_in_progress"); } catch(e) {}
+
         var score = ends.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
         var entry = {
             id: Date.now(),
