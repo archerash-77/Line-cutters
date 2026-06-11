@@ -935,7 +935,8 @@ function ArcheryScorer() {
     }), sightEst = _13[0], setSightEst = _13[1]; // {endIndex, arrows, source: "live"|"history", historyId}
    var scorecardRef = useRef(null);
 useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTop = scorecardRef.current.scrollHeight; } }, [ends]);
-   useEffect(function() { try { var ip = JSON.parse(localStorage.getItem("archery_in_progress")); if (ip && ip.inProgress) { var ipInHistory = history.find(function(h) { return h.id === ip.id; }); if (!ipInHistory) { setHistory(function(prev) { return [ip].concat(prev); }); } } } catch(e) {} }, []);
+   useEffect(function() { try { var ip = JSON.parse(localStorage.getItem("archery_in_progress")); if (ip && ip.inProgress) { var ipInHistory = history.find(function(h) { return h.id === ip.id; }); if (!ipInHistory) { setHistory(function(prev) { return [ip].concat(prev); }); } } } catch(e) {} }, []); useEffect(function() { if (ends.length > 0 && screen === "scoring") saveInProgress(); }, [ends]);
+
 
  function addArrow(val) {
         
@@ -952,7 +953,7 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                 var sorted = __spreadArray([], newEnd, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); });
                 var newEnds = __spreadArray(__spreadArray([], ends, true), [sorted], false);
                 setEnds(newEnds);
-               saveInProgress();
+         
 
                 setCurrentEnd([]);
                 if (newEnds.length === round.ends) {
