@@ -21,7 +21,9 @@ body{background:#0f1117;overscroll-behavior:none;-webkit-tap-highlight-color:tra
 .abtn:disabled{opacity:0.3;cursor:default;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 #msg{position:fixed;top:0;left:0;right:0;padding:20px;color:#f5d800;font-family:'Roboto',sans-serif;font-size:15px;background:#0f1117;z-index:9999;} 
-   :root{color-scheme:only light;} 
+:root{color-scheme:only light;}
+
+ 
 </style>
 </head>
 <body>
@@ -1504,7 +1506,7 @@ saveHistory(newHistory);
                     return 0;
                 }).map(function (h) {
                     var _a;
-                    var isPB = historyFilter && h.score === history.filter(function(x){return x.round===historyFilter;}).reduce(function(m,x){return Math.max(m,x.score);},0);
+                    var isPB = h.score > 0 && h.score === history.filter(function(x){return x.round===h.round;}).reduce(function(m,x){return Math.max(m,x.score);},0);
                     return (React.createElement("div", { key: h.id, onClick: function () { return setViewingRound(h); }, style: { background: "#1a1d25", borderRadius: 10, padding: 0, marginBottom: 7, display: "flex", flexDirection: "column", alignItems: "stretch", cursor: "pointer", border: isPB ? "2px solid #f5d800" : "2px solid transparent", overflow: "hidden" } },
                       h.inProgress && React.createElement("div", { style: { background: "#c43030", color: "#fff", textAlign: "center", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 3, padding: "4px 0" } }, "IN PROGRESS — " + (h.endsComplete || 0) + "/" + (h.totalEnds || 0) + " ENDS"),
   isPB && React.createElement("div", { style: { background: "#f5d800", color: "#0f1117", textAlign: "center", fontFamily: "'Bebas Neue',sans-serif", fontSize: 15, letterSpacing: 3, padding: "4px 0" } }, "PERSONAL BEST"),
