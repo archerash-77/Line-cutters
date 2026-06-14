@@ -1110,7 +1110,7 @@ saveHistory(newHistory);
                     var st = endStats(end);
                     distHits += st.hits; distGolds += st.golds; distXs += st.xs; distTens += st.tens; distFives += st.fives;
                     var runningTotal = endsArr.slice(0, idx + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
-                    lines.push("E" + (idx + 1) + ": " + end.join(" ") + "   ET " + st.total + "   RT " + runningTotal);
+                    lines.push("E" + (idx + 1) + ":  " + end.join(" ") + "      ET " + String(st.total).padStart(3," ") + "      RT " + String(runningTotal).padStart(3," "));
                 }
                 grandHits += distHits; grandGolds += distGolds; grandXs += distXs; grandTens += distTens; grandFives += distFives;
                 var statLine = d.label + " total - Hits " + distHits + " | ";
@@ -1126,7 +1126,7 @@ saveHistory(newHistory);
             endsArr.forEach(function (end, i) {
                 var st = endStats(end);
                 var runningTotal = endsArr.slice(0, i + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
-                lines.push("E" + (i + 1) + ": " + end.join(" ") + "   ET " + st.total + "   RT " + runningTotal);
+               lines.push("E" + (i + 1) + ":  " + end.join(" ") + "      ET " + String(st.total).padStart(3," ") + "      RT " + String(runningTotal).padStart(3," "));
                 grandHits += st.hits; grandGolds += st.golds; grandXs += st.xs; grandTens += st.tens; grandFives += st.fives;
             });
             lines.push("");
