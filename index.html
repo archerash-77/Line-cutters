@@ -1071,6 +1071,77 @@ saveHistory(newHistory);
     }
    function saveInProgress() { var inProgress = { id: "in_progress_" + activeRound, round: activeRound, imperial: isImperial, score: ends.flat().reduce(function(s,v){return s+arrowToScore(v);},0), maxPossible: maxRoundScore(activeRound), xs: ends.flat().filter(function(v){return v==="X";}).length, tens: ends.flat().filter(function(v){return v==="10";}).length, golds: ends.flat().filter(function(v){return v==="9";}).length, hits: ends.flat().filter(function(v){return v!=="M";}).length, date: new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}), ends: ends, hitPositions: hitPositions, scoringSetupId: scoringSetupId, inProgress: true, endsComplete: ends.length, totalEnds: round.ends }; try { localStorage.setItem("archery_in_progress", JSON.stringify(inProgress)); } catch(e) {} }
 
+   function buildScorecardBody(roundName, dateStr, score, maxPossible, endsArr, imp, isWorc, bowTypeUsed) {
+        var roundDef = ROUNDS[roundName];
+        var ape = roundDef.arrowsPerEnd;
+        var dists = roundDef.distances;
+        var lines = [];
+        lines.push("LINE CUTTERS SCORECARD");
+        lines.push("");
+        if (profile && profile.name) lines.push("Name: " + profile.name);
+        lines.push("Round: " + roundName);
+        lines.push("Date: " + dateStr);
+        if (profile && profile.ageCategory) lines.push("Age Group: " + profile.ageCategory);
+        if (bowTypeUsed) lines.push("Bow Type: " + bowTypeUsed);
+        lines.push("");
+        var grandHits = 0, grandGolds = 0, grandXs = 0, grandTens = 0, grandFives = 0;
+        function endStats(end) {
+            return {
+                total: end.reduce(function (s, v) { return s + arrowToScore(v); }, 0),
+                hits: end.filter(function (v) { return v !== "M"; }).length,
+                golds: end.filter(function (v) { return v === "9"; }).length,
+                xs: end.filter(function (v) { return v === "X"; }).length,
+                tens: end.filter(function (v) { return v === "10"; }).length,
+                fives: end.filter(function (v) { return v === "5"; }).length,
+            };
+        }
+        function dozStr(n) {
+            var d = n / 12;
+            return (d % 1 === 0) ? String(d) : d.toFixed(1);
+        }
+        if (dists) {
+            var idx = 0;
+            dists.forEach(function (d) {
+                lines.push(d.label.toUpperCase());
+                var distHits = 0, distGolds = 0, distXs = 0, distTens = 0, distFives = 0;
+                for (var e = 0; e < d.ends; e++, idx++) {
+                    var end = endsArr[idx];
+                    if (!end) continue;
+                    var st = endStats(end);
+                    distHits += st.hits; distGolds += st.golds; distXs += st.xs; distTens += st.tens; distFives += st.fives;
+                    var runningTotal = endsArr.slice(0, idx + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                    lines.push("E" + (idx + 1) + ": " + end.join(" ") + "   ET " + st.total + "   RT " + runningTotal);
+                }
+                grandHits += distHits; grandGolds += distGolds; grandXs += distXs; grandTens += distTens; grandFives += distFives;
+                var statLine = d.label + " total - Hits " + distHits + " | ";
+                if (isWorc) statLine += "5s " + distFives;
+                else if (imp) statLine += "Golds " + distGolds;
+                else statLine += "Xs " + distXs + " | 10s " + distTens;
+                statLine += " | Doz " + dozStr(d.ends * ape);
+                lines.push(statLine);
+                lines.push("");
+            });
+        }
+        else {
+            endsArr.forEach(function (end, i) {
+                var st = endStats(end);
+                var runningTotal = endsArr.slice(0, i + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                lines.push("E" + (i + 1) + ": " + end.join(" ") + "   ET " + st.total + "   RT " + runningTotal);
+                grandHits += st.hits; grandGolds += st.golds; grandXs += st.xs; grandTens += st.tens; grandFives += st.fives;
+            });
+            lines.push("");
+        }
+        lines.push("GRAND TOTAL: " + score + " / " + maxPossible);
+        var grandLine = "Hits " + grandHits + " | ";
+        if (isWorc) grandLine += "5s " + grandFives;
+        else if (imp) grandLine += "Golds " + grandGolds;
+        else grandLine += "Xs " + grandXs + " | 10s " + grandTens;
+        grandLine += " | Doz " + dozStr(endsArr.flat().length);
+        lines.push(grandLine);
+        lines.push("Average: " + (score / (endsArr.flat().length || 1)).toFixed(2) + " per arrow");
+        return lines.join("\n");
+    }
+
     function pickSetup(roundName) {
         setSelectedRound(roundName);
         setPickingSetup(true);
