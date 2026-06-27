@@ -1498,13 +1498,6 @@ saveHistory(newHistory);
                                         React.createElement("div", { style: { width: 44, textAlign: "right", fontSize: 15, color: "#e8e8e0" } }, runningTotal)));
                                 });
                              if (isDistComplete) {
-      if (isDistComplete) {
-                    var dAvg = (distScore(di) / distArrows(di)).toFixed(2);
-                    var dTotal = distScore(di);
-                    rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
-                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dist.label + " \u00b7 arrow avg " + dAvg),
-                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, "subtotal ", React.createElement("span", { style: { color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 16 } }, dTotal))));
-                }
                             });
                         }
                         else {
