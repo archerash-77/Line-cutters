@@ -383,7 +383,7 @@ function TargetFace(_a) {
     var VCX = VSIZE / 2;
     var VCY = VSIZE / 2;
     var VR = 500; // full target fills the square ? each ring = 50 units = 10% of radius
-    var SIZE = 300;
+    var SIZE = 220;
     // ?? Zone definitions ??????????????????????????????????????????????????????
     // Ring N outer boundary = (10-N+1) ? 0.1. So ring 1 outer=1.0, ring 9 outer=0.2, ring 10 outer=0.1.
     // Drawing: one filled circle per COLOUR CHANGE, drawn largest?smallest.
@@ -1361,9 +1361,8 @@ React.createElement("div", { style: { marginBottom: 10, display: inputMode === "
                                     setShowFinish(false);
                                 } });
                        }, style: { flex: 2, height: 48, background: "#1a1d25", color: "#e05555", fontSize: 15, letterSpacing: 1 } }, "ABANDON ROUND")),
-React.createElement(React.Fragment, null)),
-                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
-                showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
+inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
+React.createElement(React.Fragment, null)),  showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
                     React.createElement("div", { style: { background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 } },
                         React.createElement("div", { style: { fontSize: 15, color: "#4caf70", letterSpacing: 2, marginBottom: 6 } }, "DISTANCE CHANGE"),
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#e8e8e0", letterSpacing: 3, marginBottom: 20 } },
