@@ -1322,8 +1322,8 @@ saveHistory(newHistory);
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#f5d800", lineHeight: 1 } }, value),
                         sub && React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginTop: 3 } }, sub)));
                 })),
-                React.createElement("div", { style: { position: "fixed", bottom: 0, left: 0, right: 0, background: "#0f1117", borderTop: "1px solid #252830", padding: "10px 20px", zIndex: 80, maxWidth: 480, margin: "0 auto" } },
-React.createElement("div", { style: { marginBottom: 10, display: inputMode === "target" ? "none" : "block" } },
+                React.createElement("div", { style: { position: "fixed", bottom: 0, left: 0, right: 0, background: "#0f1117", borderTop: "1px solid #252830", padding: inputMode === "target" ? "0 20px" : "10px 20px", zIndex: 80, maxWidth: 480, margin: "0 auto" } },
+React.createElement("div", { style: { marginBottom: inputMode === "target" ? 0 : 10, display: inputMode === "target" ? "none" : "block" } },
                     React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 7 } },
                         "CURRENT END \u2014 ",
                         currentEnd.length,
@@ -1341,7 +1341,7 @@ React.createElement("div", { style: { marginBottom: 10, display: inputMode === "
                                 transition: "background 0.12s",
                             } }, v || ""));
                     }))),
-                React.createElement("div", { style: { display: inputMode === "target" ? "none" : "flex", gap: 6, marginBottom: 10 } }, [["buttons", "NUMBERS"], ["target", "TARGET FACE"]].map(function (_a) {
+                React.createElement("div", { style: { display: inputMode === "target" ? "none" : "flex", gap: 6, marginBottom: inputMode === "target" ? 0 : 10 } }, [["buttons", "NUMBERS"], ["target", "TARGET FACE"]].map(function (_a) {
                     var mode = _a[0], label = _a[1];
                     return (React.createElement("button", { key: mode, onClick: function () { return setInputMode(mode); }, style: { flex: 1, padding: "8px", border: "none", borderRadius: 8, cursor: "pointer",
                             fontFamily: "'Roboto',sans-serif", fontSize: 15,
