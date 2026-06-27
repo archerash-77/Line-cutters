@@ -1430,11 +1430,8 @@ saveHistory(newHistory);
                                     var dAvg = (distScore(di) / distArrows(di)).toFixed(2);
                                     rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
                                         React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } },
-                                            dist.label,
-                                            " total"),
-                                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } },
-                                            "avg ",
-                                            React.createElement("span", { style: { color: "#f5d800", fontSize: 15 } }, dAvg))));
+                                            dist.label + " \u00b7 arrow avg " + dAvg),
+                                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, "subtotal ", React.createElement("span", { style: { color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 16 } }, distScore(di)))));
                                 }
                             });
                         }
@@ -1621,9 +1618,8 @@ saveHistory(newHistory);
                                 if (distAvg) {
                                     rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
                                         React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } },
-                                            dist.label,
-                                            " avg"),
-                                        React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, color: "#f5d800" } }, distAvg)));
+                                            dist.label + " \u00b7 arrow avg " + distAvg),
+                                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, "subtotal ", React.createElement("span", { style: { color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 16 } }, distTotal))));
                                 }
                                 distStartIdx_1 += dist.ends;
                             });
