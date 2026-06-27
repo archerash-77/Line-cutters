@@ -1496,7 +1496,8 @@ saveHistory(newHistory);
                                         React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 500 } }, v)); })),
                                         React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 15, color: "#f5d800" } }, endTotal),
                                         React.createElement("div", { style: { width: 44, textAlign: "right", fontSize: 15, color: "#e8e8e0" } }, runningTotal)));
-                                });if (isDistComplete) {
+                                });
+                             if (isDistComplete) {
                                    
     var dAvg = (distScore(di) / distArrows(di)).toFixed(2);
     var dTotal = distScore(di);
