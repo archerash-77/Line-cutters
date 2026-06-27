@@ -1496,16 +1496,14 @@ saveHistory(newHistory);
                                         React.createElement("div", { style: { flex: 1, display: "flex", gap: 3, flexWrap: "wrap" } }, end.map(function (v, j) { return (React.createElement("div", { key: j, style: { width: 22, height: 22, borderRadius: 3, background: arrowBg(v, isImperial), color: arrowText(v, isImperial), display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 500 } }, v)); })),
                                         React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 15, color: "#f5d800" } }, endTotal),
                                         React.createElement("div", { style: { width: 44, textAlign: "right", fontSize: 15, color: "#e8e8e0" } }, runningTotal)));
-                                });
-                                if (isDistComplete) {
+                                });if (isDistComplete) {
                                     var dAvg = (distScore(di) / distArrows(di)).toFixed(2);
+                                    var dTotal = distScore(di);
                                     rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
-                                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } },
-                                            dist.label,
-                                            " total"),
-                                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } },
-                                            "avg ",
-                                            React.createElement("span", { style: { color: "#f5d800", fontSize: 15 } }, dAvg))));
+                                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dist.label),
+                                        React.createElement("span", { style: { display: "flex", gap: 10, alignItems: "center" } },
+                                            React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dTotal),
+                                            React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, color: "#f5d800" } }, dAvg))));
                                 }
                             });
                         }
@@ -1690,12 +1688,12 @@ saveHistory(newHistory);
                                     _loop_1(e);
                                 }
                                 if (distAvg) {
-                                    rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
-                                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } },
-                                            dist.label,
-                                            " avg"),
-                                        React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, color: "#f5d800" } }, distAvg)));
-                                }
+    rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
+        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dist.label),
+        React.createElement("span", { style: { display: "flex", gap: 10, alignItems: "center" } },
+            React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, distTotal),
+            React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, color: "#f5d800" } }, distAvg))));
+}
                                 distStartIdx_1 += dist.ends;
                             });
                         }
