@@ -1497,14 +1497,13 @@ saveHistory(newHistory);
                                         React.createElement("div", { style: { width: 26, textAlign: "right", fontSize: 15, color: "#f5d800" } }, endTotal),
                                         React.createElement("div", { style: { width: 44, textAlign: "right", fontSize: 15, color: "#e8e8e0" } }, runningTotal)));
                                 });if (isDistComplete) {
-                                    var dAvg = (distScore(di) / distArrows(di)).toFixed(2);
-                                    var dTotal = distScore(di);
-                                    rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
-                                        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dist.label),
-                                        React.createElement("span", { style: { display: "flex", gap: 10, alignItems: "center" } },
-                                            React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dTotal),
-                                            React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, color: "#f5d800" } }, dAvg))));
-                                }
+                                   
+    var dAvg = (distScore(di) / distArrows(di)).toFixed(2);
+    var dTotal = distScore(di);
+    rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
+        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dist.label + " \u00b7 arrow avg " + dAvg),
+        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, "subtotal ", React.createElement("span", { style: { color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 16 } }, dTotal))));
+}
                             });
                         }
                         else {
@@ -1687,15 +1686,11 @@ saveHistory(newHistory);
                                 for (var e = 0; e < dist.ends; e++, endIndex++) {
                                     _loop_1(e);
                                 }
-                                if (distAvg) {
+              if (distAvg) {
     rows.push(React.createElement("div", { key: "davg-".concat(di), style: { padding: "7px 12px", background: "#0f1117", display: "flex", justifyContent: "space-between", alignItems: "center" } },
-        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dist.label),
-        React.createElement("span", { style: { display: "flex", gap: 10, alignItems: "center" } },
-            React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, distTotal),
-            React.createElement("span", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, color: "#f5d800" } }, distAvg))));
+        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, dist.label + " \u00b7 arrow avg " + distAvg),
+        React.createElement("span", { style: { fontSize: 15, color: "#e8e8e0" } }, "subtotal ", React.createElement("span", { style: { color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 16 } }, distTotal))));
 }
-                                distStartIdx_1 += dist.ends;
-                            });
                         }
                         else {
                             (h.ends || []).forEach(function (end, i) {
