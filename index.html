@@ -1292,7 +1292,7 @@ saveHistory(newHistory);
                         React.createElement("svg", { width: "28", height: "28", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round" },
                             React.createElement("polyline", { points: "15 18 9 12 15 6" }))),
                     React.createElement("div", { style: { display: "flex", flexDirection: "column", gap: 6 } }, Object.keys(ROUND_GROUPS[selectedGroup]).map(function (r) { return renderRoundRow(r, favourites, history, selectedRound, setSelectedRound, toggleFavourite, pickSetup, maxRoundScore); })))))),
-            screen === "scoring" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease", overflowY: "auto", height: "100vh" } },
+             screen === "scoring" && (React.createElement("div", { style: { animation: "fadeUp 0.2s ease", overflowY: "auto", height: "100vh", paddingBottom: 320 } },
                 React.createElement("div", { style: { display:  "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 } },
                     React.createElement("div", { style: { display: "flex", alignItems: "center", gap: 10 } },
                         React.createElement("button", { onClick: function () { return setScreen("home"); }, style: { background: "none", border: "none", color: "#e8e8e0", cursor: "pointer",
@@ -1322,7 +1322,8 @@ saveHistory(newHistory);
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#f5d800", lineHeight: 1 } }, value),
                         sub && React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginTop: 3 } }, sub)));
                 })),
-                React.createElement("div", { style: { marginBottom: 10, display: inputMode === "target" ? "none" : "block" } },
+                React.createElement("div", { style: { position: "fixed", bottom: 0, left: 0, right: 0, background: "#0f1117", borderTop: "1px solid #252830", padding: "10px 20px", zIndex: 80, maxWidth: 480, margin: "0 auto" } },
+React.createElement("div", { style: { marginBottom: 10, display: inputMode === "target" ? "none" : "block" } },
                     React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 7 } },
                         "CURRENT END \u2014 ",
                         currentEnd.length,
@@ -1359,9 +1360,9 @@ saveHistory(newHistory);
                                     setPendingEnd(null);
                                     setShowFinish(false);
                                 } });
-                        }, style: { flex: 2, height: 48, background: "#1a1d25", color: "#e05555", fontSize: 15, letterSpacing: 1 } }, "ABANDON ROUND")),
-                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),React.createElement("button", { onClick: function() { setInputMode("buttons"); }, style: { width: "100%", padding: "10px", marginTop: 8, background: "#1a1d25", border: "1px solid #2a2d38", borderRadius: 8, color: "#f5d800", fontFamily: "'Bebas Neue',sans-serif", fontSize: 16, letterSpacing: 2, cursor: "pointer" } }, "USE NUMBER INPUT"),
-
+                       }, style: { flex: 2, height: 48, background: "#1a1d25", color: "#e05555", fontSize: 15, letterSpacing: 1 } }, "ABANDON ROUND")),
+React.createElement(React.Fragment, null)),
+                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
                 showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
                     React.createElement("div", { style: { background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 } },
                         React.createElement("div", { style: { fontSize: 15, color: "#4caf70", letterSpacing: 2, marginBottom: 6 } }, "DISTANCE CHANGE"),
