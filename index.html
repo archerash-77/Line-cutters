@@ -1007,6 +1007,20 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                 localStorage.setItem("archery_history", JSON.stringify(updated));
             }
             catch (_a) { }
+       setViewingRound(function(prev) {
+  if (!prev || prev.id !== historyId) return prev;
+  var e = prev.ends.map(function(x, i) {
+    return i === endIndex ? newArrows.slice().sort(function(a, b) {
+      return arrowToScore(b) - arrowToScore(a);
+    }) : x;
+  });
+  return __assign(__assign({}, prev), {
+    ends: e,
+    score: e.flat().reduce(function(s, v) {
+      return s + arrowToScore(v);
+    }, 0)
+  });
+});
         }
         else {
             // Edit in live scoring
