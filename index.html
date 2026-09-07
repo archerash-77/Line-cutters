@@ -1005,22 +1005,27 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
                     return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds, hits: newEnds ? newEnds.flat().filter(function (v) { return v !== "M"; }).length : h.hits });
                 });
                 localStorage.setItem("archery_history", JSON.stringify(updated));
-            }
+                        }
             catch (_a) { }
-       setViewingRound(function(prev) {
-  if (!prev || prev.id !== historyId) return prev;
-  var e = prev.ends.map(function(x, i) {
-    return i === endIndex ? newArrows.slice().sort(function(a, b) {
-      return arrowToScore(b) - arrowToScore(a);
-    }) : x;
-  });
-  return __assign(__assign({}, prev), {
-    ends: e,
-    score: e.flat().reduce(function(s, v) {
-      return s + arrowToScore(v);
-    }, 0)
-  });
-});
+
+            setViewingRound(function (prev) {
+                if (!prev || prev.id !== historyId)
+                    return prev;
+                var updatedEnds = prev.ends.map(function (e, i) {
+                    return i === endIndex
+                        ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); })
+                        : e;
+                });
+                var updatedScore = updatedEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
+                return __assign(__assign({}, prev), {
+                    ends: updatedEnds,
+                    score: updatedScore,
+                    xs: updatedEnds.flat().filter(function (v) { return v === "X"; }).length,
+                    tens: updatedEnds.flat().filter(function (v) { return v === "10"; }).length,
+                    golds: updatedEnds.flat().filter(function (v) { return v === "9"; }).length,
+                    hits: updatedEnds.flat().filter(function (v) { return v !== "M"; }).length
+                });
+            });
         }
         else {
             // Edit in live scoring
