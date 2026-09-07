@@ -986,55 +986,59 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
         setShowFinish(false);
     }
     function saveEditedEnd(endIndex, newArrows, historyId) {
-        if (historyId) {
-            // Edit in history
-            setHistory(function (prev) { return prev.map(function (h) {
+    if (historyId) {
+        var sorted = __spreadArray([], newArrows, true).sort(function (a, b) {
+            return arrowToScore(b) - arrowToScore(a);
+        });
+
+        setHistory(function (prev) {
+            var updated = prev.map(function (h) {
                 if (h.id !== historyId)
                     return h;
-                var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
-                var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
-                return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds });
-            }); });
-            // Also persist
-            try {
-                var updated = history.map(function (h) {
-                    if (h.id !== historyId)
-                        return h;
-                    var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
-                    var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
-                    return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds, hits: newEnds ? newEnds.flat().filter(function (v) { return v !== "M"; }).length : h.hits });
+
+                var newEnds = h.ends.map(function (e, i) {
+                    return i === endIndex ? sorted : e;
                 });
+
+                var newScore = newEnds.flat().reduce(function (s, v) {
+                    return s + arrowToScore(v);
+                }, 0);
+
+                var changed = __assign(__assign({}, h), {
+                    ends: newEnds,
+                    score: newScore,
+                    xs: newEnds.flat().filter(function (v) { return v === "X"; }).length,
+                    tens: newEnds.flat().filter(function (v) { return v === "10"; }).length,
+                    golds: newEnds.flat().filter(function (v) { return v === "9"; }).length,
+                    hits: newEnds.flat().filter(function (v) { return v !== "M"; }).length
+                });
+
+                setViewingRound(changed);
+                return changed;
+            });
+
+            try {
                 localStorage.setItem("archery_history", JSON.stringify(updated));
-                        }
+            }
             catch (_a) { }
 
-            setViewingRound(function (prev) {
-                if (!prev || prev.id !== historyId)
-                    return prev;
-                var updatedEnds = prev.ends.map(function (e, i) {
-                    return i === endIndex
-                        ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); })
-                        : e;
-                });
-                var updatedScore = updatedEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
-                return __assign(__assign({}, prev), {
-                    ends: updatedEnds,
-                    score: updatedScore,
-                    xs: updatedEnds.flat().filter(function (v) { return v === "X"; }).length,
-                    tens: updatedEnds.flat().filter(function (v) { return v === "10"; }).length,
-                    golds: updatedEnds.flat().filter(function (v) { return v === "9"; }).length,
-                    hits: updatedEnds.flat().filter(function (v) { return v !== "M"; }).length
-                });
-            });
-        }
-        else {
-            // Edit in live scoring
-            setEnds(function (prev) { return prev.map(function (e, i) { return i === endIndex
-                ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); })
-                : e; }); });
-        }
-        setEditingEnd(null);
+            return updated;
+        });
     }
+    else {
+        setEnds(function (prev) {
+            return prev.map(function (e, i) {
+                return i === endIndex
+                    ? __spreadArray([], newArrows, true).sort(function (a, b) {
+                        return arrowToScore(b) - arrowToScore(a);
+                    })
+                    : e;
+            });
+        });
+    }
+
+    setEditingEnd(null);
+}
     function submitEnd() {
         if (currentEnd.length !== round.arrowsPerEnd)
             return;
