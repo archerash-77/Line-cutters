@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -986,59 +985,36 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
         setShowFinish(false);
     }
     function saveEditedEnd(endIndex, newArrows, historyId) {
-    if (historyId) {
-        var sorted = __spreadArray([], newArrows, true).sort(function (a, b) {
-            return arrowToScore(b) - arrowToScore(a);
-        });
-
-        setHistory(function (prev) {
-            var updated = prev.map(function (h) {
+        if (historyId) {
+            // Edit in history
+            setHistory(function (prev) { return prev.map(function (h) {
                 if (h.id !== historyId)
                     return h;
-
-                var newEnds = h.ends.map(function (e, i) {
-                    return i === endIndex ? sorted : e;
-                });
-
-                var newScore = newEnds.flat().reduce(function (s, v) {
-                    return s + arrowToScore(v);
-                }, 0);
-
-                var changed = __assign(__assign({}, h), {
-                    ends: newEnds,
-                    score: newScore,
-                    xs: newEnds.flat().filter(function (v) { return v === "X"; }).length,
-                    tens: newEnds.flat().filter(function (v) { return v === "10"; }).length,
-                    golds: newEnds.flat().filter(function (v) { return v === "9"; }).length,
-                    hits: newEnds.flat().filter(function (v) { return v !== "M"; }).length
-                });
-
-                setViewingRound(changed);
-                return changed;
-            });
-
+                var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
+                var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
+                return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds });
+            }); });
+            // Also persist
             try {
+                var updated = history.map(function (h) {
+                    if (h.id !== historyId)
+                        return h;
+                    var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
+                    var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
+                    return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds, hits: newEnds ? newEnds.flat().filter(function (v) { return v !== "M"; }).length : h.hits });
+                });
                 localStorage.setItem("archery_history", JSON.stringify(updated));
             }
             catch (_a) { }
-
-            return updated;
-        });
+        }
+        else {
+            // Edit in live scoring
+            setEnds(function (prev) { return prev.map(function (e, i) { return i === endIndex
+                ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); })
+                : e; }); });
+        }
+        setEditingEnd(null);
     }
-    else {
-        setEnds(function (prev) {
-            return prev.map(function (e, i) {
-                return i === endIndex
-                    ? __spreadArray([], newArrows, true).sort(function (a, b) {
-                        return arrowToScore(b) - arrowToScore(a);
-                    })
-                    : e;
-            });
-        });
-    }
-
-    setEditingEnd(null);
-}
     function submitEnd() {
         if (currentEnd.length !== round.arrowsPerEnd)
             return;
@@ -1345,8 +1321,8 @@ saveHistory(newHistory);
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#f5d800", lineHeight: 1 } }, value),
                         sub && React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", marginTop: 3 } }, sub)));
                 })),
-                React.createElement("div", { style: { position: "fixed", bottom: 0, left: 0, right: 0, background: "#0f1117", borderTop: "1px solid #252830", padding: inputMode === "target" ? "0 20px" : "10px 20px", zIndex: 80, maxWidth: 480, margin: "0 auto" } },
-React.createElement("div", { style: { marginBottom: inputMode === "target" ? 0 : 10, display: inputMode === "target" ? "none" : "block" } },
+                React.createElement("div", { style: { position: "fixed", bottom: 0, left: 0, right: 0, background: "#0f1117", borderTop: "1px solid #252830", padding: "10px 20px", zIndex: 80, maxWidth: 480, margin: "0 auto" } },
+React.createElement("div", { style: { marginBottom: 10, display: inputMode === "target" ? "none" : "block" } },
                     React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5, marginBottom: 7 } },
                         "CURRENT END \u2014 ",
                         currentEnd.length,
@@ -1364,7 +1340,7 @@ React.createElement("div", { style: { marginBottom: inputMode === "target" ? 0 :
                                 transition: "background 0.12s",
                             } }, v || ""));
                     }))),
-                React.createElement("div", { style: { display: inputMode === "target" ? "none" : "flex", gap: 6, marginBottom: inputMode === "target" ? 0 : 10 } }, [["buttons", "NUMBERS"], ["target", "TARGET FACE"]].map(function (_a) {
+                React.createElement("div", { style: { display: inputMode === "target" ? "none" : "flex", gap: 6, marginBottom: 10 } }, [["buttons", "NUMBERS"], ["target", "TARGET FACE"]].map(function (_a) {
                     var mode = _a[0], label = _a[1];
                     return (React.createElement("button", { key: mode, onClick: function () { return setInputMode(mode); }, style: { flex: 1, padding: "8px", border: "none", borderRadius: 8, cursor: "pointer",
                             fontFamily: "'Roboto',sans-serif", fontSize: 15,
@@ -1384,8 +1360,9 @@ React.createElement("div", { style: { marginBottom: inputMode === "target" ? 0 :
                                     setShowFinish(false);
                                 } });
                        }, style: { flex: 2, height: 48, background: "#1a1d25", color: "#e05555", fontSize: 15, letterSpacing: 1 } }, "ABANDON ROUND")),
-inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
-React.createElement(React.Fragment, null)),  showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
+React.createElement(React.Fragment, null)),
+                inputMode === "target" && (React.createElement(TargetFace, { isImperial: isImperial, isWorcester: isWorcester, disabled: currentEnd.length >= round.arrowsPerEnd, onScore: addArrow, onHit: function (hit) { return setHitPositions(function (prev) { return __spreadArray(__spreadArray([], prev, true), [hit], false); }); }, onUndo: function () { return setHitPositions(function (prev) { return prev.slice(0, -1); }); }, arrows: currentEnd })),
+                showSightModal && sightModalDist && (React.createElement("div", { style: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200, padding: 20 } },
                     React.createElement("div", { style: { background: "#0d2015", border: "2px solid #2a6a3a", borderRadius: 16, padding: 28, width: "100%", maxWidth: 360 } },
                         React.createElement("div", { style: { fontSize: 15, color: "#4caf70", letterSpacing: 2, marginBottom: 6 } }, "DISTANCE CHANGE"),
                         React.createElement("div", { style: { fontFamily: "'Bebas Neue',sans-serif", fontSize: 32, color: "#e8e8e0", letterSpacing: 3, marginBottom: 20 } },
@@ -1424,7 +1401,7 @@ React.createElement(React.Fragment, null)),  showSightModal && sightModalDist &&
                     React.createElement("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 } },
 React.createElement("div", { style: { fontSize: 15, color: "#e8e8e0", letterSpacing: 1.5 } }, "SCORECARD"),
 inputMode === "target" && React.createElement("button", { onClick: function() { setInputMode("buttons"); }, style: { background: "#1a1d25", border: "none", borderRadius: 8, padding: "8px 16px", color: "#f5d800", fontFamily: "'Roboto',sans-serif", fontSize: 15, fontWeight: 500, cursor: "pointer" } }, "NUMBERS")),
-                    React.createElement("div", { ref: scorecardRef, style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden", maxHeight: inputMode === "target" ? "90px" : "160px", overflowY: "auto" } }, (function () {
+                    React.createElement("div", { ref: scorecardRef, style: { background: "#1a1d25", borderRadius: 10, overflow: "hidden", maxHeight: "160px", overflowY: "auto" } }, (function () {
 
                         var rows = [];
                         if (distances) {
