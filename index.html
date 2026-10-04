@@ -985,36 +985,37 @@ useEffect(function() { if (scorecardRef.current) { scorecardRef.current.scrollTo
         setShowFinish(false);
     }
     function saveEditedEnd(endIndex, newArrows, historyId) {
-        if (historyId) {
-            // Edit in history
-            setHistory(function (prev) { return prev.map(function (h) {
-                if (h.id !== historyId)
-                    return h;
-                var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
-                var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
-                return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds });
-            }); });
-            // Also persist
-            try {
-                var updated = history.map(function (h) {
-                    if (h.id !== historyId)
-                        return h;
-                    var newEnds = h.ends ? h.ends.map(function (e, i) { return i === endIndex ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); }) : e; }) : h.ends;
-                    var newScore = newEnds ? newEnds.flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0) : h.score;
-                    return __assign(__assign({}, h), { ends: newEnds, score: newScore, xs: newEnds ? newEnds.flat().filter(function (v) { return v === "X"; }).length : h.xs, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, tens: newEnds ? newEnds.flat().filter(function (v) { return v === "10"; }).length : h.tens, golds: newEnds ? newEnds.flat().filter(function (v) { return v === "9"; }).length : h.golds, hits: newEnds ? newEnds.flat().filter(function (v) { return v !== "M"; }).length : h.hits });
-                });
-                localStorage.setItem("archery_history", JSON.stringify(updated));
-            }
-            catch (_a) { }
-        }
-        else {
-            // Edit in live scoring
-            setEnds(function (prev) { return prev.map(function (e, i) { return i === endIndex
-                ? __spreadArray([], newArrows, true).sort(function (a, b) { return arrowToScore(b) - arrowToScore(a); })
-                : e; }); });
-        }
-        setEditingEnd(null);
+    var sortDesc = function (a, b) { return arrowToScore(b) - arrowToScore(a); };
+    if (historyId) {
+        var updated = history.map(function (h) {
+            if (h.id !== historyId) return h;
+            var newEnds = h.ends.map(function (e, i) {
+                return i === endIndex ? newArrows.slice().sort(sortDesc) : e;
+            });
+            var flat = newEnds.flat();
+            return Object.assign({}, h, {
+                ends: newEnds,
+                score: flat.reduce(function (s, v) { return s + arrowToScore(v); }, 0),
+                xs: flat.filter(function (v) { return v === "X"; }).length,
+                tens: flat.filter(function (v) { return v === "10"; }).length,
+                golds: flat.filter(function (v) { return v === "9"; }).length,
+                hits: flat.filter(function (v) { return v !== "M"; }).length
+            });
+        });
+        setHistory(updated);
+        saveHistory(updated);
+        var edited = updated.find(function (h) { return h.id === historyId; });
+        if (edited) setViewingRound(edited);
+    } else {
+        setEnds(function (prev) {
+            return prev.map(function (e, i) {
+                return i === endIndex ? newArrows.slice().sort(sortDesc) : e;
+            });
+        });
     }
+    setEditingEnd(null);
+}
+
     function submitEnd() {
         if (currentEnd.length !== round.arrowsPerEnd)
             return;
