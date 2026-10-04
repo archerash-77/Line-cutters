@@ -1605,11 +1605,14 @@ inputMode === "target" && React.createElement("button", { onClick: function() { 
                                         " arrows")));
                                 var _loop_1 = function (e) {
                                     var end = h.ends[endIndex];
+                                 var idx = endIndex;
+
                                     if (!end)
                                         return "continue";
                                     var endTotal = end.reduce(function (s, v) { return s + arrowToScore(v); }, 0);
                                     var runningTotal = h.ends.slice(0, endIndex + 1).flat().reduce(function (s, v) { return s + arrowToScore(v); }, 0);
-                                    rows.push(React.createElement("div", { key: "e-".concat(endIndex), onClick: function () { return setEditingEnd({ endIndex: endIndex, arrows: __spreadArray([], end, true), source: "history", historyId: h.id }); }, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230", cursor: "pointer" } },
+                                    rows.push(React.createElement("div", { key: "e-".concat(endIndex), onClick: function () { return setEditingEnd({ endIndex: idx, arrows
+: __spreadArray([], end, true), source: "history", historyId: h.id }); }, style: { display: "flex", alignItems: "center", padding: "8px 12px", borderBottom: "1px solid #1f2230", cursor: "pointer" } },
                                         React.createElement("div", { style: { width: 30, color: "#e8e8e0", fontSize: 15 } },
                                             "E",
                                             endIndex + 1),
